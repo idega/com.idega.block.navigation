@@ -43,7 +43,7 @@ public class NavigationMenu extends Block {
   private int fontSize = 2;
   private String fontColor = "#000000";
   private String bgrColor = "#FFFFFF";
-  private String higligtFontColor = "#000000";
+  private String higligtFontColor = "#999999";
   private String higligtBgrColor = "#FFFFFF";
   private String tableBackGroundColor = null;
   private String width = null;
@@ -63,6 +63,7 @@ public class NavigationMenu extends Block {
   private int cellSpacing = 0;
   private int currentPageId = -1;
   private int parentPageId = -1;
+  private boolean addParentID = false;
 
   private boolean asTab = false;
   private boolean asButton = false;
@@ -78,7 +79,15 @@ public class NavigationMenu extends Block {
     setStyles();
     String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
     currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):-1;
-    parentPageId = rootNode;
+
+    try {
+      parentPageId = Integer.parseInt(iwc.getParameter("parent_id"));
+    }
+    catch (NumberFormatException e) {
+      parentPageId = -1;
+    }
+    if ( parentPageId == -1 && addParentID )
+      parentPageId = rootNode;
 
     PageTreeNode node = new PageTreeNode(rootNode, iwc);
     Iterator I = node.getChildren();
@@ -185,12 +194,16 @@ public class NavigationMenu extends Block {
           L.setStyle(_name);
       }
       else {
-        L.setFontColor(currentPageId != PageId?fontColor:higligtFontColor);
+        if ( PageId == currentPageId || PageId == parentPageId )
+          L.setFontColor(higligtFontColor);
+        else
+          L.setFontColor(fontColor);
         L.setFontSize(fontSize);
       }
 
     L.setPage(PageId);
-    L.addParameter("parent_id",parentPageId);
+    if ( addParentID )
+      L.addParameter("parent_id",parentPageId);
     if(asButton){
       L.setAsImageButton( asButton,true);
     }
@@ -341,6 +354,10 @@ public class NavigationMenu extends Block {
 
   public void setSpacerImage(Image spacerImage) {
     _spacer = spacerImage;
+  }
+
+  public void setAddParentID(boolean addID) {
+    addParentID = addID;
   }
 
   public Object clone() {
