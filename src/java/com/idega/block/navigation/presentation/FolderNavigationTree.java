@@ -87,7 +87,7 @@ public class FolderNavigationTree extends NavigationTree {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	} 
 
 	protected String getLocalizedName(ICTreeNode node, IWContext iwc) {
 		return node.getNodeName();
