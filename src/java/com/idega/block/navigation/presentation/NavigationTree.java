@@ -164,7 +164,7 @@ public class NavigationTree extends Block {
 				Page populatedPage = _builderService.getPage(String.valueOf(page.getNodeID()));
 				hasPermission = iwc.hasViewPermission(populatedPage);
 			}
-			catch (RemoteException re) {
+			catch (Exception re) {
 				log(re);
 			}
 			
