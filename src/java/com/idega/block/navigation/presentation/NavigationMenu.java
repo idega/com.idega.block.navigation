@@ -1,23 +1,23 @@
 package com.idega.block.navigation.presentation;
-import com.idega.presentation.Table;
-import com.idega.presentation.Image;
-import com.idega.presentation.IWContext;
-import com.idega.presentation.Block;
-import com.idega.presentation.text.Link;
-import com.idega.util.text.TextStyler;
-import com.idega.util.text.StyleConstants;
-import com.idega.builder.business.PageTreeNode;
-import com.idega.builder.business.BuilderLogic;
-import com.idega.builder.data.IBPage;
 import java.util.Iterator;
 import java.util.Vector;
-import com.idega.idegaweb.IWResourceBundle;
-import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWStyleManager;
+
+import com.idega.builder.business.PageTreeNode;
+import com.idega.builder.data.IBPage;
+import com.idega.builder.handler.HorizontalAlignmentHandler;
 import com.idega.builder.handler.HorizontalVerticalViewHandler;
 import com.idega.builder.handler.VerticalAlignmentHandler;
-import com.idega.builder.handler.HorizontalAlignmentHandler;
 import com.idega.core.builder.business.BuilderService;
+import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWResourceBundle;
+import com.idega.idegaweb.IWStyleManager;
+import com.idega.presentation.Block;
+import com.idega.presentation.IWContext;
+import com.idega.presentation.Image;
+import com.idega.presentation.Table;
+import com.idega.presentation.text.Link;
+import com.idega.util.text.StyleConstants;
+import com.idega.util.text.TextStyler;
 /**
  * Title:
  * Description:
