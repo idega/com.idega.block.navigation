@@ -62,6 +62,7 @@ public class NavigationMenu extends Block {
   private int cellPadding = 0;
   private int cellSpacing = 0;
   private int currentPageId = -1;
+  private int parentPageId = -1;
 
   private boolean asTab = false;
   private boolean asButton = false;
@@ -76,7 +77,8 @@ public class NavigationMenu extends Block {
   public void main(IWContext iwc){
     setStyles();
     String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
-    int currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):-1;
+    currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):-1;
+    parentPageId = rootNode;
 
     PageTreeNode node = new PageTreeNode(rootNode, iwc);
     Iterator I = node.getChildren();
@@ -102,7 +104,7 @@ public class NavigationMenu extends Block {
       spacer.setWidth(_widthFromIcon);
 
     if(withRootAsHome){
-      L = getLink(node.getNodeName(),node.getNodeID(),currentPageId);
+      L = getLink(node.getNodeName(),node.getNodeID());
       if(vertical && !bottom){
         if ( _iconImage != null ) {
           Image image = new Image(_iconImage.getMediaServletString());
@@ -133,7 +135,7 @@ public class NavigationMenu extends Block {
     if(I!=null){
       while(I.hasNext()){
         PageTreeNode n = (PageTreeNode) I.next();
-        L = getLink(n.getNodeName(),n.getNodeID(),currentPageId);
+        L = getLink(n.getNodeName(),n.getNodeID());
         if ( _iconImage != null ) {
           Image image = new Image(_iconImage.getMediaServletString());
           if ( _iconOverImage != null && L != null )
@@ -159,7 +161,7 @@ public class NavigationMenu extends Block {
 
     if(withRootAsHome){
       if(bottom || !left){
-        L = getLink(node.getNodeName(),node.getNodeID(),currentPageId);
+        L = getLink(node.getNodeName(),node.getNodeID());
         if ( _iconImage != null ) {
           Image image = new Image(_iconImage.getMediaServletString());
           if ( _iconOverImage != null )
@@ -174,10 +176,10 @@ public class NavigationMenu extends Block {
     add(T);
   }
 
-  private Link getLink(String text, int PageId, int currentPageId){
+  private Link getLink(String text, int PageId){
     Link L  = new Link(text);
       if(_styles){
-        if ( PageId == currentPageId )
+        if ( PageId == currentPageId || PageId == parentPageId )
           L.setStyle(_hoverName);
         else
           L.setStyle(_name);
@@ -188,6 +190,7 @@ public class NavigationMenu extends Block {
       }
 
     L.setPage(PageId);
+    L.addParameter("parent_id",parentPageId);
     if(asButton){
       L.setAsImageButton( asButton,true);
     }
