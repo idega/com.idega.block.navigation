@@ -4,7 +4,6 @@ import com.idega.presentation.Image;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Block;
 import com.idega.presentation.text.Link;
-import com.idega.presentation.text.Text;
 import com.idega.util.text.TextStyler;
 import com.idega.util.text.StyleConstants;
 import com.idega.builder.business.PageTreeNode;
@@ -120,7 +119,6 @@ public class NavigationMenu extends Block {
 		if (height != null)
 			T.setHeight(height);
 		Link L = null;
-		Text text = null;
 		spacer = Table.getTransparentCell(iwc);
 		spacer.setWidth(_widthFromIcon);
 		subNodeImage = (Image) spacer.clone();
