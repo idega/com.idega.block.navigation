@@ -65,6 +65,8 @@ public class NavigationTree extends Block {
 	private String _width = String.valueOf(150);
 	private String _backgroundColor;
 	private String _borderColor;
+	private String _selectedColor;
+	private String _currentColor;
 	
 	private Map _depthColor;
 	private Map _depthImage;
@@ -116,7 +118,7 @@ public class NavigationTree extends Block {
 		row = addToTree(iwc, _rootPage.getChildren(), table, row, depth);
 		if (_showRoot) {
 			addObject(iwc, _rootPage, table, row, depth);
-			setRowAttributes(table, row, depth);
+			setRowAttributes(table, _rootPage, row, depth);
 		}
 		
 		return table;
@@ -139,7 +141,7 @@ public class NavigationTree extends Block {
 		while (children.hasNext()) {
 			PageTreeNode page = (PageTreeNode) children.next();
 			addObject(iwc, page, table, row, depth);
-			row = setRowAttributes(table, row, depth);
+			row = setRowAttributes(table, page, row, depth);
 			
 			if (isOpen(page) && page.getChildCount() > 0) {
 				row = addToTree(iwc, page.getChildren(), table, row, depth + 1);
@@ -217,13 +219,13 @@ public class NavigationTree extends Block {
 	 * @param depth
 	 * @return
 	 */
-	private int setRowAttributes(Table table, int row, int depth) {
+	private int setRowAttributes(Table table, PageTreeNode page, int row, int depth) {
 		table.setCellpadding(1, row, _padding);
 		if (table.getColumns() == 2)
 			table.setCellpadding(2, row, _padding);
 		table.setCellpaddingLeft(1, row, getIndent(depth));
 
-		String color = getDepthColor(depth);
+		String color = getDepthColor(page, depth);
 		if (color != null)
 			table.setRowColor(row, color);
 
@@ -250,7 +252,14 @@ public class NavigationTree extends Block {
 	 * @param depth		The depth to get the background color for.
 	 * @return
 	 */
-	private String getDepthColor(int depth) {
+	private String getDepthColor(PageTreeNode page, int depth) {
+		if (!page.equals(this._rootPage)) {
+			if (isCurrent(page) && _currentColor != null)
+				return _currentColor;
+			if (isSelected(page) && _selectedColor != null)
+				return _selectedColor;
+		}
+				
 		if (_depthColor != null) {
 			String color = (String) _depthColor.get(new Integer(depth));
 			if (color != null)
@@ -306,10 +315,21 @@ public class NavigationTree extends Block {
 	 * @return
 	 */
 	private boolean isOpen(PageTreeNode page) {
+		boolean isOpen = isCurrent(page);
+		if (!isOpen)
+			return isSelected(page);
+		return false;
+	}
+	
+	private boolean isCurrent(PageTreeNode page) {
 		if (_currentPages != null && _currentPages.contains(new Integer(page.getNodeID())))
 			return true;
-		if (_selectedPages != null)
-			return _selectedPages.contains(new Integer(page.getNodeID()));
+		return false;
+	}
+	
+	private boolean isSelected(PageTreeNode page) {
+		if (_selectedPages != null && _selectedPages.contains(new Integer(page.getNodeID())))
+			return true;
 		return false;
 	}
 	
@@ -589,7 +609,7 @@ public class NavigationTree extends Block {
 	 * @return
 	 */
 	protected String getBackgroundColor() {
-		return getDepthColor(0);
+		return _backgroundColor;
 	}
 	
 	/* (non-Javadoc)
@@ -600,4 +620,19 @@ public class NavigationTree extends Block {
 			System.out.println("[NavigationTree]: "+outputString);
 	}
 
+	/**
+	 * Sets the background color for the pages that are 'current', i.e. the current page or its parent pages.
+	 * @param currentColor The currentColor to set.
+	 */
+	public void setCurrentColor(String currentColor) {
+		this._currentColor = currentColor;
+	}
+	
+	/**
+	 * Sets the background color for the pages that are 'selected', i.e. the selected page or its parent pages.
+	 * @param selectedColor The selectedColor to set.
+	 */
+	public void setSelectedColor(String selectedColor) {
+		this._selectedColor = selectedColor;
+	}
 }
