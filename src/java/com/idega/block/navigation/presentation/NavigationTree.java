@@ -75,6 +75,7 @@ public class NavigationTree extends Block {
 	private Map _depthCurrentColor;
 	private Map _depthSelectedImage;
 	private Map _depthCurrentImage;
+	private Map _depthHeight;
 
 	private Image _iconImage;
 	private Image _iconHoverImage;
@@ -274,6 +275,11 @@ public class NavigationTree extends Block {
 		String color = getDepthColor(page, depth);
 		if (color != null)
 			table.setRowColor(row, color);
+		
+		String height = getDepthHeight(depth);
+		if (height != null) {
+			table.setHeight(row, height);
+		}
 
 		table.getCellAt(1, row).setID("row" + row);
 		table.setAlignment(1, row, _textAlignment);
@@ -358,6 +364,21 @@ public class NavigationTree extends Block {
 			}
 			return null;
 		}
+	}
+	
+	/**
+	 * Gets the row height for the depth specified.
+	 * @param depth		The depth to get the row height for.
+	 * @return
+	 */
+	private String getDepthHeight(int depth) {
+		if (_depthHeight != null) {
+			String height = (String) _depthHeight.get(new Integer(depth));
+			if (height != null) {
+				return height;
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -683,6 +704,17 @@ public class NavigationTree extends Block {
 		if (_depthHoverImage == null)
 			_depthHoverImage = new HashMap();
 		_depthHoverImage.put(new Integer(depth - 1), image);
+	}
+	
+	/**
+	 * Sets the icon image to display for a specific depth level on hover.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthHeight(int depth, String height) {
+		if (_depthHeight == null)
+			_depthHeight = new HashMap();
+		_depthHoverImage.put(new Integer(depth - 1), height);
 	}
 	
 	/**
