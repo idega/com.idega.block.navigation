@@ -69,7 +69,7 @@ public class NavigationMenu extends Block {
     T.setColor(bgrColor );
 
 		Link L;
-		PageTreeNode node = new PageTreeNode(rootNode, iwc, PageTreeNode.PAGE_TREE);
+		PageTreeNode node = new PageTreeNode(rootNode, iwc);
     int row = 1,col = 1;
 		boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
 		boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
