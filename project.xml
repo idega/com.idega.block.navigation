@@ -64,6 +64,43 @@
         <eclipse.dependency>true</eclipse.dependency>
       </properties>
     </dependency>
+    <dependency>
+        <groupId>bundles</groupId>
+        <artifactId>com.idega.slide</artifactId>
+        <!--<version>1.9</version>-->
+        <version>SNAPSHOT</version>
+        <type>jar</type>
+        <url>http://www.idega.com/</url>
+        <properties><eclipse.dependency>true</eclipse.dependency></properties>
+    </dependency>
+    <dependency>
+        <groupId>bundles</groupId>
+        <artifactId>com.idega.content</artifactId>
+        <version>SNAPSHOT</version>
+        <type>jar</type>
+        <url>http://www.idega.com/</url>
+        <properties><eclipse.dependency>true</eclipse.dependency></properties>
+    </dependency>
+    <dependency>
+        <groupId>slide</groupId>
+        <artifactId>jakarta-slide-webdavlib</artifactId>
+        <version>2.1rc1</version>
+        <type>jar</type>
+        <url>http://www.slide.com/</url>
+		<properties>
+			<idegaweb.bundle.include>true</idegaweb.bundle.include>
+		</properties>
+    </dependency>  
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>2.0</version>
+      <type>jar</type>
+      <url>http://jakarta.apache.org/commons/httpclient/</url>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src/java</sourceDirectory>
