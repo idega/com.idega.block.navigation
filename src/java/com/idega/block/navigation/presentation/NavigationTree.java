@@ -68,6 +68,7 @@ public class NavigationTree extends Block {
 	private String _borderColor;
 	
 	private Map _depthColor;
+	private Map _depthHoverColor;
 	private Map _depthImage;
 	private Map _depthHoverImage;
 	private Map _depthSelectedColor;
@@ -169,6 +170,14 @@ public class NavigationTree extends Block {
 	 */
 	private void addObject(IWContext iwc, PageTreeNode page, Table table, int row, int depth) {
 		PresentationObject link = getLink(page, iwc, depth);
+		String hoverColor = getDepthHoverColor(page, depth);
+		if (hoverColor != null) {
+			link.setMarkupAttributeMultivalued("onmouseover", "getElementById('row" + row + "').style.background='" + hoverColor + "'");
+			String color = getDepthColor(page, depth);
+			if (color != null) {
+				link.setMarkupAttributeMultivalued("onmouseout", "getElementById('row" + row + "').style.background='" + color + "'");
+			}
+		}
 
 		Image curtainImage = getCurtainImage(page);
 		if (curtainImage != null) {
@@ -200,8 +209,8 @@ public class NavigationTree extends Block {
 				if (linkHoverImage != null) {
 					linkImage.setOverImage(linkHoverImage);
 					linkHoverImage.setVerticalSpacing(3);
-					link.setMarkupAttribute("onmouseover", "swapImage('" + linkImage.getName() + "','','" + linkHoverImage.getMediaURL(iwc) + "',1)");
-					link.setMarkupAttribute("onmouseout", "swapImgRestore()");
+					link.setMarkupAttributeMultivalued("onmouseover", "swapImage('" + linkImage.getName() + "','','" + linkHoverImage.getMediaURL(iwc) + "',1)");
+					link.setMarkupAttributeMultivalued("onmouseout", "swapImgRestore()");
 				}
 			}
 		}
@@ -266,6 +275,7 @@ public class NavigationTree extends Block {
 		if (color != null)
 			table.setRowColor(row, color);
 
+		table.setID("row" + row);
 		table.setAlignment(1, row, _textAlignment);
 		table.setNoWrap(1, row++);
 
@@ -324,6 +334,31 @@ public class NavigationTree extends Block {
 			return _backgroundColor;
 			
 		return null;
+	}
+	
+	/**
+	 * Gets the background color for the depth specified.  If no color is specified for the depth, the general color is 
+	 * returned. If the general color is non existing, NULL is returned.
+	 * @param depth		The depth to get the background color for.
+	 * @return
+	 */
+	private String getDepthHoverColor(PageTreeNode page, int depth) {
+		if (page.equals(this._rootPage)) {
+			return null;
+		}
+		else if (isCurrent(page)) {
+			return null;
+		}
+		else if (isSelected(page)) {
+			return null;
+		}
+		else {
+			String color = (String) _depthHoverColor.get(new Integer(depth));
+			if (color != null) {
+				return color;
+			}
+			return null;
+		}
 	}
 	
 	/**
@@ -586,6 +621,17 @@ public class NavigationTree extends Block {
 		if (_depthColor == null)
 			_depthColor = new HashMap();
 		_depthColor.put(new Integer(depth - 1), color);
+	}
+	
+	/**
+	 * Sets the background hover color for a specific depth level.
+	 * @param depth
+	 * @param color
+	 */
+	public void setDepthHoverColor(int depth, String color) {
+		if (_depthHoverColor == null)
+			_depthHoverColor = new HashMap();
+		_depthHoverColor.put(new Integer(depth - 1), color);
 	}
 	
 	/**
