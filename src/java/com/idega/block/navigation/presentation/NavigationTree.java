@@ -228,7 +228,9 @@ public class NavigationTree extends Block {
 
 		Image curtainImage = getCurtainImage(depth, isOpen(page));
 		if (curtainImage != null && page.getChildCount() > 0) {
-			table.add(curtainImage, 2, row);
+			Link imageLink = new Link(curtainImage);
+			addParameterToLink(imageLink, page);
+			table.add(imageLink, 2, row);
 		}
 		else if (_blankImage != null) {
 			table.add(_blankImage, 2, row);
