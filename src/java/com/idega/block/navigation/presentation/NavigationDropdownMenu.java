@@ -86,8 +86,8 @@ public class NavigationDropdownMenu extends Block {
 		int column = 1;
 		f.add(table);
 		
-		f.getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource(name, formName));
-		table.add(dropDown, column, 1);
+		f.getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
+		table.add(dropDown, column++, 1);
 		
 		if (spaceBetween > 0) {
 			table.setWidth(column++, spaceBetween);
@@ -96,14 +96,14 @@ public class NavigationDropdownMenu extends Block {
 		if (useSubmitButton) {
 			if (useGeneratedButton) {
 				Link btn = new Link(iwrb.getLocalizedImageButton("go", "Go!"));
-				btn.setURL("javascript:" + getScriptCaller(formName));
-				btn.setOnClick("javascript:" + getScriptCaller(formName));
+				btn.setURL("javascript:" + getScriptCaller(name));
+				btn.setOnClick("javascript:" + getScriptCaller(name));
 				table.add(btn, column, 1);
 			}
 			else if (setButtonAsLink) {
 				Link btn = new Link(iwrb.getLocalizedString("go", "Go!"));
-				btn.setURL("javascript:" + getScriptCaller(formName));
-				btn.setOnClick("javascript:" + getScriptCaller(formName));
+				btn.setURL("javascript:" + getScriptCaller(name));
+				btn.setOnClick("javascript:" + getScriptCaller(name));
 				if (iLinkStyleClass != null) {
 					btn.setStyleClass(iLinkStyleClass);
 				}
@@ -111,7 +111,7 @@ public class NavigationDropdownMenu extends Block {
 			}
 			else {
 				GenericButton btn = new GenericButton("go", iwrb.getLocalizedString("go", "Go!"));
-				btn.setOnClick("javascript:" + getScriptCaller(formName));
+				btn.setOnClick("javascript:" + getScriptCaller(name));
 				if (iButtonStyleClass != null) {
 					btn.setStyleClass(iButtonStyleClass);
 				}
@@ -120,22 +120,20 @@ public class NavigationDropdownMenu extends Block {
 		}
 		else {
 			dropDown.addMenuElementFirst("", "");
-			dropDown.setOnChange(getScriptCaller(formName));
+			dropDown.setOnChange(getScriptCaller(name));
 		}
 
 	}
 
-	public String getScriptCaller(String formName) {
-		return "navHandler(this)";
+	public String getScriptCaller(String dropDownName) {
+		return "navHandler(findObj('" + dropDownName + "'))";
 	}
 
-	public String getScriptSource(String dropDownName, String formName) {
+	public String getScriptSource() {
 		StringBuffer s = new StringBuffer();
-		s.append("\n function navHandler(myForm){");
-		s.append("\n\t var URL = findObj('").append(dropDownName);
-		s.append("').options[findObj('").append(dropDownName);
-		s.append("').selectedIndex].value;");
-		s.append("\n\t if (URL.length > 0) window.location.href = URL;");
+		s.append("\n function navHandler(input){");
+		s.append("\n\t var URL = input.options[input.selectedIndex].value;");
+		s.append("\n\t window.location.href = URL;");
 		s.append("\n }");
 		return s.toString();
 	}
