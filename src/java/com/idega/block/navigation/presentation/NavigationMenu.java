@@ -226,9 +226,7 @@ public class NavigationMenu extends Block {
       if ( fontHoverColor != null )
 	styler.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,fontHoverColor);
 
-      getParentPage().setStyleDefinition("A."+_name+":link",fontStyle);
-      getParentPage().setStyleDefinition("A."+_name+":visited",fontStyle);
-      getParentPage().setStyleDefinition("A."+_name+":active",fontStyle);
+      getParentPage().setStyleDefinition("A."+_name,fontStyle);
       getParentPage().setStyleDefinition("A."+_name+":hover",styler.getStyleString());
 
       TextStyler styler2 = new TextStyler(fontStyle);
@@ -236,9 +234,7 @@ public class NavigationMenu extends Block {
 	styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,higligtFontColor);
       String style = styler2.getStyleString();
 
-      getParentPage().setStyleDefinition("A."+_hoverName+":link",style);
-      getParentPage().setStyleDefinition("A."+_hoverName+":visited",style);
-      getParentPage().setStyleDefinition("A."+_hoverName+":active",style);
+      getParentPage().setStyleDefinition("A."+_hoverName,style);
 
       if ( fontHoverUnderline )
 	styler2.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION,StyleConstants.TEXT_DECORATION_UNDERLINE);
