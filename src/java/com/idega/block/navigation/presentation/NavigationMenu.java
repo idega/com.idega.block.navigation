@@ -92,8 +92,21 @@ public class NavigationMenu extends Block {
 		catch (NumberFormatException e) {
 			parentPageId = -1;
 		}
-		if (parentPageId == -1 && _addParentID)
-			parentPageId = rootNode;
+		
+		if (parentPageId == -1 && _addParentID) {
+			try {
+				parentPageId = ((Integer) iwc.getSessionAttribute("parent_id")).intValue();
+			}
+			catch (Exception e) {
+				parentPageId = -1;
+				parentPageId = rootNode;
+			}
+		}
+		
+		if (parentPageId != -1) {
+			iwc.setSessionAttribute("parent_id", new Integer(parentPageId));
+		}
+		
 		PageTreeNode node = new PageTreeNode(rootNode, iwc);
 		boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
 		boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
