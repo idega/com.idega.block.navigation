@@ -76,6 +76,7 @@ public class NavigationTree extends Block {
 	private Map _depthSelectedImage;
 	private Map _depthCurrentImage;
 	private Map _depthHeight;
+	private Map _depthPaddingTop;
 
 	private Image _iconImage;
 	private Image _iconHoverImage;
@@ -280,6 +281,12 @@ public class NavigationTree extends Block {
 		if (height != null) {
 			table.setHeight(row, height);
 		}
+		
+		int topPadding = getDepthPaddingTop(depth);
+		if (topPadding != -1) {
+			table.setVerticalAlignment(1, row, Table.VERTICAL_ALIGN_TOP);
+			table.setCellpaddingTop(1, row, topPadding);
+		}
 
 		table.getCellAt(1, row).setID("row" + row);
 		table.setAlignment(1, row, _textAlignment);
@@ -379,6 +386,21 @@ public class NavigationTree extends Block {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Gets the top padding for the depth specified.
+	 * @param depth		The depth to get the top padding for.
+	 * @return
+	 */
+	private int getDepthPaddingTop(int depth) {
+		if (_depthPaddingTop != null) {
+			Integer padding = (Integer) _depthPaddingTop.get(new Integer(depth));
+			if (padding != null) {
+				return padding.intValue();
+			}
+		}
+		return -1;
 	}
 	
 	/**
@@ -715,6 +737,17 @@ public class NavigationTree extends Block {
 		if (_depthHeight == null)
 			_depthHeight = new HashMap();
 		_depthHeight.put(new Integer(depth - 1), height);
+	}
+	
+	/**
+	 * Sets the icon image to display for a specific depth level on hover.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthPaddingTop(int depth, int padding) {
+		if (_depthPaddingTop == null)
+			_depthPaddingTop = new HashMap();
+		_depthPaddingTop.put(new Integer(depth - 1), new Integer(padding));
 	}
 	
 	/**
