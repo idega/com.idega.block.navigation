@@ -1,4 +1,3 @@
-#Fri Oct 24 12:54:49 CEST 2003
 body=
 go=Forts\u00E4tt
 iw.component.com.idega.block.login.presentation.WelcomeMessage.name=
@@ -11,3 +10,4 @@ user_home_link.text=
 welcome_message.afternoon=
 welcome_message.evening=
 welcome_message.morning=
+wrong_confirm=

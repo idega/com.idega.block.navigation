@@ -1,3 +1,13 @@
-#Tue Aug 13 20:01:04 CEST 2002
-iw.component.com.idega.block.navigation.presentation.NavigationMenu.name=St\u00FDrival
+body=
 go=Go\!
+iw.component.com.idega.block.login.presentation.WelcomeMessage.name=
+iw.component.com.idega.block.navigation.presentation.NavigationDropdownMenu.name=
+iw.component.com.idega.block.navigation.presentation.NavigationMenu.name=St\u00FDrival
+iw.component.com.idega.block.navigation.presentation.NavigationTree.name=
+iw.component.com.idega.block.navigation.presentation.UserHomeLink.name=
+use_image=
+user_home_link.text=
+welcome_message.afternoon=
+welcome_message.evening=
+welcome_message.morning=
+wrong_confirm=
