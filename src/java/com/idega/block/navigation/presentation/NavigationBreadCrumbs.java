@@ -82,6 +82,9 @@ public class NavigationBreadCrumbs extends Block {
 			}
 			
 			page = (PageTreeNode) page.getParentNode();
+			if (page == null) {
+				showPage = false;
+			}
 		}
 		
 		Collections.reverse(pages);
@@ -94,7 +97,7 @@ public class NavigationBreadCrumbs extends Block {
 		Iterator iter = pages.iterator();
 		while (iter.hasNext()) {
 			PresentationObject object = (PresentationObject) iter.next();
-			table.add(object, column++, 1);
+			table.add(object, column, 1);
 
 			if (column == 1) {
 				table.setCellpaddingRight(column++, 1, iPadding);
