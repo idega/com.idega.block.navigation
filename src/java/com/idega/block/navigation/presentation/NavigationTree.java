@@ -19,6 +19,7 @@ import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
+import com.idega.presentation.Page;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
@@ -155,11 +156,23 @@ public class NavigationTree extends Block {
 	private int addToTree(IWContext iwc, Iterator children, Table table, int row, int depth) {
 		while (children.hasNext()) {
 			PageTreeNode page = (PageTreeNode) children.next();
-			addObject(iwc, page, table, row, depth);
-			row = setRowAttributes(table, page, row, depth, !children.hasNext());
+
+			boolean hasPermission = true;
+			try {
+				Page populatedPage = _builderService.getPage(String.valueOf(page.getNodeID()));
+				hasPermission = iwc.hasViewPermission(populatedPage);
+			}
+			catch (RemoteException re) {
+				log(re);
+			}
 			
-			if (isOpen(page) && page.getChildCount() > 0) {
-				row = addToTree(iwc, page.getChildrenIterator(), table, row, depth + 1);
+			if (hasPermission) {
+				addObject(iwc, page, table, row, depth);
+				row = setRowAttributes(table, page, row, depth, !children.hasNext());
+				
+				if (isOpen(page) && page.getChildCount() > 0) {
+					row = addToTree(iwc, page.getChildrenIterator(), table, row, depth + 1);
+				}
 			}
 		}
 		
