@@ -78,6 +78,7 @@ public class NavigationTree extends Block {
 	private Map _depthHeight;
 	private Map _depthPaddingTop;
 	private Map _depthSpacingColor;
+	private Map _depthAlignment;
 
 	private Image _iconImage;
 	private Image _iconHoverImage;
@@ -268,10 +269,15 @@ public class NavigationTree extends Block {
 		if (table.getColumns() == 2)
 			table.setCellpadding(2, row, _padding);
 		
-		if (_textAlignment.equals(Table.HORIZONTAL_ALIGN_LEFT)) {
+		String alignment = getDepthAlignment(depth);
+		if (alignment == null) {
+			alignment = _textAlignment;
+		}
+		
+		if (alignment.equals(Table.HORIZONTAL_ALIGN_LEFT)) {
 			table.setCellpaddingLeft(1, row, getIndent(depth));
 		}
-		else if (_textAlignment.equals(Table.HORIZONTAL_ALIGN_RIGHT)) {
+		else if (alignment.equals(Table.HORIZONTAL_ALIGN_RIGHT)) {
 			table.setCellpaddingRight(1, row, getIndent(depth));
 		}
 
@@ -291,7 +297,7 @@ public class NavigationTree extends Block {
 		}
 
 		table.getCellAt(1, row).setID("row" + row);
-		table.setAlignment(1, row, _textAlignment);
+		table.setAlignment(1, row, alignment);
 		table.setNoWrap(1, row++);
 
 		if (_spaceBetween > 0) {
@@ -411,6 +417,21 @@ public class NavigationTree extends Block {
 			String color = (String) _depthSpacingColor.get(new Integer(depth));
 			if (color != null) {
 				return color;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the alignment for the depth specified.
+	 * @param depth		The depth to get the row height for.
+	 * @return
+	 */
+	private String getDepthAlignment(int depth) {
+		if (_depthAlignment != null) {
+			String alignment = (String) _depthAlignment.get(new Integer(depth));
+			if (alignment != null) {
+				return alignment;
 			}
 		}
 		return null;
@@ -993,6 +1014,17 @@ public class NavigationTree extends Block {
 		if (_depthSelectedColor == null)
 			_depthSelectedColor = new HashMap();
 		_depthSelectedColor.put(new Integer(depth - 1), color);
+	}
+	
+	/**
+	 * Sets the alignment for a specific depth level.
+	 * @param depth
+	 * @param alignment
+	 */
+	public void setDepthAlignment(int depth, String alignment) {
+		if (_depthAlignment == null)
+			_depthAlignment = new HashMap();
+		_depthAlignment.put(new Integer(depth - 1), alignment);
 	}
 	
 	public void setAlignment(String alignment) {
