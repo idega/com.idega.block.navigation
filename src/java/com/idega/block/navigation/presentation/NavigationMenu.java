@@ -76,6 +76,7 @@ public class NavigationMenu extends Block {
 
   private int cellPadding = 0;
   private int cellSpacing = 0;
+  private int _spaceBetween = 0;
   private int currentPageId = -1;
   private int parentPageId = -1;
   private boolean _addParentID = false;
@@ -162,21 +163,23 @@ public class NavigationMenu extends Block {
 	T.add(spacer,col,row);
 	if(!vertical)
 	  col++;
+	else
+	  T.mergeCells(col,row,col+1,row);
       }
 
       if ( !vertical )
 	T.add(L,col++,row);
       else {
 	T.add(L,col,row++);
-        if ( _showAllSubPages ) {
-          if (  n.getNodeID() != rootNode )
-            row = addSubLinks(iwc,T,col,row,L,n);
-        }
-        else {
-          if ( _showSubPages && (n.getNodeID() == currentPageId || n.getNodeID() == parentPageId) && n.getNodeID() != rootNode ) {
-            row = addSubLinks(iwc,T,col,row,L,n);
-          }
-        }
+	if ( _showAllSubPages ) {
+	  if (  n.getNodeID() != rootNode )
+	    row = addSubLinks(iwc,T,col,row,L,n);
+	}
+	else {
+	  if ( _showSubPages && (n.getNodeID() == currentPageId || n.getNodeID() == parentPageId) && n.getNodeID() != rootNode ) {
+	    row = addSubLinks(iwc,T,col,row,L,n);
+	  }
+	}
       }
 
       if ( _spacer != null && iterator.hasNext() ) {
@@ -184,6 +187,10 @@ public class NavigationMenu extends Block {
 	  T.add(_spacer,col++,row);
 	else
 	  T.add(_spacer,col,row++);
+      }
+
+      if ( _spaceBetween > 0 && vertical ) {
+	T.setHeight(col,row,String.valueOf(_spaceBetween));
       }
     }
 
@@ -196,15 +203,15 @@ public class NavigationMenu extends Block {
       PageTreeNode subNode = (PageTreeNode) i.next();
       link = getLink(subNode.getNodeName(),subNode.getNodeID(),node.getNodeID(),true,true);
       if ( _subWidthFromParent > 0 )
-        table.add(subNodeImage,column,row);
+	table.add(subNodeImage,column,row);
       if ( _subIconImage != null ) {
-        Image image = new Image(_subIconImage.getMediaURL(iwc));
-        if ( _subIconOverImage != null )
-          link.setOnMouseOverImage(image,_subIconOverImage);
-        table.add(image,column,row);
-        table.add(spacer,column,row);
+	Image image = new Image(_subIconImage.getMediaURL(iwc));
+	if ( _subIconOverImage != null )
+	  link.setOnMouseOverImage(image,_subIconOverImage);
+	table.add(image,column+1,row);
+	table.add(spacer,column,row);
       }
-      table.add(link,column,row++);
+      table.add(link,column+1,row++);
     }
     return row;
   }
@@ -213,17 +220,17 @@ public class NavigationMenu extends Block {
     Link L  = new Link(text);
       if(_styles){
 	if ( isSubPage && _subStyles ) {
-          if ( PageId == currentPageId )
-            L.setStyle(_subHoverName);
-          else
-            L.setStyle(_subName);
-        }
-        else {
-          if ( PageId == currentPageId )
-            L.setStyle(_hoverName);
-          else
-            L.setStyle(_name);
-        }
+	  if ( PageId == currentPageId )
+	    L.setStyle(_subHoverName);
+	  else
+	    L.setStyle(_subName);
+	}
+	else {
+	  if ( PageId == currentPageId )
+	    L.setStyle(_hoverName);
+	  else
+	    L.setStyle(_name);
+	}
       }
       else {
 	if ( PageId == currentPageId )
@@ -406,6 +413,10 @@ public class NavigationMenu extends Block {
 
   public void setSpacing(int spacing) {
     cellSpacing = spacing;
+  }
+
+  public void setSpaceBetween(int spaceBetween) {
+    _spaceBetween = spaceBetween;
   }
 
   public void setHomeHorizontalAlignment(String align){
