@@ -28,6 +28,8 @@ public class UserHomeLink extends Block {
 
 	private String _linkStyleClass;
 	private String _linkStyle;
+	private String _selectedLinkStyleClass;
+	private String _selectedLinkStyle;
 	private String _loggedOffStyle;
 
 	private boolean _showNotLoggedOn = false;
@@ -46,6 +48,7 @@ public class UserHomeLink extends Block {
 		table.setCellpadding(0);
 		table.setCellspacing(0);
 		int column = 1;
+		int pageID = this.getParentPageID();
 		
 		if(newUser!=null){
 			try{
@@ -54,10 +57,18 @@ public class UserHomeLink extends Block {
 					Link link = new Link();
 					link.setPage(homePageID);
 					link.setText(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
-					if (_linkStyleClass != null)
-						link.setStyleClass(_linkStyleClass);
-					else if (_linkStyle != null)
-						link.setStyleAttribute(_linkStyle);
+					if (homePageID == pageID) {
+						if (_selectedLinkStyleClass != null)
+							link.setStyleClass(_selectedLinkStyleClass);
+						else if (_selectedLinkStyle != null)
+							link.setStyleAttribute(_selectedLinkStyle);
+					}
+					else {
+						if (_linkStyleClass != null)
+							link.setStyleClass(_linkStyleClass);
+						else if (_linkStyle != null)
+							link.setStyleAttribute(_linkStyle);
+					}
 					
 					if (_iconImage != null) {
 						table.add(_iconImage,column++,1);
@@ -123,4 +134,20 @@ public class UserHomeLink extends Block {
 	public void setSpaceBetweenIconAndLink(int spaceBetween) {
 		_spaceBetween = spaceBetween;	
 	}
+	/**
+	 * Sets the selectedLinkStyleClass.
+	 * @param selectedLinkStyleClass The selectedLinkStyleClass to set
+	 */
+	public void setSelectedLinkStyleClass(String selectedLinkStyleClass) {
+		_selectedLinkStyleClass = selectedLinkStyleClass;
+	}
+
+	/**
+	 * Sets the selectedLinkStyle.
+	 * @param selectedLinkStyle The selectedLinkStyle to set
+	 */
+	public void setSelectedLinkStyle(String selectedLinkStyle) {
+		_selectedLinkStyle = selectedLinkStyle;
+	}
+
 }
