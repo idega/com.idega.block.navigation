@@ -354,6 +354,12 @@ public class NavigationTree extends Block {
 		}
 		
 		Image depthSpacingImage = getDepthSpacingImage(depth);
+		if (isLastChild && depth != 0) {
+			depthSpacingImage = getDepthSpacingImage(depth - 1);
+		}
+		else {
+			depthSpacingImage = getDepthSpacingImage(depth);
+		}
 		if (depthSpacingImage != null) {
 			table.mergeCells(1, row, table.getColumns(), row);
 			table.add(depthSpacingImage, 1, row);
