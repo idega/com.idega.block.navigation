@@ -149,6 +149,8 @@ public class NavigationMenu extends Block {
     subNodeImage = (Image) spacer.clone();
       subNodeImage.setWidth(_subWidthFromParent);
       subNodeImage.setHeight(2);
+    Image spaceBetween = (Image) spacer.clone();
+      spaceBetween.setHeight(_spaceBetween);
 
     Iterator iterator = nodeVector.iterator();
     while (iterator.hasNext()) {
@@ -189,7 +191,7 @@ public class NavigationMenu extends Block {
       }
 
       if ( _spaceBetween > 0 && vertical ) {
-	T.setHeight(col,row,String.valueOf(_spaceBetween));
+	T.add(spaceBetween,col,row++);
       }
     }
 
