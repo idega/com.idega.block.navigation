@@ -172,14 +172,6 @@ public class NavigationTree extends Block {
 	 */
 	private void addObject(IWContext iwc, PageTreeNode page, Table table, int row, int depth) {
 		PresentationObject link = getLink(page, iwc, depth);
-		String hoverColor = getDepthHoverColor(page, depth);
-		if (hoverColor != null) {
-			link.setMarkupAttributeMultivalued("onmouseover", "getElementById('row" + row + "').style.background='" + hoverColor + "'");
-			String color = getDepthColor(page, depth);
-			if (color != null) {
-				link.setMarkupAttributeMultivalued("onmouseout", "getElementById('row" + row + "').style.background='" + color + "'");
-			}
-		}
 
 		Image curtainImage = getCurtainImage(page);
 		if (curtainImage != null) {
@@ -217,6 +209,15 @@ public class NavigationTree extends Block {
 			}
 		}
 		
+		String hoverColor = getDepthHoverColor(page, depth);
+		if (hoverColor != null) {
+			link.setMarkupAttributeMultivalued("onmouseover", "getElementById('row" + row + "').style.background='" + hoverColor + "'");
+			String color = getDepthColor(page, depth);
+			if (color != null) {
+				link.setMarkupAttributeMultivalued("onmouseout", "getElementById('row" + row + "').style.background='" + color + "'");
+			}
+		}
+
 		table.add(link, 1, row);
 	}
 	
