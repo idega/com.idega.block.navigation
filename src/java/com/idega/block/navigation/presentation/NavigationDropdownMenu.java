@@ -89,8 +89,8 @@ public class NavigationDropdownMenu extends Block{
  	public String getScriptSource(String dropDownName,String formName){
  		StringBuffer s = new StringBuffer();
  		s.append("\n function navHandler(myForm){");
- 		s.append("\n\t var URL = document.getElementById('").append(dropDownName);
- 		s.append( "').options[document.getElementById('").append(dropDownName);
+ 		s.append("\n\t var URL = findObj('").append(dropDownName);
+ 		s.append( "').options[findObj('").append(dropDownName);
  		s.append( "').selectedIndex].value;");
  		s.append("\n\t window.location.href = URL;");
  		s.append("\n }");
