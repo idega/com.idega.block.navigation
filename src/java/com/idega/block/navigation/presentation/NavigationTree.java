@@ -79,6 +79,8 @@ public class NavigationTree extends Block {
 	private Map _depthPaddingTop;
 	private Map _depthSpacingColor;
 	private Map _depthAlignment;
+	private Map _depthOpenImage;
+	private Map _depthClosedImage;
 
 	private Image _iconImage;
 	private Image _iconHoverImage;
@@ -86,6 +88,7 @@ public class NavigationTree extends Block {
 	private Image _iconCurrentImage;
 	private Image _openImage;
 	private Image _closedImage;
+	private Image _blankImage;
 
 	/* (non-Javadoc)
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
@@ -175,9 +178,12 @@ public class NavigationTree extends Block {
 	private void addObject(IWContext iwc, PageTreeNode page, Table table, int row, int depth) {
 		PresentationObject link = getLink(page, iwc, depth);
 
-		Image curtainImage = getCurtainImage(page);
-		if (curtainImage != null) {
+		Image curtainImage = getCurtainImage(depth, isOpen(page));
+		if (curtainImage != null && page.getChildCount() > 0) {
 			table.add(curtainImage, 2, row);	
+		}
+		else if (_blankImage != null) {
+			table.add(_blankImage, 2, row);
 		}
 		
 		boolean isSelected = isSelected(page);
@@ -257,6 +263,21 @@ public class NavigationTree extends Block {
 		return _closedImage;
 	}
 	
+	private Image getCurtainImage(int depth, boolean isOpen) {
+		if (isOpen) {
+			if (_depthOpenImage != null) {
+				return (Image) _depthOpenImage.get(new Integer(depth));
+			}
+			return _openImage;
+		}
+		else {
+			if (_depthClosedImage != null) {
+				return (Image) _depthClosedImage.get(new Integer(depth));
+			}
+			return _closedImage;
+		}
+	}
+	
 	/**
 	 * Sets the attributes for the specified row and depth.
 	 * @param table
@@ -267,7 +288,7 @@ public class NavigationTree extends Block {
 	private int setRowAttributes(Table table, PageTreeNode page, int row, int depth, boolean isLastChild) {
 		table.setCellpadding(1, row, _padding);
 		if (table.getColumns() == 2)
-			table.setCellpadding(2, row, _padding);
+			table.setVerticalAlignment(2, row, Table.VERTICAL_ALIGN_BOTTOM);
 		
 		String alignment = getDepthAlignment(depth);
 		if (alignment == null) {
@@ -939,13 +960,43 @@ public class NavigationTree extends Block {
 	}
 
 	/**
+	 * Sets the closed image to display for a specific depth level.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthClosedImage(int depth, Image image) {
+		if (_depthClosedImage == null)
+			_depthClosedImage = new HashMap();
+		_depthClosedImage.put(new Integer(depth - 1), image);
+	}
+	
+	/**
 	 * Sets the open <code>Image</code> to display in the tree.
 	 * @param openImage
 	 */
 	public void setOpenImage(Image openImage) {
 		_openImage = openImage;
 	}
-
+	
+	/**
+	 * Sets the open image to display for a specific depth level.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthOpenImage(int depth, Image image) {
+		if (_depthOpenImage == null)
+			_depthOpenImage = new HashMap();
+		_depthOpenImage.put(new Integer(depth - 1), image);
+	}
+	
+	/**
+	 * Sets the blank <code>Image</code> to display in the tree when page has no children.
+	 * @param blankImage
+	 */
+	public void setBlankImage(Image blankImage) {
+		_blankImage = blankImage;
+	}
+	
 	/**
 	 * Sets to debug actions.
 	 * @param debug
