@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.1 2005/02/22 18:02:17 tryggvil Exp $
+ * $Id: NavigationList.java,v 1.2 2005/03/01 23:22:25 tryggvil Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -44,10 +44,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/02/22 18:02:17 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/03/01 23:22:25 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class NavigationList extends Block {
 
@@ -157,8 +157,10 @@ public class NavigationList extends Block {
 
 			boolean hasPermission = true;
 			try {
-				Page populatedPage = getBuilderService(iwc).getPage(String.valueOf(page.getNodeID()));
-				hasPermission = iwc.hasViewPermission(populatedPage);
+				String pageKey = String.valueOf(page.getNodeID());
+				//Page populatedPage = getBuilderService(iwc).getPage(pageKey);
+				//hasPermission = iwc.hasViewPermission(populatedPage);
+				hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(pageKey,iwc);
 			}
 			catch (Exception re) {
 				log(re);
