@@ -275,7 +275,7 @@ public class NavigationTree extends Block {
 		if (color != null)
 			table.setRowColor(row, color);
 
-		table.setID("row" + row);
+		table.getCellAt(1, row).setID("row" + row);
 		table.setAlignment(1, row, _textAlignment);
 		table.setNoWrap(1, row++);
 
