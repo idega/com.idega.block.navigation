@@ -53,7 +53,8 @@ public class NavigationTree extends Block {
 	private boolean _autoCreateHoverStyles = false;
 	private boolean _showBorder = false;
 	private boolean _debug = false;
-
+	private boolean _markOnlyCurrentPage = false;
+	
 	private int _rootPageID = -1;
 	private int _initialIndent = 0;
 	private int _indent = 12;
@@ -368,27 +369,43 @@ public class NavigationTree extends Block {
 	 */
 	private String getDepthColor(PageTreeNode page, int depth) {
 		if (!page.equals(this._rootPage)) {
-			if (isCurrent(page)) {
-				if (_depthCurrentColor != null) {
-					String color = (String) _depthCurrentColor.get(new Integer(depth));
-					if (color != null) {
-						return color;
-					}
-					else {
-						return (String) _depthCurrentColor.get(new Integer(0));
+			if (_markOnlyCurrentPage) {
+				if (page.getNodeID() == _currentPageID) {
+					if (_depthCurrentColor != null) {
+						String color = (String) _depthCurrentColor.get(new Integer(depth));
+						if (color != null) {
+							return color;
+						}
+						else {
+							return (String) _depthCurrentColor.get(new Integer(0));
+						}
 					}
 				}
 			}
-			if (isSelected(page))
-				if (_depthSelectedColor != null) {
-					String color = (String) _depthSelectedColor.get(new Integer(depth));
-					if (color != null) {
-						return color;
-					}
-					else {
-						return (String) _depthSelectedColor.get(new Integer(0));
+			else {
+				if (isCurrent(page)) {
+					if (_depthCurrentColor != null) {
+						String color = (String) _depthCurrentColor.get(new Integer(depth));
+						if (color != null) {
+							return color;
+						}
+						else {
+							return (String) _depthCurrentColor.get(new Integer(0));
+						}
 					}
 				}
+				if (isSelected(page)) {
+					if (_depthSelectedColor != null) {
+						String color = (String) _depthSelectedColor.get(new Integer(depth));
+						if (color != null) {
+							return color;
+						}
+						else {
+							return (String) _depthSelectedColor.get(new Integer(0));
+						}
+					}
+				}
+			}
 		}
 				
 		if (_depthColor != null) {
@@ -1093,5 +1110,12 @@ public class NavigationTree extends Block {
 	
 	public void setAlignment(String alignment) {
 		_textAlignment = alignment;
+	}
+	
+	/**
+	 * @param onlyCurrentPage The _markOnlyCurrentPage to set.
+	 */
+	public void setToMarkOnlyCurrentPage(boolean onlyCurrentPage) {
+		_markOnlyCurrentPage = onlyCurrentPage;
 	}
 }
