@@ -131,7 +131,7 @@ public class NavigationMenu extends Block {
 		Iterator iterator = nodeVector.iterator();
 		while (iterator.hasNext()) {
 			PageTreeNode n = (PageTreeNode) iterator.next();
-			L = getLink(n.getNodeName(), n.getNodeID(), rootNode, _addParentID, false);
+			L = getLink(n.getLocalizedNodeName(iwc), n.getNodeID(), rootNode, _addParentID, false);
 			if (_iconImage != null) {
 				Image image = new Image(_iconImage.getMediaURL(iwc));
 				if (_iconOverImage != null)
@@ -178,7 +178,7 @@ public class NavigationMenu extends Block {
 		Iterator i = node.getChildren();
 		while (i.hasNext()) {
 			PageTreeNode subNode = (PageTreeNode) i.next();
-			link = getLink(subNode.getNodeName(), subNode.getNodeID(), node.getNodeID(), true, true);
+			link = getLink(subNode.getLocalizedNodeName(iwc), subNode.getNodeID(), node.getNodeID(), true, true);
 			if (_subWidthFromParent > 0) {
 				subTable.add(subNodeImage, 1, subRow);
 			}

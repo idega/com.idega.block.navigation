@@ -55,7 +55,7 @@ public class NavigationDropdownMenu extends Block{
 	    	PageTreeNode n = (PageTreeNode) iter.next();
 	    	int id = n.getNodeID();
 	    	String url = BuilderLogic.getInstance().getIBPageURL(iwc,id);
-	    	dropDown.addMenuElement(url,n.getNodeName());
+	    	dropDown.addMenuElement(url,n.getLocalizedNodeName(iwc));
       		
 	    }
 	    Form f = new Form();
