@@ -29,7 +29,7 @@ import com.idega.presentation.text.Text;
  */
 public class NavigationTree extends Block {
 
-	private final static String PARAMETER_SELECTED_PAGE = "nt_sel_page";
+	private final static String PARAMETER_SELECTED_PAGE = "nt_selected_page";
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 
 	private String textStyleName = "text";
@@ -71,6 +71,7 @@ public class NavigationTree extends Block {
 	private Image _iconImage;
 	private Image _openImage;
 	private Image _closedImage;
+	private boolean _debug = false;
 
 	/* (non-Javadoc)
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
@@ -305,14 +306,11 @@ public class NavigationTree extends Block {
 	 * @return
 	 */
 	private boolean isOpen(PageTreeNode page) {
-		boolean isOpen = false;
-		
-		if (_currentPages != null)
-			isOpen = _currentPages.contains(new Integer(page.getNodeID()));
-		if (_selectedPages != null && !isOpen)
-			isOpen = _selectedPages.contains(new Integer(page.getNodeID()));
-			
-		return isOpen;
+		if (_currentPages != null && _currentPages.contains(new Integer(page.getNodeID())))
+			return true;
+		if (_selectedPages != null)
+			return _selectedPages.contains(new Integer(page.getNodeID()));
+		return false;
 	}
 	
 	/**
@@ -344,11 +342,13 @@ public class NavigationTree extends Block {
 		}
 		
 		if (iwc.isParameterSet(PARAMETER_SELECTED_PAGE)) {
+			debug("Selected page parameter is set.");
 			try {
 				_selectedPages = new ArrayList();
 				
 				ICTreeNode selectedParent = _builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
 				while (selectedParent.getNodeID() != _rootPageID) {
+					debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
 					_selectedPages.add(new Integer(selectedParent.getNodeID()));
 					selectedParent = selectedParent.getParentNode();
 				}
@@ -357,8 +357,10 @@ public class NavigationTree extends Block {
 				re.printStackTrace();
 			}
 		}
+		else
+			debug("No selected page parameter in request.");
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see com.idega.presentation.PresentationObject#getBundleIdentifier()
 	 */
@@ -579,4 +581,12 @@ public class NavigationTree extends Block {
 	protected String getBackgroundColor() {
 		return getDepthColor(0);
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.idega.presentation.PresentationObject#debug(java.lang.String)
+	 */
+	public void debug(String outputString) {
+		super.debug("NavigationTree: "+outputString);
+	}
+
 }
