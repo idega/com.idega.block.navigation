@@ -342,7 +342,7 @@ public class NavigationTree extends Block {
 			if (isLastChild && depth != 0) {
 				spacingColor = getDepthSpacingColor(depth - 1);
 			}
-			else if (!isOpen(page)){
+			else {
 				spacingColor = getDepthSpacingColor(depth);
 			}
 			if (spacingColor != null) {
