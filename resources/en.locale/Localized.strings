@@ -1,7 +1,8 @@
-#Wed Aug 27 17:46:34 CEST 2003
+#Fri Oct 24 09:44:56 CEST 2003
 go=Go\!
 iw.component.com.idega.block.navigation.presentation.NavigationDropdownMenu.name=NavigationDropdownMenu
 iw.component.com.idega.block.navigation.presentation.NavigationMenu.name=Navigation Menu
+iw.component.com.idega.block.navigation.presentation.NavigationTree.name=NavigationTree
 iw.component.com.idega.block.navigation.presentation.UserHomeLink.name=UserHomeLink
 user_home_link.text=My page
 welcome_message.afternoon=Good afternoon
