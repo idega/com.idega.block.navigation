@@ -51,6 +51,7 @@ public class NavigationTree extends Block {
 	private boolean _useDifferentStyles = false;
 	private boolean _autoCreateHoverStyles = false;
 	private boolean _showBorder = false;
+	private boolean _debug = false;
 
 	private int _rootPageID = -1;
 	private int _initialIndent = 0;
@@ -71,7 +72,6 @@ public class NavigationTree extends Block {
 	private Image _iconImage;
 	private Image _openImage;
 	private Image _closedImage;
-	private boolean _debug = true;
 
 	/* (non-Javadoc)
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
@@ -334,7 +334,7 @@ public class NavigationTree extends Block {
 						_currentPages.add(new Integer(parent.getNodeID()));
 						parent = parent.getParentNode();
 						if (parent == null)
-							return;
+							break;
 					}
 				}
 			}
