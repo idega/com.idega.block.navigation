@@ -105,21 +105,19 @@ public class NavigationMenu extends Block {
   }
 
   private Link getLink(String text, int PageId){
-		Link L  = new Link();
-    L.setText(text);
+    Text T = new Text(text);
+      T.setFontColor(fontColor);
+      T.setFontSize(fontSize);
+			if(! "".equals(fontStyle)){
+			  T.setFontStyle(fontStyle);
+			}
+		Link L  = new Link(T);
     L.setPage(PageId);
     if(asButton){
       L.setAsImageButton( asButton);
     }
     else if(asTab){
       L.setAsImageTab(asTab,asFlipped );
-    }
-    else{
-      L.setFontColor(fontColor);
-      L.setFontSize(fontSize);
-			if(! "".equals(fontStyle)){
-			  L.setFontStyle(fontStyle);
-			}
     }
     return L;
   }
