@@ -46,12 +46,12 @@ public class NavigationMenu extends Block {
     if(I!=null){
       while(I.hasNext()){
         PageTreeNode n = (PageTreeNode) I.next();
+        L = new Link(n.getNodeName(),BuilderLogic.getIBPageURL(n.getNodeID()));
+        T.add(L,col,row);
         switch (viewType) {
           case VERTICAL:  row++;        break;
           case HORIZONTAL: col++;       break;
         }
-        L = new Link(n.getNodeName(),BuilderLogic.getIBPageURL(n.getNodeID()));
-        T.add(L,col,row);
       }
     }
     L = new Link(node.getNodeName(),BuilderLogic.getIBPageURL(node.getNodeID()));
