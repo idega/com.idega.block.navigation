@@ -122,7 +122,7 @@ public class NavigationMenu extends Block {
 			nodeVector.add(node);
 			withRootAsHome = false;
 		}
-		Iterator iter = node.getChildren();
+		Iterator iter = node.getChildrenIterator();
 		while (iter.hasNext())
 			nodeVector.add((PageTreeNode) iter.next());
 		if (withRootAsHome && (bottom || !left))
@@ -208,7 +208,7 @@ public class NavigationMenu extends Block {
 		subTable.setCellspacing(0);
 		int subRow = 1;
 		
-		Iterator i = node.getChildren();
+		Iterator i = node.getChildrenIterator();
 		while (i.hasNext()) {
 			PageTreeNode subNode = (PageTreeNode) i.next();
 			link = getLink(subNode.getLocalizedNodeName(iwc), subNode.getNodeID(), node.getNodeID(), true, true);

@@ -55,7 +55,7 @@ public class NavigationDropdownMenu extends Block{
 	    DropdownMenu dropDown = new DropdownMenu(name);
 	    
 	    PageTreeNode node = new PageTreeNode(rootNode, iwc);
-	    Iterator iter = node.getChildren();
+	    Iterator iter = node.getChildrenIterator();
 	    while (iter.hasNext()){
 	    	PageTreeNode n = (PageTreeNode) iter.next();
 	    	int id = n.getNodeID();

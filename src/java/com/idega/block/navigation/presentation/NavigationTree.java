@@ -126,7 +126,7 @@ public class NavigationTree extends Block {
 		int depth = 0;
 		
 		row = addHeaderObject(table, row);
-		row = addToTree(iwc, _rootPage.getChildren(), table, row, depth);
+		row = addToTree(iwc, _rootPage.getChildrenIterator(), table, row, depth);
 		if (_showRoot) {
 			addObject(iwc, _rootPage, table, row, depth);
 			setRowAttributes(table, _rootPage, row, depth, false);
@@ -155,7 +155,7 @@ public class NavigationTree extends Block {
 			row = setRowAttributes(table, page, row, depth, !children.hasNext());
 			
 			if (isOpen(page) && page.getChildCount() > 0) {
-				row = addToTree(iwc, page.getChildren(), table, row, depth + 1);
+				row = addToTree(iwc, page.getChildrenIterator(), table, row, depth + 1);
 			}
 		}
 		
