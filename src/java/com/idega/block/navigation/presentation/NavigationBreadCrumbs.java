@@ -41,6 +41,8 @@ public class NavigationBreadCrumbs extends Block {
 	private BuilderService iBuilderService;
 	private PageTreeNode iCurrentNode;
 	
+	boolean iIgnoreCategoryPages = false;
+	
 	/* (non-Javadoc)
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
 	 */
@@ -60,7 +62,7 @@ public class NavigationBreadCrumbs extends Block {
 			if (page.getNodeID() == ((Integer) iRoot.getPrimaryKey()).intValue()) {
 				showPage = false;
 			}
-			if (page.getNodeID() == ((Integer) iCurrentPage.getPrimaryKey()).intValue()) {
+			if (page.getNodeID() == ((Integer) iCurrentPage.getPrimaryKey()).intValue() || (iIgnoreCategoryPages && page.isCategory())) {
 				Text pageText = new Text(page.getLocalizedNodeName(iwc));
 				if (iTextStyleName != null) {
 					pageText.setStyleClass(iTextStyleName);
@@ -77,7 +79,7 @@ public class NavigationBreadCrumbs extends Block {
 			}
 			level++;
 			
-			if (level > iLevels) {
+			if (iLevels != -1 && level > iLevels) {
 				showPage = false;
 			}
 			
@@ -178,5 +180,12 @@ public class NavigationBreadCrumbs extends Block {
 	 */
 	public void setTextStyleName(String textStyleName) {
 		this.iTextStyleName = textStyleName;
+	}
+	
+	/**
+	 * @param ignoreCategoryPages The ignoreCategoryPages to set.
+	 */
+	protected void setIgnoreCategoryPages(boolean ignoreCategoryPages) {
+		this.iIgnoreCategoryPages = ignoreCategoryPages;
 	}
 }
