@@ -163,13 +163,12 @@ public class NavigationMenu extends Block {
 	T.add(spacer,col,row);
 	if(!vertical)
 	  col++;
-	else
-	  T.mergeCells(col,row,col+1,row);
       }
 
       if ( !vertical )
 	T.add(L,col++,row);
       else {
+	T.mergeCells(col,row,col+1,row);
 	T.add(L,col,row++);
 	if ( _showAllSubPages ) {
 	  if (  n.getNodeID() != rootNode )
