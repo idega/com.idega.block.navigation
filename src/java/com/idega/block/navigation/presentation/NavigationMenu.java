@@ -137,7 +137,8 @@ public class NavigationMenu extends Block {
       PageTreeNode n = (PageTreeNode) iterator.next();
       L = getLink(n.getNodeName(),n.getNodeID(),rootNode,_addParentID);
       if ( _iconImage != null ) {
-	Image image = new Image(_iconImage.getMediaServletString());
+
+	Image image = new Image(_iconImage.getMediaURL(iwc));
 	if ( _iconOverImage != null )
 	  L.setOnMouseOverImage(image,_iconOverImage);
 	T.add(image,col,row);
@@ -157,7 +158,7 @@ public class NavigationMenu extends Block {
 	    L = getLink(subNode.getNodeName(),subNode.getNodeID(),subNode.getParentNode().getNodeID(),true);
 	    T.add(subNodeImage,col,row);
 	    if ( _iconImage != null ) {
-	      Image image = new Image(_iconImage.getMediaServletString());
+	      Image image = new Image(_iconImage.getMediaURL(iwc));
 	      if ( _iconOverImage != null )
 		L.setOnMouseOverImage(image,_iconOverImage);
 	      T.add(image,col,row);
