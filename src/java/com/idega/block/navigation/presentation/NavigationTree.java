@@ -862,7 +862,7 @@ protected void parse(IWContext iwc) {
 						_selectedPages = new ArrayList();
 						
 						ICTreeNode selectedParent = _builderService.getPageTree(homePageID);
-						while (selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
+						while (selectedParent != null && selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 							debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
 							_selectedPages.add(new Integer(selectedParent.getNodeID()));
 							selectedParent = selectedParent.getParentNode();
