@@ -95,6 +95,7 @@ public class UserHomeLink extends Block {
 					text.setFontStyle(_loggedOffStyle);
 
 				if (_loggedOffIconImage != null) {
+					addTable = true;
 					table.add(_loggedOffIconImage,column++,1);
 					if (_spaceBetween > 0)
 						table.setWidth(column++, 1, String.valueOf(_spaceBetween));
