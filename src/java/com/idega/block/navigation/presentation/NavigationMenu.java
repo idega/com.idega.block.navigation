@@ -43,6 +43,7 @@ public class NavigationMenu extends Block {
   private String width = null;
   private String height = null;
 	private String fontStyle = "";
+  private int cellPadding = 0;
 
   private boolean asTab = false;
   private boolean asButton = false;
@@ -57,7 +58,7 @@ public class NavigationMenu extends Block {
 
   public void main(IWContext iwc){
     Table T = new Table();
-    T.setCellpadding(0);
+    T.setCellpadding(cellPadding);
     T.setCellspacing(0);
     if(width != null){
       T.setWidth(width);
@@ -104,8 +105,6 @@ public class NavigationMenu extends Block {
   }
 
   private Link getLink(String text, int PageId){
-
-
 		Link L  = new Link();
     L.setText(text);
     L.setPage(PageId);
@@ -121,8 +120,6 @@ public class NavigationMenu extends Block {
 			if(! "".equals(fontStyle)){
 			  L.setFontStyle(fontStyle);
 			}
-
-
     }
     return L;
   }
@@ -176,6 +173,10 @@ public class NavigationMenu extends Block {
 	public void setUseRootAsHome(boolean useRootAsHome){
 		withRootAsHome = useRootAsHome;
 	}
+
+  public void setPadding(int padding) {
+    cellPadding = padding;
+  }
 
 	public void setHomeHorizontalAlignment(String align){
 	  if(align.equals(HorizontalAlignmentHandler.LEFT)||align.equals(HorizontalAlignmentHandler.RIGHT))
