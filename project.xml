@@ -84,7 +84,7 @@
     <dependency>
         <groupId>slide</groupId>
         <artifactId>jakarta-slide-webdavlib</artifactId>
-        <version>2.2pre2</version>
+        <version>2.2pre1.iwbuild3</version>
         <type>jar</type>
         <url>http://www.slide.com/</url>
 		<properties>
