@@ -42,6 +42,7 @@ public class NavigationMenu extends Block {
   private String bgrColor = "#FFFFFF";
   private String width = null;
   private String height = null;
+	private String fontStyle = "";
 
   private boolean asTab = false;
   private boolean asButton = false;
@@ -103,10 +104,9 @@ public class NavigationMenu extends Block {
   }
 
   private Link getLink(String text, int PageId){
-    Text t = new Text(text);
-    t.setFontColor(fontColor);
-    t.setFontSize(fontSize);
-    Link L = new Link();
+
+
+		Link L  = new Link();
     L.setText(text);
     L.setPage(PageId);
     if(asButton){
@@ -118,6 +118,11 @@ public class NavigationMenu extends Block {
     else{
       L.setFontColor(fontColor);
       L.setFontSize(fontSize);
+			if(! "".equals(fontStyle)){
+			  L.setFontStyle(fontStyle);
+			}
+
+
     }
     return L;
   }
@@ -150,6 +155,10 @@ public class NavigationMenu extends Block {
 
   public void setFontSize(int size){
     fontSize = size;
+  }
+
+	public void setFontStyle(String style){
+    fontStyle = style;
   }
 
   public void setBackgroundColor(String color){
