@@ -80,6 +80,7 @@ public class NavigationTree extends Block {
 	private Map _depthHeight;
 	private Map _depthPaddingTop;
 	private Map _depthSpacingColor;
+	private Map _depthSpacingImage;
 	private Map _depthAlignment;
 	private Map _depthOpenImage;
 	private Map _depthClosedImage;
@@ -335,6 +336,7 @@ public class NavigationTree extends Block {
 		table.setAlignment(1, row, alignment);
 		table.setNoWrap(1, row++);
 
+		boolean addBreak = false;
 		if (_spaceBetween > 0) {
 			String spacingColor = null;
 			if (isLastChild && depth != 0) {
@@ -346,7 +348,20 @@ public class NavigationTree extends Block {
 			if (spacingColor != null) {
 				table.setRowColor(row, spacingColor);
 			}
-			table.setHeight(row++, _spaceBetween);
+			table.setHeight(row, _spaceBetween);
+			
+			addBreak = true;
+		}
+		
+		Image depthSpacingImage = getDepthSpacingImage(depth - 1);
+		if (depthSpacingImage != null) {
+			table.mergeCells(1, row, table.getColumns(), row);
+			table.add(depthSpacingImage, 1, row);
+			addBreak = true;
+		}
+		
+		if (addBreak) {
+			row++;
 		}
 
 		return row;
@@ -468,6 +483,21 @@ public class NavigationTree extends Block {
 			String color = (String) _depthSpacingColor.get(new Integer(depth));
 			if (color != null) {
 				return color;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the spacing image for the depth specified.
+	 * @param depth		The depth to get the row height for.
+	 * @return
+	 */
+	private Image getDepthSpacingImage(int depth) {
+		if (_depthSpacingImage != null) {
+			Image image = (Image) _depthSpacingImage.get(new Integer(depth));
+			if (image != null) {
+				return image;
 			}
 		}
 		return null;
@@ -840,7 +870,7 @@ public class NavigationTree extends Block {
 	}
 	
 	/**
-	 * Sets the spacing color to display for a specific depth level on hover.
+	 * Sets the spacing color to display for a specific depth level.
 	 * @param depth
 	 * @param image
 	 */
@@ -848,6 +878,17 @@ public class NavigationTree extends Block {
 		if (_depthSpacingColor == null)
 			_depthSpacingColor = new HashMap();
 		_depthSpacingColor.put(new Integer(depth - 1), color);
+	}
+	
+	/**
+	 * Sets the spacing image to display for a specific depth level.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthSpacingImage(int depth, Image image) {
+		if (_depthSpacingImage == null)
+			_depthSpacingImage = new HashMap();
+		_depthSpacingImage.put(new Integer(depth - 1), image);
 	}
 	
 	/**
