@@ -11,6 +11,9 @@ import com.idega.builder.data.IBPage;
 import java.util.Iterator;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWBundle;
+import com.idega.builder.handler.HorizontalVerticalViewHandler;
+import com.idega.builder.handler.VerticalAlignmentHandler;
+import com.idega.builder.handler.HorizontalAlignmentHandler;
 
 
 /**
@@ -24,7 +27,9 @@ import com.idega.idegaweb.IWBundle;
 
 public class NavigationMenu extends Block {
 
-  private final static int VERTICAL = 1,HORIZONTAL = 2;
+  private final static int VERTICAL = HorizontalVerticalViewHandler.VERTICAL,
+				HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
+
   private int viewType = 1;
   private int rootNode = 1;
 
@@ -41,6 +46,9 @@ public class NavigationMenu extends Block {
   private boolean asTab = false;
   private boolean asButton = false;
   private boolean asFlipped = false;
+	private boolean withRootAsHome = true;
+	private String HomeVerticalAlignment = VerticalAlignmentHandler.BOTTOM;
+	private String HomeHorizontalAlignment = HorizontalAlignmentHandler.RIGHT;
 
   public NavigationMenu() {
 
@@ -58,11 +66,21 @@ public class NavigationMenu extends Block {
     }
     T.setColor(bgrColor );
 
+		Link L;
+		PageTreeNode node = new PageTreeNode(rootNode, iwc, PageTreeNode.PAGE_TREE);
     int row = 1,col = 1;
+		boolean bottom = false,top = false,left = false,right = false;
+		if(withRootAsHome){
+		  if(!HomeVerticalAlignment.equals(VerticalAlignmentHandler.BOTTOM) ||
+				!HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT)){
+			  L = getLink(node.getNodeName(),node.getNodeID());
+			  T.add(L,col,row);
+			}
+		}
 
-    PageTreeNode node = new PageTreeNode(rootNode, iwc, PageTreeNode.PAGE_TREE);
+
     Iterator I = node.getChildren();
-    Link L;
+
     if(I!=null){
       while(I.hasNext()){
         PageTreeNode n = (PageTreeNode) I.next();
@@ -74,8 +92,13 @@ public class NavigationMenu extends Block {
         }
       }
     }
-    L = getLink(node.getNodeName(),node.getNodeID());
-    T.add(L,col,row);
+		if(withRootAsHome){
+		  if(!HomeVerticalAlignment.equals(VerticalAlignmentHandler.BOTTOM) ||
+				!HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT)){
+			L = getLink(node.getNodeName(),node.getNodeID());
+			T.add(L,col,row);
+			}
+		}
     add(T);
   }
 
@@ -140,6 +163,20 @@ public class NavigationMenu extends Block {
   public void setHeight(String height){
     height = height;
   }
+
+	public void setUseRootAsHome(boolean useRootAsHome){
+		withRootAsHome = useRootAsHome;
+	}
+
+	public void setHomeHorizontalAlignment(String align){
+	  if(align.equals(HorizontalAlignmentHandler.LEFT)||align.equals(HorizontalAlignmentHandler.RIGHT))
+			HomeHorizontalAlignment = align;
+	}
+
+	public void setHomeVerticalAlignment(String align){
+	  if(align.equals(VerticalAlignmentHandler.BOTTOM)||align.equals(VerticalAlignmentHandler.TOP))
+			HomeVerticalAlignment = align;
+	}
 
   public void setAsButtons(boolean asButtons){
     asButton = asButtons;
