@@ -9,6 +9,7 @@ import org.apache.commons.httpclient.HttpException;
 
 import com.idega.business.IBOLookup;
 import com.idega.content.data.WebDAVBean;
+//import com.idega.content.presentation.ContentViewer;
 import com.idega.core.data.ICTreeNode;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Table;
@@ -21,39 +22,17 @@ import com.idega.slide.util.WebdavExtendedResource;
  */
 public class FolderNavigationTree extends NavigationTree {
 
-	private String rootFolder = "/files";
+	private String rootFolder = "";
 	private WebDAVBean rootNode;
+	private int thePageId = -1;
 	
-	private static final String PARAMETER_FOLDER_PATH = "fpth";
+	private static final String PARAMETER_FOLDER_PATH = "cv_prt";//For now, should be ContentViewer.PARAMETER_ROOT_FOLDER;
 	
 	protected void parse(IWContext iwc) {
-//		try {
-//			_currentPage = _builderService.getPageTree(_builderService.getCurrentPageId(iwc));
-//			_currentPageID = _currentPage.getNodeID();
-//			_currentPages = new ArrayList();
-//			_currentPages.add(new Integer(_currentPageID));
-//			debug("Current page is set.");
-//		
-//			if (_currentPageID != getRootNodeId()) {
-//				ICTreeNode parent = _currentPage.getParentNode();
-//				if (parent != null) {
-//					while (parent.getNodeID() != getRootNodeId()) {
-//						debug("Adding page with ID = " + parent.getNodeID() + " to currentMap");
-//						_currentPages.add(new Integer(parent.getNodeID()));
-//						parent = parent.getParentNode();
-//						if (parent == null)
-//							break;
-//					}
-//				}
-//			}
-//		}
-//		catch (RemoteException e) {
-//			e.printStackTrace();
-//		}
-		
 		if (iwc.isParameterSet(PARAMETER_FOLDER_PATH)) {
 			System.out.println("Selected page parameter is set.");
 			try {
+				_currentPages = new ArrayList();
 				_selectedPages = new ArrayList();
 				String url = iwc.getParameter(PARAMETER_FOLDER_PATH);
 				
@@ -62,9 +41,9 @@ public class FolderNavigationTree extends NavigationTree {
 				
 				
 				WebdavExtendedResource selectedNode = ss.getWebdavResource(url);
-				
 				WebDAVBean selectedParent = new WebDAVBean(selectedNode);
 				while (selectedParent != null && !selectedParent.getWebDavUrl().equals( getRootNodeId() )) {
+					_currentPages.add(selectedParent.getWebDavUrl());
 					_selectedPages.add(selectedParent.getWebDavUrl());
 					selectedParent = (WebDAVBean) selectedParent.getParentNode();
 				}
@@ -80,8 +59,12 @@ public class FolderNavigationTree extends NavigationTree {
 			System.out.println("No selected page parameter in request.");
 	}
 	
-	protected void addParameterToLink(Link link, ICTreeNode page) {
-		link.addParameter(PARAMETER_FOLDER_PATH, ((WebDAVBean)page).getWebDavUrl());
+	protected void addParameterToLink(Link link, ICTreeNode node) {
+		link.addParameter(PARAMETER_FOLDER_PATH, ((WebDAVBean)node).getWebDavUrl());
+		if (thePageId > 0) {
+			link.setPage(thePageId);
+		}
+		link.setPage(24);
 	}
 	
 	
@@ -96,8 +79,8 @@ public class FolderNavigationTree extends NavigationTree {
 	protected void setRootNode(IWContext iwc) throws RemoteException {
 		IWSlideSession ss = (IWSlideSession) IBOLookup.getSessionInstance(iwc, IWSlideSession.class);
 		try {
-//			WebdavExtendedResource root = ss.getWebdavResource("");
-			WebdavExtendedResource root = ss.getWebdavResource(rootFolder);
+			WebdavExtendedResource root = ss.getWebdavResource("/files/contribute-web");
+//			WebdavExtendedResource root = ss.getWebdavResource(rootFolder);
 			rootNode = new WebDAVBean(root);
 		} catch (HttpException e) {
 			e.printStackTrace();
@@ -147,5 +130,17 @@ public class FolderNavigationTree extends NavigationTree {
 			returner =  true;
 		return returner;
 	}
+	
+	protected boolean isCurrent(ICTreeNode page) {
+		boolean returner = false;
+		if (_currentPages != null && _currentPages.contains(((WebDAVBean) page).getWebDavUrl()))
+			returner = true;
+		return returner;
+	}
+
+	public void setPage(int pageId) {
+		this.thePageId = pageId;
+	}
+	
 	
 }
