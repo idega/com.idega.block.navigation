@@ -608,6 +608,28 @@ public class NavigationTree extends Block {
 	}
 	
 	/**
+	 * Sets the current icon image to display for a specific depth level.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthCurrentImage(int depth, Image image) {
+		if (_depthCurrentImage == null)
+			_depthCurrentImage = new HashMap();
+		_depthCurrentImage.put(new Integer(depth - 1), image);
+	}
+	
+	/**
+	 * Sets the selected icon image to display for a specific depth level.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthSelectedImage(int depth, Image image) {
+		if (_depthSelectedImage == null)
+			_depthSelectedImage = new HashMap();
+		_depthSelectedImage.put(new Integer(depth - 1), image);
+	}
+	
+	/**
 	 * Sets the icon image to display for a specific depth level on hover.
 	 * @param depth
 	 * @param image
