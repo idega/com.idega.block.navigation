@@ -345,10 +345,10 @@ public class NavigationMenu extends Block {
 		highlightFontColor = color;
 	}
 	public void setWidth(String width) {
-		width = width;
+		this.width = width;
 	}
 	public void setHeight(String height) {
-		height = height;
+		this.height = height;
 	}
 	public void setUseRootAsHome(boolean useRootAsHome) {
 		withRootAsHome = useRootAsHome;
