@@ -3,11 +3,11 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import com.idega.builder.business.PageTreeNode;
-import com.idega.builder.data.IBPage;
 import com.idega.builder.handler.HorizontalAlignmentHandler;
 import com.idega.builder.handler.HorizontalVerticalViewHandler;
 import com.idega.builder.handler.VerticalAlignmentHandler;
 import com.idega.core.builder.business.BuilderService;
+import com.idega.core.builder.data.ICPage;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWStyleManager;
@@ -312,7 +312,7 @@ public class NavigationMenu extends Block {
 		if (vertical)
 			viewType = VERTICAL;
 	}
-	public void setRootNode(IBPage page) {
+	public void setRootNode(ICPage page) {
 		rootNode = page.getID();
 	}
 	public void setRootNode(int rootId) {

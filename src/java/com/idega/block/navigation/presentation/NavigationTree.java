@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.idega.builder.business.PageTreeNode;
-import com.idega.builder.data.IBPage;
-import com.idega.core.ICTreeNode;
+import com.idega.core.builder.data.ICPage;
+import com.idega.core.data.ICTreeNode;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
@@ -378,7 +378,7 @@ public class NavigationTree extends Block {
 	 * is used.
 	 * @param rootPageID
 	 */
-	public void setRootPage(IBPage rootPage) {
+	public void setRootPage(ICPage rootPage) {
 		_rootPageID = ((Integer) rootPage.getPrimaryKey()).intValue();
 	}
 
