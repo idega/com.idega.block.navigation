@@ -317,16 +317,26 @@ public class NavigationTree extends Block {
 	private boolean isOpen(PageTreeNode page) {
 		boolean isOpen = isCurrent(page);
 		if (!isOpen)
-			return isSelected(page);
-		return false;
+			isOpen = isSelected(page);
+		return isOpen;
 	}
 	
+	/**
+	 * Checks to see if the specified <code>PageTreeNode</code> is the current page or one of its parent pages.
+	 * @param page	The <code>PageTreeNode</code> to check.
+	 * @return
+	 */
 	private boolean isCurrent(PageTreeNode page) {
 		if (_currentPages != null && _currentPages.contains(new Integer(page.getNodeID())))
 			return true;
 		return false;
 	}
 	
+	/**
+	 * Checks to see if the specified <code>PageTreeNode</code> is the selected page of one of its parent pages.
+	 * @param page	The <code>PageTreeNode</code> to check.
+	 * @return
+	 */
 	private boolean isSelected(PageTreeNode page) {
 		if (_selectedPages != null && _selectedPages.contains(new Integer(page.getNodeID())))
 			return true;
