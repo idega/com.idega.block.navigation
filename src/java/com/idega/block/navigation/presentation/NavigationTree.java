@@ -714,7 +714,7 @@ public class NavigationTree extends Block {
 	public void setDepthHeight(int depth, String height) {
 		if (_depthHeight == null)
 			_depthHeight = new HashMap();
-		_depthHoverImage.put(new Integer(depth - 1), height);
+		_depthHeight.put(new Integer(depth - 1), height);
 	}
 	
 	/**
