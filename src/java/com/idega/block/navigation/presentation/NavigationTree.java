@@ -815,7 +815,7 @@ protected void parse(IWContext iwc) {
 			if (_currentPageID != ((Integer) getRootNodeId()).intValue()) {
 				ICTreeNode parent = _currentPage.getParentNode();
 				if (parent != null) {
-					while (parent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
+					while (parent != null && parent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 						debug("Adding page with ID = " + parent.getNodeID() + " to currentMap");
 						_currentPages.add(new Integer(parent.getNodeID()));
 						parent = parent.getParentNode();
@@ -835,7 +835,7 @@ protected void parse(IWContext iwc) {
 				_selectedPages = new ArrayList();
 				
 				ICTreeNode selectedParent = _builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
-				while (selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
+				while (selectedParent != null && selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 					debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
 					_selectedPages.add(new Integer(selectedParent.getNodeID()));
 					selectedParent = selectedParent.getParentNode();
