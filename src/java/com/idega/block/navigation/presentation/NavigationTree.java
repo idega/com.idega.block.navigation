@@ -353,7 +353,7 @@ public class NavigationTree extends Block {
 			addBreak = true;
 		}
 		
-		Image depthSpacingImage = getDepthSpacingImage(depth - 1);
+		Image depthSpacingImage = getDepthSpacingImage(depth);
 		if (depthSpacingImage != null) {
 			table.mergeCells(1, row, table.getColumns(), row);
 			table.add(depthSpacingImage, 1, row);
