@@ -140,6 +140,8 @@ public class NavigationMenu extends Block {
           L.setOnMouseOverImage(image,_iconOverImage);
         T.add(image,col,row);
         T.add(spacer,col,row);
+        if(!vertical)
+          col++;
       }
 
       if ( !vertical )
