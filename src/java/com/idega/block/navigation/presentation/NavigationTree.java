@@ -43,10 +43,10 @@ public class NavigationTree extends Block {
 	private ICTreeNode _currentPage;
 	private int _currentPageID;
 
-	private PageTreeNode _rootPage;
+	private ICTreeNode _rootPage;
 
-	private Collection _currentPages;
-	private Collection _selectedPages;
+	protected Collection _currentPages;
+	protected Collection _selectedPages;
 	
 	private boolean _showRoot = false;
 	private boolean _useDifferentStyles = false;
@@ -101,12 +101,17 @@ public class NavigationTree extends Block {
 		_iwrb = getResourceBundle(iwc);
 		_builderService = getBuilderService(iwc);
 
-		if (_rootPageID == -1)
-			_rootPageID = _builderService.getRootPageId();
-		_rootPage = new PageTreeNode(_rootPageID, iwc);
-			
+		setRootNode(iwc);
+		
 		parse(iwc);
 		add(getTree(iwc));
+	}
+	
+	protected void setRootNode(IWContext iwc) throws RemoteException {
+		if (_rootPageID == -1) {
+			_rootPageID = _builderService.getRootPageId();
+		}
+		_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
 	
 	/**
@@ -133,10 +138,10 @@ public class NavigationTree extends Block {
 		int depth = 0;
 		
 		row = addHeaderObject(table, row);
-		row = addToTree(iwc, _rootPage.getChildrenIterator(), table, row, depth);
+		row = addToTree(iwc, getRootNode().getChildrenIterator(), table, row, depth);
 		if (_showRoot) {
-			addObject(iwc, _rootPage, table, row, depth);
-			setRowAttributes(table, _rootPage, row, depth, false);
+			addObject(iwc, getRootNode(), table, row, depth);
+			setRowAttributes(table, getRootNode(), row, depth, false);
 		}
 		
 		return table;
@@ -155,9 +160,9 @@ public class NavigationTree extends Block {
 	 * @param depth
 	 * @return
 	 */
-	private int addToTree(IWContext iwc, Iterator children, Table table, int row, int depth) {
+	protected int addToTree(IWContext iwc, Iterator children, Table table, int row, int depth) {
 		while (children.hasNext()) {
-			PageTreeNode page = (PageTreeNode) children.next();
+			ICTreeNode page = (ICTreeNode) children.next();
 
 			boolean hasPermission = true;
 			try {
@@ -190,7 +195,7 @@ public class NavigationTree extends Block {
 	 * @param row
 	 * @param depth
 	 */
-	private void addObject(IWContext iwc, PageTreeNode page, Table table, int row, int depth) {
+	protected void addObject(IWContext iwc, ICTreeNode page, Table table, int row, int depth) {
 		PresentationObject link = getLink(page, iwc, depth);
 
 		Image curtainImage = getCurtainImage(depth, isOpen(page));
@@ -251,20 +256,36 @@ public class NavigationTree extends Block {
 	 * @param depth
 	 * @return
 	 */
-	private PresentationObject getLink(PageTreeNode page, IWContext iwc, int depth) {
+	protected String getLocalizedName(ICTreeNode node, IWContext iwc) {
+		return ((PageTreeNode) node).getLocalizedNodeName(iwc);
+	}
+	
+	protected boolean getIsCategory(ICTreeNode node) {
+		return ( (PageTreeNode) node).isCategory();
+	}
+	
+	private PresentationObject getLink(ICTreeNode page, IWContext iwc, int depth) {
+		String name = getLocalizedName(page, iwc);
+		boolean isCategory = getIsCategory(page);
+
 		if (page.getNodeID() != _currentPageID) {
-			Link link = getStyleLink(page.getLocalizedNodeName(iwc), getStyleName(linkStyleName, depth));
-			if (!page.isCategory())
+			Link link = getStyleLink(name, getStyleName(linkStyleName, depth));
+			if (!isCategory)
 				link.setPage(page.getNodeID());
 			else
 				link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
 
+			addParameterToLink(link, page);
 			return link;
 		}
 		else {
-			Text text = getStyleText(page.getLocalizedNodeName(iwc), getStyleName(textStyleName, depth));
+			Text text = getStyleText(name, getStyleName(textStyleName, depth));
 			return text;
 		}
+	}
+	
+	protected void addParameterToLink(Link link, ICTreeNode page) {
+		
 	}
 	
 	/**
@@ -272,7 +293,7 @@ public class NavigationTree extends Block {
 	 * @param page
 	 * @return
 	 */
-	private Image getCurtainImage(PageTreeNode page) {
+	private Image getCurtainImage(ICTreeNode page) {
 		if (isOpen(page))
 			return _openImage;
 		return _closedImage;
@@ -300,7 +321,7 @@ public class NavigationTree extends Block {
 	 * @param depth
 	 * @return
 	 */
-	private int setRowAttributes(Table table, PageTreeNode page, int row, int depth, boolean isLastChild) {
+	protected int setRowAttributes(Table table, ICTreeNode page, int row, int depth, boolean isLastChild) {
 		table.setCellpadding(1, row, _padding);
 		if (table.getColumns() == 2)
 			table.setVerticalAlignment(2, row, Table.VERTICAL_ALIGN_BOTTOM);
@@ -388,8 +409,8 @@ public class NavigationTree extends Block {
 	 * @param depth		The depth to get the background color for.
 	 * @return
 	 */
-	private String getDepthColor(PageTreeNode page, int depth) {
-		if (!page.equals(this._rootPage)) {
+	private String getDepthColor(ICTreeNode page, int depth) {
+		if (!page.equals(this.getRootNode())) {
 			if (_markOnlyCurrentPage) {
 				if (page.getNodeID() == _currentPageID) {
 					if (_depthCurrentColor != null) {
@@ -446,7 +467,7 @@ public class NavigationTree extends Block {
 	 * @param depth		The depth to get the background color for.
 	 * @return
 	 */
-	private String getDepthHoverColor(PageTreeNode page, int depth) {
+	private String getDepthHoverColor(ICTreeNode page, int depth) {
 		if (isCurrent(page)) {
 			return null;
 		}
@@ -648,7 +669,7 @@ public class NavigationTree extends Block {
 	 * @param page	The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	private boolean isOpen(PageTreeNode page) {
+	protected boolean isOpen(ICTreeNode page) {
 		boolean isOpen = isCurrent(page);
 		if (!isOpen)
 			isOpen = isSelected(page);
@@ -660,7 +681,7 @@ public class NavigationTree extends Block {
 	 * @param page	The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	private boolean isCurrent(PageTreeNode page) {
+	private boolean isCurrent(ICTreeNode page) {
 		if (_currentPages != null && _currentPages.contains(new Integer(page.getNodeID())))
 			return true;
 		return false;
@@ -671,7 +692,7 @@ public class NavigationTree extends Block {
 	 * @param page	The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	private boolean isSelected(PageTreeNode page) {
+	protected boolean isSelected(ICTreeNode page) {
 		if (_selectedPages != null && _selectedPages.contains(new Integer(page.getNodeID())))
 			return true;
 		return false;
@@ -682,7 +703,7 @@ public class NavigationTree extends Block {
 	 * the tree with the correct branches open/closed.
 	 * @param iwc
 	 */
-	private void parse(IWContext iwc) {
+	protected void parse(IWContext iwc) {
 		try {
 			_currentPage = _builderService.getPageTree(_builderService.getCurrentPageId(iwc));
 			_currentPageID = _currentPage.getNodeID();
@@ -690,10 +711,10 @@ public class NavigationTree extends Block {
 			_currentPages.add(new Integer(_currentPageID));
 			debug("Current page is set.");
 		
-			if (_currentPageID != _rootPageID) {
+			if (_currentPageID != ((Integer) getRootNodeId()).intValue()) {
 				ICTreeNode parent = _currentPage.getParentNode();
 				if (parent != null) {
-					while (parent.getNodeID() != _rootPageID) {
+					while (parent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 						debug("Adding page with ID = " + parent.getNodeID() + " to currentMap");
 						_currentPages.add(new Integer(parent.getNodeID()));
 						parent = parent.getParentNode();
@@ -713,7 +734,7 @@ public class NavigationTree extends Block {
 				_selectedPages = new ArrayList();
 				
 				ICTreeNode selectedParent = _builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
-				while (selectedParent.getNodeID() != _rootPageID) {
+				while (selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 					debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
 					_selectedPages.add(new Integer(selectedParent.getNodeID()));
 					selectedParent = selectedParent.getParentNode();
@@ -1157,6 +1178,14 @@ public class NavigationTree extends Block {
 	
 	public void setAlignment(String alignment) {
 		_textAlignment = alignment;
+	}
+	
+	protected ICTreeNode getRootNode() {
+		return _rootPage;
+	}
+	
+	protected Object getRootNodeId() {
+		return new Integer(_rootPageID);
 	}
 	
 	/**
