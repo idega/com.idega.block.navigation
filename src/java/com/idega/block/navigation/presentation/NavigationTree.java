@@ -61,17 +61,24 @@ public class NavigationTree extends Block {
 	private int _padding = 0;
 	private int _imagePadding = 0;
 
+	private String _textAlignment = Table.HORIZONTAL_ALIGN_LEFT;
 	private String _imageAlignment = Image.ALIGNMENT_ABSOLUTE_MIDDLE;
 	private String _width = String.valueOf(150);
 	private String _backgroundColor;
 	private String _borderColor;
-	private String _selectedColor;
-	private String _currentColor;
 	
 	private Map _depthColor;
 	private Map _depthImage;
+	private Map _depthHoverImage;
+	private Map _depthSelectedColor;
+	private Map _depthCurrentColor;
+	private Map _depthSelectedImage;
+	private Map _depthCurrentImage;
 
 	private Image _iconImage;
+	private Image _iconHoverImage;
+	private Image _iconSelectedImage;
+	private Image _iconCurrentImage;
 	private Image _openImage;
 	private Image _closedImage;
 
@@ -167,12 +174,36 @@ public class NavigationTree extends Block {
 		if (curtainImage != null) {
 			table.add(curtainImage, 2, row);	
 		}
-
-		Image linkImage = getDepthImage(depth);
+		
+		boolean isSelected = isSelected(page);
+		boolean isCurrent = isCurrent(page);
+		
+		Image linkImage = null; 
+		if (isSelected) {
+			linkImage = getDepthSelectedImage(depth);
+		}
+		else if (isCurrent) {
+			linkImage = getDepthCurrentImage(depth);
+		}
+		
+		if (linkImage == null) {
+			linkImage = getDepthImage(depth);
+		}
+		
 		if (linkImage != null) {
 			if (_imagePadding > 0)
 				linkImage.setPaddingRight(_imagePadding);
 			table.add(linkImage, 1, row);
+			
+			if (!isSelected && !isCurrent) {
+				Image linkHoverImage = getDepthHoverImage(depth);
+				if (linkHoverImage != null) {
+					linkImage.setOverImage(linkHoverImage);
+					linkHoverImage.setVerticalSpacing(3);
+					link.setMarkupAttribute("onmouseover", "swapImage('" + linkImage.getName() + "','','" + linkHoverImage.getMediaURL(iwc) + "',1)");
+					link.setMarkupAttribute("onmouseout", "swapImgRestore()");
+				}
+			}
 		}
 		
 		table.add(link, 1, row);
@@ -223,12 +254,19 @@ public class NavigationTree extends Block {
 		table.setCellpadding(1, row, _padding);
 		if (table.getColumns() == 2)
 			table.setCellpadding(2, row, _padding);
-		table.setCellpaddingLeft(1, row, getIndent(depth));
+		
+		if (_textAlignment.equals(Table.HORIZONTAL_ALIGN_LEFT)) {
+			table.setCellpaddingLeft(1, row, getIndent(depth));
+		}
+		else if (_textAlignment.equals(Table.HORIZONTAL_ALIGN_RIGHT)) {
+			table.setCellpaddingRight(1, row, getIndent(depth));
+		}
 
 		String color = getDepthColor(page, depth);
 		if (color != null)
 			table.setRowColor(row, color);
 
+		table.setAlignment(1, row, _textAlignment);
 		table.setNoWrap(1, row++);
 
 		if (_spaceBetween > 0)
@@ -254,10 +292,27 @@ public class NavigationTree extends Block {
 	 */
 	private String getDepthColor(PageTreeNode page, int depth) {
 		if (!page.equals(this._rootPage)) {
-			if (isCurrent(page) && _currentColor != null)
-				return _currentColor;
-			if (isSelected(page) && _selectedColor != null)
-				return _selectedColor;
+			if (isCurrent(page)) {
+				if (_depthCurrentColor != null) {
+					String color = (String) _depthCurrentColor.get(new Integer(depth));
+					if (color != null) {
+						return color;
+					}
+					else {
+						return (String) _depthCurrentColor.get(new Integer(0));
+					}
+				}
+			}
+			if (isSelected(page))
+				if (_depthSelectedColor != null) {
+					String color = (String) _depthSelectedColor.get(new Integer(depth));
+					if (color != null) {
+						return color;
+					}
+					else {
+						return (String) _depthSelectedColor.get(new Integer(0));
+					}
+				}
 		}
 				
 		if (_depthColor != null) {
@@ -288,6 +343,72 @@ public class NavigationTree extends Block {
 		if (_iconImage != null) {
 			_iconImage.setAlignment(_imageAlignment);
 			return _iconImage;
+		}
+			
+		return null;
+	}
+	
+	/**
+	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
+	 * If the general icon image is non existing, NULL is returned.
+	 * @param depth		The depth to get the icon image for.
+	 * @return
+	 */
+	private Image getDepthHoverImage(int depth) {
+		if (_depthHoverImage != null) {
+			Image image = (Image) _depthHoverImage.get(new Integer(depth));
+			if (image != null) {
+				image.setAlignment(_imageAlignment);
+				return image;
+			}
+		}
+		if (_iconHoverImage != null) {
+			_iconHoverImage.setAlignment(_imageAlignment);
+			return _iconHoverImage;
+		}
+			
+		return null;
+	}
+	
+	/**
+	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
+	 * If the general icon image is non existing, NULL is returned.
+	 * @param depth		The depth to get the icon image for.
+	 * @return
+	 */
+	private Image getDepthSelectedImage(int depth) {
+		if (_depthSelectedImage != null) {
+			Image image = (Image) _depthSelectedImage.get(new Integer(depth));
+			if (image != null) {
+				image.setAlignment(_imageAlignment);
+				return image;
+			}
+		}
+		if (_iconSelectedImage != null) {
+			_iconSelectedImage.setAlignment(_imageAlignment);
+			return _iconSelectedImage;
+		}
+			
+		return null;
+	}
+	
+	/**
+	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
+	 * If the general icon image is non existing, NULL is returned.
+	 * @param depth		The depth to get the icon image for.
+	 * @return
+	 */
+	private Image getDepthCurrentImage(int depth) {
+		if (_depthCurrentImage != null) {
+			Image image = (Image) _depthCurrentImage.get(new Integer(depth));
+			if (image != null) {
+				image.setAlignment(_imageAlignment);
+				return image;
+			}
+		}
+		if (_iconCurrentImage != null) {
+			_iconCurrentImage.setAlignment(_imageAlignment);
+			return _iconCurrentImage;
 		}
 			
 		return null;
@@ -487,11 +608,46 @@ public class NavigationTree extends Block {
 	}
 	
 	/**
+	 * Sets the icon image to display for a specific depth level on hover.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthHoverImage(int depth, Image image) {
+		if (_depthHoverImage == null)
+			_depthHoverImage = new HashMap();
+		_depthHoverImage.put(new Integer(depth - 1), image);
+	}
+	
+	/**
 	 * Sets the icon image to display for all depth levels.
 	 * @param image
 	 */
 	public void setIconImage(Image image) {
 		_iconImage = image;
+	}
+
+	/**
+	 * Sets the hover icon image to display for all depth levels.
+	 * @param image
+	 */
+	public void setIconHoverImage(Image image) {
+		_iconHoverImage = image;
+	}
+
+	/**
+	 * Sets the current icon image to display for all depth levels.
+	 * @param image
+	 */
+	public void setIconCurrentImage(Image image) {
+		_iconCurrentImage = image;
+	}
+
+	/**
+	 * Sets the selected icon image to display for all depth levels.
+	 * @param image
+	 */
+	public void setIconSelectedImage(Image image) {
+		_iconSelectedImage = image;
 	}
 
 	/**
@@ -635,7 +791,18 @@ public class NavigationTree extends Block {
 	 * @param currentColor The currentColor to set.
 	 */
 	public void setCurrentColor(String currentColor) {
-		this._currentColor = currentColor;
+		setDepthCurrentColor(1, currentColor);
+	}
+	
+	/**
+	 * Sets the background color for a specific depth level.
+	 * @param depth
+	 * @param color
+	 */
+	public void setDepthCurrentColor(int depth, String color) {
+		if (_depthCurrentColor == null)
+			_depthCurrentColor = new HashMap();
+		_depthCurrentColor.put(new Integer(depth - 1), color);
 	}
 	
 	/**
@@ -643,6 +810,21 @@ public class NavigationTree extends Block {
 	 * @param selectedColor The selectedColor to set.
 	 */
 	public void setSelectedColor(String selectedColor) {
-		this._selectedColor = selectedColor;
+		setDepthSelectedColor(1, selectedColor);
+	}
+
+	/**
+	 * Sets the background color for a specific depth level.
+	 * @param depth
+	 * @param color
+	 */
+	public void setDepthSelectedColor(int depth, String color) {
+		if (_depthSelectedColor == null)
+			_depthSelectedColor = new HashMap();
+		_depthSelectedColor.put(new Integer(depth - 1), color);
+	}
+	
+	public void setAlignment(String alignment) {
+		_textAlignment = alignment;
 	}
 }
