@@ -93,8 +93,8 @@ public class NavigationMenu extends Block {
       }
     }
 		if(withRootAsHome){
-		  if(!HomeVerticalAlignment.equals(VerticalAlignmentHandler.BOTTOM) ||
-				!HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT)){
+		  if(!HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP) ||
+				!HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.LEFT)){
 			L = getLink(node.getNodeName(),node.getNodeID());
 			T.add(L,col,row);
 			}
