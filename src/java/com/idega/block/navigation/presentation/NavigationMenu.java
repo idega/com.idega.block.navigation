@@ -71,15 +71,21 @@ public class NavigationMenu extends Block {
 		Link L;
 		PageTreeNode node = new PageTreeNode(rootNode, iwc, PageTreeNode.PAGE_TREE);
     int row = 1,col = 1;
-		boolean bottom = false,top = false,left = false,right = false;
+		boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
+		boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
+		boolean vertical = viewType == VERTICAL;
+
 		if(withRootAsHome){
-		  if(!HomeVerticalAlignment.equals(VerticalAlignmentHandler.BOTTOM) ||
-				!HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT)){
-			  L = getLink(node.getNodeName(),node.getNodeID());
-			  T.add(L,col,row);
+			L = getLink(node.getNodeName(),node.getNodeID());
+		  if(vertical && !bottom){
+			  T.add(L,col,row++);
+				withRootAsHome = false;
+		  }
+			else if(!vertical && left){
+			  T.add(L,col++,row);
+				withRootAsHome = false;
 			}
 		}
-
 
     Iterator I = node.getChildren();
 
@@ -88,17 +94,16 @@ public class NavigationMenu extends Block {
         PageTreeNode n = (PageTreeNode) I.next();
         L = getLink(n.getNodeName(),n.getNodeID());
         T.add(L,col,row);
-        switch (viewType) {
-          case VERTICAL:  row++;        break;
-          case HORIZONTAL: col++;       break;
-        }
+        if(vertical)
+					row++;
+				else
+					col++;
       }
     }
 		if(withRootAsHome){
-		  if(!HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP) ||
-				!HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.LEFT)){
-			L = getLink(node.getNodeName(),node.getNodeID());
-			T.add(L,col,row);
+		  if(bottom || !left){
+				L = getLink(node.getNodeName(),node.getNodeID());
+				T.add(L,col,row);
 			}
 		}
     add(T);
@@ -119,6 +124,7 @@ public class NavigationMenu extends Block {
     else if(asTab){
       L.setAsImageTab(asTab,asFlipped );
     }
+		System.err.println("node nr "+PageId);
     return L;
   }
 
