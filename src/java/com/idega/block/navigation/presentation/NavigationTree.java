@@ -723,7 +723,7 @@ public class NavigationTree extends Block {
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setIconImage(com.idega.block.presentation.Image)
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setDepthImage(int,com.idega.block.presentation.Image)
 	 */
-	void setImageAlignment(String imageAlignment) {
+	public void setImageAlignment(String imageAlignment) {
 		_imageAlignment = imageAlignment;
 	}
 
@@ -733,7 +733,7 @@ public class NavigationTree extends Block {
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setIconImage(com.idega.block.presentation.Image)
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setDepthImage(int,com.idega.block.presentation.Image)
 	 */
-	void setImagePadding(int imagePadding) {
+	public void setImagePadding(int imagePadding) {
 		_imagePadding = imagePadding;
 	}
 	
