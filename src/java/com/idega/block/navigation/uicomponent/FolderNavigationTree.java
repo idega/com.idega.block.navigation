@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import org.apache.commons.httpclient.HttpException;
-
 import com.idega.block.navigation.presentation.NavigationTree;
 import com.idega.business.IBOLookup;
 import com.idega.content.data.WebDAVBean;
-//import com.idega.content.presentation.ContentViewer;
 import com.idega.core.data.ICTreeNode;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Table;
