@@ -196,7 +196,7 @@ public class NavigationBreadCrumbs extends Block {
 	/**
 	 * @param ignoreCategoryPages The ignoreCategoryPages to set.
 	 */
-	protected void setIgnoreCategoryPages(boolean ignoreCategoryPages) {
+	public void setIgnoreCategoryPages(boolean ignoreCategoryPages) {
 		this.iIgnoreCategoryPages = ignoreCategoryPages;
 	}
 }
