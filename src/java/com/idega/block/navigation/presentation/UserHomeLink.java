@@ -49,6 +49,7 @@ public class UserHomeLink extends Block {
 		table.setCellspacing(0);
 		int column = 1;
 		int pageID = this.getParentPageID();
+		boolean addTable = false;
 		
 		if(iwc.isLoggedOn()){
 			try{
@@ -72,11 +73,15 @@ public class UserHomeLink extends Block {
 					}
 					
 					if (_iconImage != null) {
+						addTable = true;
 						table.add(_iconImage,column++,1);
 						if (_spaceBetween > 0)
 							table.setWidth(column++, 1, String.valueOf(_spaceBetween));
 					}
 					table.add(link,column,1);
+					if (!addTable) {
+						add(link);
+					}
 				}
 			}
 			catch(Exception e){
@@ -95,9 +100,14 @@ public class UserHomeLink extends Block {
 						table.setWidth(column++, 1, String.valueOf(_spaceBetween));
 				}
 				table.add(text,column,1);
+				if (!addTable) {
+					add(text);
+				}
 			}	
 		}
-		add(table);
+		if (addTable) {
+			add(table);
+		}
 	}
 	
 	protected UserBusiness getUserBusiness(IWContext iwc)throws java.rmi.RemoteException{
