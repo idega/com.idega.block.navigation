@@ -1,12 +1,16 @@
 package com.idega.block.navigation.presentation;
 
-import com.idega.idegaweb.*;
-import com.idega.presentation.*;
-import com.idega.presentation.ui.*;
-import com.idega.presentation.text.*;
-import com.idega.builder.business.*;
+import java.util.Iterator;
 
-import java.util.*;
+import com.idega.builder.business.PageTreeNode;
+import com.idega.core.builder.business.BuilderService;
+import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.Block;
+import com.idega.presentation.IWContext;
+import com.idega.presentation.text.Link;
+import com.idega.presentation.ui.DropdownMenu;
+import com.idega.presentation.ui.Form;
 
 /**
  * Title:
@@ -37,15 +41,16 @@ public class NavigationDropdownMenu extends Block{
  		return prmDropdown+ getICObjectInstanceID();
  	}
  	 
- 	public void main(IWContext iwc){
+ 	public void main(IWContext iwc)throws Exception{
     	//setStyles();
+    	BuilderService bs = getBuilderService(iwc);
 		iwrb = getResourceBundle(iwc);
 	    if ( rootNode == -1 ) {
-	      rootNode = BuilderLogic.getStartPageId(iwc);
+	      rootNode = bs.getRootPageId();
 	    }
 
-	    String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
-	    currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):rootNode;
+	    //String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
+	    //currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):rootNode;
 	    String name = getDropdownParameter();
 	    DropdownMenu dropDown = new DropdownMenu(name);
 	    
@@ -54,7 +59,7 @@ public class NavigationDropdownMenu extends Block{
 	    while (iter.hasNext()){
 	    	PageTreeNode n = (PageTreeNode) iter.next();
 	    	int id = n.getNodeID();
-	    	String url = BuilderLogic.getInstance().getIBPageURL(iwc,id);
+	    	String url = bs.getPageURI(id);
 	    	dropDown.addMenuElement(url,n.getLocalizedNodeName(iwc));
       		
 	    }

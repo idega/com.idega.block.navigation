@@ -17,6 +17,7 @@ import com.idega.idegaweb.IWStyleManager;
 import com.idega.builder.handler.HorizontalVerticalViewHandler;
 import com.idega.builder.handler.VerticalAlignmentHandler;
 import com.idega.builder.handler.HorizontalAlignmentHandler;
+import com.idega.core.builder.business.BuilderService;
 /**
  * Title:
  * Description:
@@ -79,13 +80,14 @@ public class NavigationMenu extends Block {
 	public NavigationMenu() {
 		this.setSpacing(2);
 	}
-	public void main(IWContext iwc) {
+	public void main(IWContext iwc) throws Exception{
 		setStyles();
+		BuilderService bs = getBuilderService(iwc);
 		if (rootNode == -1) {
-			rootNode = BuilderLogic.getStartPageId(iwc);
+			rootNode = bs.getRootPageId();
 		}
-		String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
-		currentPageId = sCurrentPageId != null ? Integer.parseInt(sCurrentPageId) : rootNode;
+		//String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
+		//currentPageId = sCurrentPageId != null ? Integer.parseInt(sCurrentPageId) : rootNode;
 		try {
 			parentPageId = Integer.parseInt(iwc.getParameter("parent_id"));
 		}
