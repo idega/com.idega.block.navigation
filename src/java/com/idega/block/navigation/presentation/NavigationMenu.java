@@ -157,8 +157,8 @@ public class NavigationMenu extends Block {
 			if (!vertical)
 				T.add(L, col++, row);
 			else {
-				T.mergeCells(col, row, col + 1, row);
-				T.add(L, col, row++);
+				//T.mergeCells(col, row, col + 1, row);  //merging the cells causes wrong behaviour on the vertical alignment of the link
+				T.add(L, col+1, row++);					 
 				if (_showAllSubPages) {
 					if (n.getNodeID() != rootNode)
 						row = addSubLinks(iwc, T, col, row, L, n);
