@@ -77,6 +77,7 @@ public class NavigationTree extends Block {
 	private Map _depthCurrentImage;
 	private Map _depthHeight;
 	private Map _depthPaddingTop;
+	private Map _depthSpacingColor;
 
 	private Image _iconImage;
 	private Image _iconHoverImage;
@@ -128,7 +129,7 @@ public class NavigationTree extends Block {
 		row = addToTree(iwc, _rootPage.getChildren(), table, row, depth);
 		if (_showRoot) {
 			addObject(iwc, _rootPage, table, row, depth);
-			setRowAttributes(table, _rootPage, row, depth);
+			setRowAttributes(table, _rootPage, row, depth, false);
 		}
 		
 		return table;
@@ -151,7 +152,7 @@ public class NavigationTree extends Block {
 		while (children.hasNext()) {
 			PageTreeNode page = (PageTreeNode) children.next();
 			addObject(iwc, page, table, row, depth);
-			row = setRowAttributes(table, page, row, depth);
+			row = setRowAttributes(table, page, row, depth, children.hasNext());
 			
 			if (isOpen(page) && page.getChildCount() > 0) {
 				row = addToTree(iwc, page.getChildren(), table, row, depth + 1);
@@ -262,7 +263,7 @@ public class NavigationTree extends Block {
 	 * @param depth
 	 * @return
 	 */
-	private int setRowAttributes(Table table, PageTreeNode page, int row, int depth) {
+	private int setRowAttributes(Table table, PageTreeNode page, int row, int depth, boolean isLastChild) {
 		table.setCellpadding(1, row, _padding);
 		if (table.getColumns() == 2)
 			table.setCellpadding(2, row, _padding);
@@ -293,8 +294,19 @@ public class NavigationTree extends Block {
 		table.setAlignment(1, row, _textAlignment);
 		table.setNoWrap(1, row++);
 
-		if (_spaceBetween > 0)
+		if (_spaceBetween > 0) {
+			String spacingColor = null;
+			if (isLastChild && depth != 0) {
+				spacingColor = getDepthSpacingColor(depth - 1);
+			}
+			else {
+				spacingColor = getDepthSpacingColor(depth);
+			}
+			if (spacingColor != null) {
+				table.setRowColor(row, spacingColor);
+			}
 			table.setHeight(row++, _spaceBetween);
+		}
 
 		return row;
 	}
@@ -384,6 +396,21 @@ public class NavigationTree extends Block {
 			String height = (String) _depthHeight.get(new Integer(depth));
 			if (height != null) {
 				return height;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the spacing color for the depth specified.
+	 * @param depth		The depth to get the row height for.
+	 * @return
+	 */
+	private String getDepthSpacingColor(int depth) {
+		if (_depthSpacingColor != null) {
+			String color = (String) _depthSpacingColor.get(new Integer(depth));
+			if (color != null) {
+				return color;
 			}
 		}
 		return null;
@@ -738,6 +765,17 @@ public class NavigationTree extends Block {
 		if (_depthHeight == null)
 			_depthHeight = new HashMap();
 		_depthHeight.put(new Integer(depth - 1), height);
+	}
+	
+	/**
+	 * Sets the spacing color to display for a specific depth level on hover.
+	 * @param depth
+	 * @param image
+	 */
+	public void setDepthSpacingColor(int depth, String color) {
+		if (_depthSpacingColor == null)
+			_depthSpacingColor = new HashMap();
+		_depthSpacingColor.put(new Integer(depth - 1), color);
 	}
 	
 	/**
