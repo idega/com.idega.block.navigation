@@ -152,7 +152,7 @@ public class NavigationTree extends Block {
 		while (children.hasNext()) {
 			PageTreeNode page = (PageTreeNode) children.next();
 			addObject(iwc, page, table, row, depth);
-			row = setRowAttributes(table, page, row, depth, children.hasNext());
+			row = setRowAttributes(table, page, row, depth, !children.hasNext());
 			
 			if (isOpen(page) && page.getChildCount() > 0) {
 				row = addToTree(iwc, page.getChildren(), table, row, depth + 1);
