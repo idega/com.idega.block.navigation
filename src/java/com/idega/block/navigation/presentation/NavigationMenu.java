@@ -16,6 +16,7 @@ import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
+import com.idega.presentation.text.Text;
 import com.idega.util.text.StyleConstants;
 import com.idega.util.text.TextStyler;
 /**
@@ -60,6 +61,9 @@ public class NavigationMenu extends Block {
 	private Image _subIconOverImage;
 	private Image _spacer;
 	private Image spacer;
+	private String spacerText;
+	private String spacerTextStyle;
+	private int spacerTextPadding = 0;
 	private Image subNodeImage;
 	private int _widthFromIcon = 5;
 	private int _subWidthFromParent = 10;
@@ -174,6 +178,22 @@ public class NavigationMenu extends Block {
 					T.add(_spacer, col++, row);
 				else
 					T.add(_spacer, col, row++);
+			}
+			if (spacerText != null && iterator.hasNext()) {
+				Text text = new Text(spacerText);
+				if (spacerTextStyle != null) {
+					text.setFontStyle(spacerTextStyle);
+				}
+				if (!vertical) {
+					T.setCellpaddingLeft(col, row, spacerTextPadding);
+					T.setCellpaddingRight(col, row, spacerTextPadding);
+					T.add(text, col++, row);
+				}
+				else {
+					T.setCellpaddingTop(col, row, spacerTextPadding);
+					T.setCellpaddingBottom(col, row, spacerTextPadding);
+					T.add(text, col, row++);
+				}
 			}
 			if (_spaceBetween > 0 && vertical) {
 				T.add(spaceBetween, col, row++);
@@ -456,5 +476,21 @@ public class NavigationMenu extends Block {
 	}
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
+	}
+	/**
+	 * @param spacerText The spacerText to set.
+	 */
+	public void setSpacerText(String spacerText) {
+		this.spacerText = spacerText;
+	}
+	/**
+	 * @param spacerTextStyle The spacerTextStyle to set.
+	 */
+	public void setSpacerTextStyle(String spacerTextStyle) {
+		this.spacerTextStyle = spacerTextStyle;
+	}
+	
+	public void setSpacerTextPadding(int padding) {
+		this.spacerTextPadding = padding;
 	}
 }
