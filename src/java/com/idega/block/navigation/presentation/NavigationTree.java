@@ -71,7 +71,7 @@ public class NavigationTree extends Block {
 	private Image _iconImage;
 	private Image _openImage;
 	private Image _closedImage;
-	private boolean _debug = false;
+	private boolean _debug = true;
 
 	/* (non-Javadoc)
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
@@ -324,11 +324,13 @@ public class NavigationTree extends Block {
 			_currentPageID = _currentPage.getNodeID();
 			_currentPages = new ArrayList();
 			_currentPages.add(new Integer(_currentPageID));
+			debug("Current page is set.");
 		
 			if (_currentPageID != _rootPageID) {
 				ICTreeNode parent = _currentPage.getParentNode();
 				if (parent != null) {
 					while (parent.getNodeID() != _rootPageID) {
+						debug("Adding page with ID = " + parent.getNodeID() + " to currentMap");
 						_currentPages.add(new Integer(parent.getNodeID()));
 						parent = parent.getParentNode();
 						if (parent == null)
@@ -567,6 +569,14 @@ public class NavigationTree extends Block {
 	}
 
 	/**
+	 * Sets to debug actions.
+	 * @param debug
+	 */
+	public void setDebug(boolean debug) {
+		_debug = debug;
+	}
+
+	/**
 	 * Returns the padding used for the tree.
 	 * @return
 	 */
@@ -586,7 +596,8 @@ public class NavigationTree extends Block {
 	 * @see com.idega.presentation.PresentationObject#debug(java.lang.String)
 	 */
 	public void debug(String outputString) {
-		super.debug("NavigationTree: "+outputString);
+		if (_debug)
+			System.out.println("[NavigationTree]: "+outputString);
 	}
 
 }
