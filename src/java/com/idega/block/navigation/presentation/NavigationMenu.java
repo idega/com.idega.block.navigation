@@ -12,6 +12,7 @@ import com.idega.builder.business.PageTreeNode;
 import com.idega.builder.business.BuilderLogic;
 import com.idega.builder.data.IBPage;
 import java.util.Iterator;
+import java.util.Vector;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWBundle;
 import com.idega.builder.handler.HorizontalVerticalViewHandler;
@@ -31,7 +32,7 @@ import com.idega.builder.handler.HorizontalAlignmentHandler;
 public class NavigationMenu extends Block {
 
   private final static int VERTICAL = HorizontalVerticalViewHandler.VERTICAL,
-                            HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
+                           HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
 
   private int viewType = 1;
   private int rootNode = 1;
@@ -58,17 +59,19 @@ public class NavigationMenu extends Block {
   private Image _iconOverImage;
   private Image _spacer;
   private int _widthFromIcon = 5;
+  private int _subWidthFromParent = 10;
 
   private int cellPadding = 0;
   private int cellSpacing = 0;
   private int currentPageId = -1;
   private int parentPageId = -1;
-  private boolean addParentID = false;
+  private boolean _addParentID = false;
 
   private boolean asTab = false;
   private boolean asButton = false;
   private boolean asFlipped = false;
   private boolean withRootAsHome = true;
+  private boolean _showSubPages = false;
   private String HomeVerticalAlignment = VerticalAlignmentHandler.BOTTOM;
   private String HomeHorizontalAlignment = HorizontalAlignmentHandler.RIGHT;
 
@@ -87,15 +90,26 @@ public class NavigationMenu extends Block {
     catch (NumberFormatException e) {
       parentPageId = -1;
     }
-    if ( parentPageId == -1 && addParentID )
+    if ( parentPageId == -1 && _addParentID )
       parentPageId = rootNode;
 
     PageTreeNode node = new PageTreeNode(rootNode, iwc);
-    Iterator I = node.getChildren();
 
     boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
     boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
     boolean vertical = viewType == VERTICAL;
+
+    Vector nodeVector = new Vector();
+    if ( withRootAsHome && ((!bottom && vertical) || (!vertical && left)) ) {
+      nodeVector.add(node);
+      withRootAsHome = false;
+    }
+    Iterator iter = node.getChildren();
+    while (iter.hasNext())
+      nodeVector.add((PageTreeNode) iter.next());
+    if ( withRootAsHome && (bottom || !left) )
+      nodeVector.add(node);
+
     int row = 1,col = 1;
 
     Table T = new Table();
@@ -112,90 +126,65 @@ public class NavigationMenu extends Block {
     Text text = null;
     Image spacer = Table.getTransparentCell(iwc);
       spacer.setWidth(_widthFromIcon);
+    Image subNodeImage = (Image) spacer.clone();
+      subNodeImage.setWidth(_subWidthFromParent);
+      subNodeImage.setHeight(2);
 
-    if(withRootAsHome){
-      L = getLink(node.getNodeName(),node.getNodeID());
-      if(vertical && !bottom){
-        if ( _iconImage != null ) {
-          Image image = new Image(_iconImage.getMediaServletString());
-          if ( _iconOverImage != null )
-            L.setOnMouseOverImage(image,_iconOverImage);
-          T.add(image,col,row);
-          T.add(spacer,col,row);
-        }
-        T.add(L,col,row++);
-        withRootAsHome = false;
+    Iterator iterator = nodeVector.iterator();
+    while (iterator.hasNext()) {
+      PageTreeNode n = (PageTreeNode) iterator.next();
+      L = getLink(n.getNodeName(),n.getNodeID(),parentPageId,_addParentID);
+      if ( _iconImage != null ) {
+        Image image = new Image(_iconImage.getMediaServletString());
+        if ( _iconOverImage != null )
+          L.setOnMouseOverImage(image,_iconOverImage);
+        T.add(image,col,row);
+        T.add(spacer,col,row);
       }
-      else if(!vertical && left){
-        if ( _iconImage != null ) {
-          Image image = new Image(_iconImage.getMediaServletString());
-          if ( _iconOverImage != null )
-            L.setOnMouseOverImage(image,_iconOverImage);
-          T.add(image,col,row);
-          T.add(spacer,col,row);
-        }
+
+      if ( !vertical )
         T.add(L,col++,row);
-        if ( _spacer != null ) {
+      else {
+        T.add(L,col,row++);
+        if ( _showSubPages && (n.getNodeID() == currentPageId || n.getNodeID() == parentPageId) && n.getNodeID() != rootNode ) {
+          Iterator i = n.getChildren();
+          while (i.hasNext()) {
+            PageTreeNode subNode = (PageTreeNode) i.next();
+            L = getLink(subNode.getNodeName(),subNode.getNodeID(),subNode.getParentNode().getNodeID(),true);
+            T.add(subNodeImage,col,row);
+            if ( _iconImage != null ) {
+              Image image = new Image(_iconImage.getMediaServletString());
+              if ( _iconOverImage != null )
+                L.setOnMouseOverImage(image,_iconOverImage);
+              T.add(image,col,row);
+              T.add(spacer,col,row);
+            }
+            T.add(L,col,row++);
+          }
+        }
+      }
+
+      if ( _spacer != null ) {
+        if ( !vertical )
           T.add(_spacer,col++,row);
-        }
-        withRootAsHome = false;
-      }
-    }
-
-    if(I!=null){
-      while(I.hasNext()){
-        PageTreeNode n = (PageTreeNode) I.next();
-        L = getLink(n.getNodeName(),n.getNodeID());
-        if ( _iconImage != null ) {
-          Image image = new Image(_iconImage.getMediaServletString());
-          if ( _iconOverImage != null && L != null )
-            L.setOnMouseOverImage(image,_iconOverImage);
-          T.add(image,col,row);
-          T.add(spacer,col,row);
-        }
-        T.add(L,col,row);
-        if ( _spacer != null && !vertical && I.hasNext() ) {
-          col++;
-          T.add(_spacer,col,row);
-        }
-        if ( _spacer != null && !vertical && !I.hasNext() && withRootAsHome && !left ) {
-          col++;
-          T.add(_spacer,col,row);
-        }
-        if(vertical)
-          row++;
         else
-          col++;
-      }
-    }
-
-    if(withRootAsHome){
-      if(bottom || !left){
-        L = getLink(node.getNodeName(),node.getNodeID());
-        if ( _iconImage != null ) {
-          Image image = new Image(_iconImage.getMediaServletString());
-          if ( _iconOverImage != null )
-            L.setOnMouseOverImage(image,_iconOverImage);
-          T.add(image,col,row);
-          T.add(spacer,col,row);
-        }
-        T.add(L,col,row);
+          T.add(_spacer,col,row++);
       }
     }
 
     add(T);
   }
 
-  private Link getLink(String text, int PageId){
+  private Link getLink(String text, int PageId, int parentPageID, boolean addParentID){
     Link L  = new Link(text);
       if(_styles){
-        if ( PageId == currentPageId || PageId == parentPageId )
+        if ( PageId == currentPageId || PageId == parentPageID )
           L.setStyle(_hoverName);
         else
           L.setStyle(_name);
       }
       else {
-        if ( PageId == currentPageId || PageId == parentPageId )
+        if ( PageId == currentPageId || PageId == parentPageID )
           L.setFontColor(higligtFontColor);
         else
           L.setFontColor(fontColor);
@@ -204,7 +193,7 @@ public class NavigationMenu extends Block {
 
     L.setPage(PageId);
     if ( addParentID )
-      L.addParameter("parent_id",parentPageId);
+      L.addParameter("parent_id",parentPageID);
     if(asButton){
       L.setAsImageButton( asButton,true);
     }
@@ -353,12 +342,20 @@ public class NavigationMenu extends Block {
     _widthFromIcon = widthFromIcon;
   }
 
+  public void setSubPageWidthFromParent(int subWidthFromParent) {
+    _subWidthFromParent = subWidthFromParent;
+  }
+
   public void setSpacerImage(Image spacerImage) {
     _spacer = spacerImage;
   }
 
   public void setAddParentID(boolean addID) {
-    addParentID = addID;
+    _addParentID = addID;
+  }
+
+  public void setShowSubPages(boolean showSubPages) {
+    _showSubPages = showSubPages;
   }
 
   public Object clone() {
