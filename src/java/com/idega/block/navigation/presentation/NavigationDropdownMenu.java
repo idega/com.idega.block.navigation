@@ -8,6 +8,7 @@ import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
+import com.idega.presentation.Image;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.ui.DropdownMenu;
@@ -39,6 +40,8 @@ public class NavigationDropdownMenu extends Block {
 	private boolean useSubmitButton = false;
 	private boolean setButtonAsLink = false;
 	private boolean useGeneratedButton = false;
+	private boolean useImageLink = false;
+	private Image buttonImage;
 
 	private String iLinkStyleClass;
 	private String iInputStyleClass;
@@ -94,7 +97,13 @@ public class NavigationDropdownMenu extends Block {
 		}
 		
 		if (useSubmitButton) {
-			if (useGeneratedButton) {
+			if (useImageLink) {
+				Link btn = new Link(buttonImage);
+				btn.setURL("javascript:" + getScriptCaller(name));
+				btn.setOnClick("javascript:" + getScriptCaller(name));
+				table.add(btn, column, 1);
+			}
+			else if (useGeneratedButton) {
 				Link btn = new Link(iwrb.getLocalizedImageButton("go", "Go!"));
 				btn.setURL("javascript:" + getScriptCaller(name));
 				btn.setOnClick("javascript:" + getScriptCaller(name));
@@ -180,5 +189,10 @@ public class NavigationDropdownMenu extends Block {
 	 */
 	public void setUseGeneratedButton(boolean useGeneratedButton) {
 		this.useGeneratedButton = useGeneratedButton;
+	}
+	
+	public void setButtonImage(Image buttonImage) {
+		this.buttonImage = buttonImage;
+		this.useImageLink = true;
 	}
 }
