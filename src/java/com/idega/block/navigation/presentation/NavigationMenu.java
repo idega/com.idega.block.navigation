@@ -87,7 +87,7 @@ public class NavigationMenu extends Block {
 			rootNode = bs.getRootPageId();
 		}
 		//String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
-		//currentPageId = sCurrentPageId != null ? Integer.parseInt(sCurrentPageId) : rootNode;
+		currentPageId = bs.getCurrentPageId(iwc);
 		try {
 			parentPageId = Integer.parseInt(iwc.getParameter("parent_id"));
 		}
