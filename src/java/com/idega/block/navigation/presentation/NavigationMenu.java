@@ -142,7 +142,11 @@ public class NavigationMenu extends Block {
           T.add(spacer,col,row);
         }
         T.add(L,col,row);
-        if ( _spacer != null && !vertical ) {
+        if ( _spacer != null && !vertical && I.hasNext() ) {
+          col++;
+          T.add(_spacer,col,row);
+        }
+        if ( !I.hasNext() && withRootAsHome && !left ) {
           col++;
           T.add(_spacer,col,row);
         }
