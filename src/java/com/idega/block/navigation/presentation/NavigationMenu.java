@@ -1,10 +1,13 @@
 package com.idega.block.navigation.presentation;
 
 import com.idega.presentation.Table;
+import com.idega.presentation.Image;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Block;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
+import com.idega.util.text.TextStyler;
+import com.idega.util.text.StyleConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.builder.business.BuilderLogic;
 import com.idega.builder.data.IBPage;
@@ -28,7 +31,7 @@ import com.idega.builder.handler.HorizontalAlignmentHandler;
 public class NavigationMenu extends Block {
 
   private final static int VERTICAL = HorizontalVerticalViewHandler.VERTICAL,
-				HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
+                            HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
 
   private int viewType = 1;
   private int rootNode = 1;
@@ -37,126 +40,199 @@ public class NavigationMenu extends Block {
   private IWResourceBundle iwrb;
   private final static String IW_BUNDLE_IDENTIFIER="com.idega.block.navigation";
 
-
   private int fontSize = 2;
-	private String fontColor = "#000000";
+  private String fontColor = "#000000";
   private String bgrColor = "#FFFFFF";
-	private String higligtFontColor = "#000000";
-	private String higligtBgrColor = "#FFFFFF";
-	private String tableBackGroundColor = null;
+  private String higligtFontColor = "#000000";
+  private String higligtBgrColor = "#FFFFFF";
+  private String tableBackGroundColor = null;
   private String width = null;
   private String height = null;
-	private String fontStyle = "";
+
+  private boolean _styles = true;
+  private String _name;
+  private String fontStyle;
+
+  private Image _iconImage;
+  private Image _iconOverImage;
+  private Image _spacer;
+  private int _widthFromIcon = 5;
+
   private int cellPadding = 0;
-	private int cellSpacing = 0;
-	private int currentPageId = -1;
+  private int cellSpacing = 0;
+  private int currentPageId = -1;
 
   private boolean asTab = false;
   private boolean asButton = false;
   private boolean asFlipped = false;
-	private boolean withRootAsHome = true;
-	private String HomeVerticalAlignment = VerticalAlignmentHandler.BOTTOM;
-	private String HomeHorizontalAlignment = HorizontalAlignmentHandler.RIGHT;
-
+  private boolean withRootAsHome = true;
+  private String HomeVerticalAlignment = VerticalAlignmentHandler.BOTTOM;
+  private String HomeHorizontalAlignment = HorizontalAlignmentHandler.RIGHT;
 
   public NavigationMenu() {
-
   }
 
   public void main(IWContext iwc){
-		String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
-		System.err.println("sCurrentPageId "+sCurrentPageId);
-		int currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):-1;
+    setStyles();
+    String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
+    int currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):-1;
 
-		PageTreeNode node = new PageTreeNode(rootNode, iwc);
-		Iterator I = node.getChildren();
+    PageTreeNode node = new PageTreeNode(rootNode, iwc);
+    Iterator I = node.getChildren();
 
-		boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
-		boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
-		boolean vertical = viewType == VERTICAL;
-		int row = 1,col = 1;
-		if(vertical){
-		  col = 1;
-			row = node.getChildCount()+1;
-		}
-		else{
-		  col = node.getChildCount()+1;
-			row = 1;
-		}
+    boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
+    boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
+    boolean vertical = viewType == VERTICAL;
+    int row = 1,col = 1;
 
-    Table T = new Table(col,row);
+    Table T = new Table();
     T.setCellpadding(cellPadding);
     T.setCellspacing(cellSpacing);
-		if(tableBackGroundColor !=null)
-			T.setColor(tableBackGroundColor);
-    if(width != null){
+    if(tableBackGroundColor !=null)
+      T.setColor(tableBackGroundColor);
+    if(width != null)
       T.setWidth(width);
-    }
-    if(height != null){
+    if(height != null)
       T.setHeight(height);
+    T.setColor(bgrColor);
+
+    Link L = null;
+    Text text = null;
+    Image spacer = Table.getTransparentCell(iwc);
+      spacer.setWidth(_widthFromIcon);
+
+    if(withRootAsHome){
+      L = getLink(node.getNodeName(),node.getNodeID());
+      if(vertical && !bottom){
+        if ( _iconImage != null ) {
+          Image image = new Image(_iconImage.getMediaServletString());
+          if ( _iconOverImage != null )
+            L.setOnMouseOverImage(image,_iconOverImage);
+          T.add(image,col,row);
+          T.add(spacer,col,row);
+        }
+        T.add(L,col,row++);
+        withRootAsHome = false;
+      }
+      else if(!vertical && left){
+        if ( _iconImage != null ) {
+          Image image = new Image(_iconImage.getMediaServletString());
+          if ( _iconOverImage != null )
+            L.setOnMouseOverImage(image,_iconOverImage);
+          T.add(image,col,row);
+          T.add(spacer,col,row);
+        }
+        T.add(L,col++,row);
+        if ( _spacer != null ) {
+          T.add(_spacer,col++,row);
+        }
+        withRootAsHome = false;
+      }
     }
-    T.setColor(bgrColor );
-
-		Link L;
-
-     row = 1;
-		 col = 1;
-
-
-		if(withRootAsHome){
-			L = getLink(node.getNodeName(),node.getNodeID());
-		  if(vertical && !bottom){
-				T.setColor(col,row,currentPageId != node.getNodeID()?bgrColor:higligtBgrColor);
-			  T.add(L,col,row++);
-				withRootAsHome = false;
-		  }
-			else if(!vertical && left){
-			  T.add(L,col++,row);
-				withRootAsHome = false;
-			}
-		}
-
-
 
     if(I!=null){
       while(I.hasNext()){
         PageTreeNode n = (PageTreeNode) I.next();
-        L = getLink(n.getNodeName(),n.getNodeID());
-        T.add(L,col,row);
-				T.setColor(col,row,currentPageId != n.getNodeID()?bgrColor:higligtBgrColor);
+        if ( n.getNodeID() == currentPageId )
+          text = getText(n.getNodeName());
+        else
+          L = getLink(n.getNodeName(),n.getNodeID());
+        if ( _iconImage != null ) {
+          Image image = new Image(_iconImage.getMediaServletString());
+          if ( _iconOverImage != null && L != null )
+            L.setOnMouseOverImage(image,_iconOverImage);
+          T.add(image,col,row);
+          T.add(spacer,col,row);
+        }
+        if ( n.getNodeID() == currentPageId )
+          T.add(text,col,row);
+        else
+          T.add(L,col,row);
+        if ( _spacer != null && !vertical ) {
+          col++;
+          T.add(_spacer,col,row);
+        }
         if(vertical)
-					row++;
-				else
-					col++;
+          row++;
+        else
+          col++;
       }
     }
-		if(withRootAsHome){
-		  if(bottom || !left){
-				L = getLink(node.getNodeName(),node.getNodeID());
-				T.setColor(col,row,currentPageId != node.getNodeID()?bgrColor:higligtBgrColor);
-				T.add(L,col,row);
-			}
-		}
+
+    if(withRootAsHome){
+      if(bottom || !left){
+        L = getLink(node.getNodeName(),node.getNodeID());
+        if ( _iconImage != null ) {
+          Image image = new Image(_iconImage.getMediaServletString());
+          if ( _iconOverImage != null )
+            L.setOnMouseOverImage(image,_iconOverImage);
+          T.add(image,col,row);
+          T.add(spacer,col,row);
+        }
+        T.add(L,col,row);
+      }
+    }
+
     add(T);
   }
 
   private Link getLink(String text, int PageId){
-    Text T = new Text(text);
-      T.setFontColor(currentPageId != PageId?fontColor:higligtFontColor);
-      T.setFontSize(fontSize);
-			if(! "".equals(fontStyle)){
-			  T.setFontStyle(fontStyle);
-			}
-		Link L  = new Link(T);
+    Link L  = new Link(text);
+      if(_styles){
+        L.setStyle(_name);
+      }
+      else {
+        L.setFontColor(currentPageId != PageId?fontColor:higligtFontColor);
+        L.setFontSize(fontSize);
+      }
+
     L.setPage(PageId);
     if(asButton){
-      L.setAsImageButton( asButton);
+      L.setAsImageButton( asButton,true);
     }
     else if(asTab){
-      L.setAsImageTab(asTab,asFlipped );
+      L.setAsImageTab(asTab,true,asFlipped );
     }
-		//System.err.println("node nr "+PageId);
+
     return L;
+  }
+
+  private Text getText(String text){
+    Text T  = new Link(text);
+      if(_styles){
+        com.idega.util.text.TextStyler styler = new com.idega.util.text.TextStyler(fontStyle);
+        styler.setStyleValue(com.idega.util.text.StyleConstants.ATTRIBUTE_COLOR,higligtFontColor);
+        T.setFontStyle(styler.getStyleString());
+      }
+      else {
+        T.setFontColor(higligtFontColor);
+        T.setFontSize(fontSize);
+      }
+    return T;
+  }
+
+  private void setStyles() {
+    if ( _name == null )
+      _name = this.getName();
+    if ( _name == null ) {
+      if ( getICObjectInstanceID() != -1 )
+        _name = "nav_"+Integer.toString(getICObjectInstanceID());
+      else
+        _name = "nav_"+Double.toString(Math.random());
+    }
+
+    if ( getParentPage() != null && fontStyle != null) {
+      TextStyler styler = new TextStyler(fontStyle);
+      styler.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION,StyleConstants.TEXT_DECORATION_UNDERLINE);
+
+      getParentPage().setStyleDefinition("A."+_name+":link",fontStyle);
+      getParentPage().setStyleDefinition("A."+_name+":visited",fontStyle);
+      getParentPage().setStyleDefinition("A."+_name+":active",fontStyle);
+      getParentPage().setStyleDefinition("A."+_name+":hover",styler.getStyleString());
+    }
+    else {
+      _styles = false;
+    }
   }
 
   public void setViewType(int type){
@@ -189,7 +265,7 @@ public class NavigationMenu extends Block {
     fontSize = size;
   }
 
-	public void setFontStyle(String style){
+  public void setFontStyle(String style){
     fontStyle = style;
   }
 
@@ -197,17 +273,17 @@ public class NavigationMenu extends Block {
     bgrColor = color;
   }
 
-	public void setTableBackgroundColor(String color){
-	  tableBackGroundColor = color;
-	}
+  public void setTableBackgroundColor(String color){
+    tableBackGroundColor = color;
+  }
 
-	public void setHighlightFontColor(String color){
-	  higligtFontColor = color;
-	}
+  public void setHighlightFontColor(String color){
+    higligtFontColor = color;
+  }
 
-	public void setHighligtBackgroundColor(String color){
-	  higligtFontColor = color;
-	}
+  public void setHighligtBackgroundColor(String color){
+    higligtFontColor = color;
+  }
 
   public void setWidth(String width){
     width = width;
@@ -217,33 +293,72 @@ public class NavigationMenu extends Block {
     height = height;
   }
 
-	public void setUseRootAsHome(boolean useRootAsHome){
-		withRootAsHome = useRootAsHome;
-	}
+  public void setUseRootAsHome(boolean useRootAsHome){
+    withRootAsHome = useRootAsHome;
+  }
 
   public void setPadding(int padding) {
     cellPadding = padding;
   }
 
-	public void setSpacing(int spacing) {
+  public void setSpacing(int spacing) {
     cellSpacing = spacing;
   }
 
-	public void setHomeHorizontalAlignment(String align){
-	  if(align.equals(HorizontalAlignmentHandler.LEFT)||align.equals(HorizontalAlignmentHandler.RIGHT))
-			HomeHorizontalAlignment = align;
-	}
+  public void setHomeHorizontalAlignment(String align){
+    if(align.equals(HorizontalAlignmentHandler.LEFT)||align.equals(HorizontalAlignmentHandler.RIGHT))
+      HomeHorizontalAlignment = align;
+  }
 
-	public void setHomeVerticalAlignment(String align){
-	  if(align.equals(VerticalAlignmentHandler.BOTTOM)||align.equals(VerticalAlignmentHandler.TOP))
-			HomeVerticalAlignment = align;
-	}
+  public void setHomeVerticalAlignment(String align){
+    if(align.equals(VerticalAlignmentHandler.BOTTOM)||align.equals(VerticalAlignmentHandler.TOP))
+      HomeVerticalAlignment = align;
+  }
 
   public void setAsButtons(boolean asButtons){
     asButton = asButtons;
   }
+
   public void setAsTabs(boolean asTabs,boolean Flipped){
     asTab = asTabs;
     asFlipped = Flipped ;
+  }
+
+  public void setIconImage(Image iconImage) {
+    _iconImage = iconImage;
+  }
+
+  public void setIconOverImage(Image iconOverImage) {
+    _iconOverImage = iconOverImage;
+  }
+
+  public void setWidthFromIcon(int widthFromIcon) {
+    _widthFromIcon = widthFromIcon;
+  }
+
+  public void setSpacerImage(Image spacerImage) {
+    _spacer = spacerImage;
+  }
+
+  public Object clone() {
+    NavigationMenu obj = null;
+    try {
+      obj = (NavigationMenu) super.clone();
+
+      if ( this._iconImage != null ) {
+        obj._iconImage = (Image) this._iconImage.clone();
+      }
+      if ( this._iconOverImage != null ) {
+        obj._iconOverImage = (Image) this._iconOverImage.clone();
+      }
+    }
+    catch (Exception ex) {
+      ex.printStackTrace(System.err);
+    }
+    return obj;
+  }
+
+  public String getBundleIdentifier(){
+    return IW_BUNDLE_IDENTIFIER;
   }
 }
