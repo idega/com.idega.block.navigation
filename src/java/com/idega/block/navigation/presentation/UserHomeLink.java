@@ -20,31 +20,72 @@ import com.idega.presentation.text.Text;
  * @version 1.0
  */
 
-public class UserHomeLink extends Link {
+public class UserHomeLink extends Block {
 
 	protected static final String IW_BUNDLE_IDENTIFIER="com.idega.block.navigation";
-	private static final String EMPTY_STRING = "";
 	private static final String HOME_PAGE_KEY = "user_home_link.text";
 	private static final String HOME_PAGE_KEY_VALUE = "My page";
 
+	private String _linkStyleClass;
+	private String _linkStyle;
+	private String _loggedOffStyle;
+
+	private boolean _showNotLoggedOn = false;
+
+	private Image _iconImage;
+	private Image _loggedOffIconImage;
+
+	private int _spaceBetween = 0;
+
 	public UserHomeLink(){
-		super(EMPTY_STRING);	
 	}
 
 	public void main(IWContext iwc){
 		User newUser = iwc.getCurrentUser();
+		Table table = new Table();
+		table.setCellpadding(0);
+		table.setCellspacing(0);
+		int column = 1;
+		
 		if(newUser!=null){
 			try{
 				int homePageID = getUserBusiness(iwc).getHomePageIDForUser(newUser);
 				if(homePageID!=-1){
-					super.setPage(homePageID);
-					super.setText(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
+					Link link = new Link();
+					link.setPage(homePageID);
+					link.setText(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
+					if (_linkStyleClass != null)
+						link.setStyleClass(_linkStyleClass);
+					else if (_linkStyle != null)
+						link.setStyleAttribute(_linkStyle);
+					
+					if (_iconImage != null) {
+						table.add(_iconImage,column++,1);
+						if (_spaceBetween > 0)
+							table.setWidth(column++, 1, String.valueOf(_spaceBetween));
+					}
+					table.add(link,column,1);
 				}
 			}
 			catch(Exception e){
 				e.printStackTrace();	
 			}
 		}
+		else {
+			if (_showNotLoggedOn) {
+				Text text = new Text(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
+				if (_loggedOffStyle != null)
+					text.setFontStyle(_loggedOffStyle);
+
+				if (_loggedOffIconImage != null) {
+					table.add(_loggedOffIconImage,column++,1);
+					if (_spaceBetween > 0)
+						table.setWidth(column++, 1, String.valueOf(_spaceBetween));
+				}
+				table.add(text,column,1);
+			}	
+		}
+		add(table);
 	}
 	
 	protected UserBusiness getUserBusiness(IWContext iwc)throws java.rmi.RemoteException{
@@ -53,5 +94,33 @@ public class UserHomeLink extends Link {
 	
 	public String getBundleIdentifier(){
 		return IW_BUNDLE_IDENTIFIER;
+	}
+	
+	public void setShowWhenLoggedOff(boolean showWhenLoggedOff) {
+		_showNotLoggedOn = showWhenLoggedOff;
+	}
+	
+	public void setLinkStyle(String style) {
+		_linkStyle = style;	
+	}
+	
+	public void setLinkStyleClass(String styleClass) {
+		_linkStyleClass = styleClass;
+	}
+	
+	public void setLoggedOffTextStyle(String style) {
+		_loggedOffStyle = style;	
+	}
+	
+	public void setIconImage(Image image) {
+		_iconImage = image;	
+	}
+	
+	public void setLoggedOffIconImage(Image image) {
+		_loggedOffIconImage = image;
+	}
+	
+	public void setSpaceBetweenIconAndLink(int spaceBetween) {
+		_spaceBetween = spaceBetween;	
 	}
 }
