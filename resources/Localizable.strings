@@ -1,0 +1,12 @@
+#Tue Sep 09 17:03:07 CEST 2003
+body=
+go=Forts\u00E4tt
+iw.component.com.idega.block.login.presentation.WelcomeMessage.name=
+iw.component.com.idega.block.navigation.presentation.NavigationDropdownMenu.name=NavigationDropdownMenu
+iw.component.com.idega.block.navigation.presentation.NavigationMenu.name=NavigationMenu
+iw.component.com.idega.block.navigation.presentation.UserHomeLink.name=
+use_image=
+user_home_link.text=
+welcome_message.afternoon=
+welcome_message.evening=
+welcome_message.morning=
