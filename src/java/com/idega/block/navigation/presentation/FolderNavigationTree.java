@@ -64,7 +64,6 @@ public class FolderNavigationTree extends NavigationTree {
 		if (thePageId > 0) {
 			link.setPage(thePageId);
 		}
-		link.setPage(24);
 	}
 	
 	
@@ -79,8 +78,7 @@ public class FolderNavigationTree extends NavigationTree {
 	protected void setRootNode(IWContext iwc) throws RemoteException {
 		IWSlideSession ss = (IWSlideSession) IBOLookup.getSessionInstance(iwc, IWSlideSession.class);
 		try {
-			WebdavExtendedResource root = ss.getWebdavResource("/files/contribute-web");
-//			WebdavExtendedResource root = ss.getWebdavResource(rootFolder);
+			WebdavExtendedResource root = ss.getWebdavResource(rootFolder);
 			rootNode = new WebDAVBean(root);
 		} catch (HttpException e) {
 			e.printStackTrace();
