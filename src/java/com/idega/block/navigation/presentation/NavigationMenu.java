@@ -73,6 +73,7 @@ public class NavigationMenu extends Block {
   private String HomeHorizontalAlignment = HorizontalAlignmentHandler.RIGHT;
 
   public NavigationMenu() {
+    this.setSpacing(2);
   }
 
   public void main(IWContext iwc){
