@@ -101,6 +101,7 @@ public class NavigationTree extends Block {
 	private Image _openImage;
 	private Image _closedImage;
 	private Image _blankImage;
+	private Image _paddingImage;
 
 	/*
 	 * (non-Javadoc)
@@ -111,6 +112,11 @@ public class NavigationTree extends Block {
 		_iwb = getBundle(iwc);
 		_iwrb = getResourceBundle(iwc);
 		_builderService = getBuilderService(iwc);
+		if (_paddingImage != null) {
+			_paddingImage.setPaddingLeft(_imagePadding);
+			_paddingImage.setPaddingRight(_imagePadding);
+			_paddingImage.setAlignment(Image.ALIGNMENT_ABSOLUTE_MIDDLE);
+		}
 
 		setRootNode(iwc);
 
@@ -357,7 +363,14 @@ public class NavigationTree extends Block {
 		}
 
 		if (alignment.equals(Table.HORIZONTAL_ALIGN_LEFT)) {
-			table.setCellpaddingLeft(1, row, getIndent(depth));
+			if (_paddingImage != null && depth > 0) {
+				for (int a = 0; a < depth; a++) {
+					table.add(_paddingImage, 1, row);
+				}
+			}
+			else {
+				table.setCellpaddingLeft(1, row, getIndent(depth));
+			}
 		}
 		else if (alignment.equals(Table.HORIZONTAL_ALIGN_RIGHT)) {
 			table.setCellpaddingRight(1, row, getIndent(depth));
@@ -441,7 +454,7 @@ public class NavigationTree extends Block {
 	private String getDepthColor(ICTreeNode page, int depth) {
 		if (!page.equals(this.getRootNode())) {
 			if (_markOnlyCurrentPage) {
-				if (isCurrent(page)) {
+				if (_currentPageID == page.getNodeID()) {
 					if (_depthCurrentColor != null) {
 						String color = (String) _depthCurrentColor.get(new Integer(depth));
 						if (color != null) {
@@ -1394,5 +1407,9 @@ protected void parse(IWContext iwc) {
 	
 	public void setToOrderPagesAlphabetically(boolean orderAlphabetically) {
 		iOrderPagesAlphabetically = orderAlphabetically;
+	}
+	
+	public void setPaddingImage(Image image) {
+		_paddingImage = image;
 	}
 }
