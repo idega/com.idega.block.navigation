@@ -1,6 +1,8 @@
 package com.idega.block.navigation.presentation;
 
+import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
+import com.idega.business.IBOLookup;
 import com.idega.presentation.Table;
 import com.idega.presentation.Image;
 import com.idega.presentation.IWContext;
@@ -33,7 +35,7 @@ public class UserHomeLink extends Link {
 		User newUser = iwc.getCurrentUser();
 		if(newUser!=null){
 			try{
-				int homePageID = newUser.getHomePageID();
+				int homePageID = getUserBusiness(iwc).getHomePageIDForUser(newUser);
 				if(homePageID!=-1){
 					super.setPage(homePageID);
 					super.setText(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
@@ -44,6 +46,10 @@ public class UserHomeLink extends Link {
 			}
 		}
 	}
+	
+	protected UserBusiness getUserBusiness(IWContext iwc)throws java.rmi.RemoteException{
+		return (UserBusiness)IBOLookup.getServiceInstance(iwc,UserBusiness.class);
+	}	
 	
 	public String getBundleIdentifier(){
 		return IW_BUNDLE_IDENTIFIER;
