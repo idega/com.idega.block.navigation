@@ -57,25 +57,36 @@ public class NavigationBreadCrumbs extends Block {
 		List pages = new ArrayList();
 		PageTreeNode page = new PageTreeNode(((Integer) iCurrentPage.getPrimaryKey()).intValue(), iwc);
 		boolean showPage = true;
+		boolean isCategoryPage = false;
 		int level = 1;
 		while (showPage) {
 			if (page.getNodeID() == ((Integer) iRoot.getPrimaryKey()).intValue()) {
 				showPage = false;
 			}
-			if (page.getNodeID() == ((Integer) iCurrentPage.getPrimaryKey()).intValue() || (iIgnoreCategoryPages && page.isCategory())) {
-				Text pageText = new Text(page.getLocalizedNodeName(iwc));
-				if (iTextStyleName != null) {
-					pageText.setStyleClass(iTextStyleName);
-				}
-				pages.add(pageText);
+			
+			if (iIgnoreCategoryPages && page.isCategory()) {
+				isCategoryPage = true;
 			}
 			else {
-				Link pageLink = new Link(page.getLocalizedNodeName(iwc));
-				pageLink.setPage(page.getNodeID());
-				if (iLinkStyleName != null) {
-					pageLink.setStyleClass(iLinkStyleName);
+				isCategoryPage = false;
+			}
+			
+			if (!isCategoryPage) {
+				if (page.getNodeID() == ((Integer) iCurrentPage.getPrimaryKey()).intValue()) {
+					Text pageText = new Text(page.getLocalizedNodeName(iwc));
+					if (iTextStyleName != null) {
+						pageText.setStyleClass(iTextStyleName);
+					}
+					pages.add(pageText);
 				}
-				pages.add(pageLink);
+				else {
+					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
+					pageLink.setPage(page.getNodeID());
+					if (iLinkStyleName != null) {
+						pageLink.setStyleClass(iLinkStyleName);
+					}
+					pages.add(pageLink);
+				}
 			}
 			level++;
 			
