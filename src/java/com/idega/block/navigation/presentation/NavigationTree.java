@@ -6,14 +6,18 @@ package com.idega.block.navigation.presentation;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.idega.builder.business.PageTreeNode;
-import com.idega.core.builder.data.ICPage;
-import com.idega.core.data.ICTreeNode;
+import com.idega.business.IBOLookup;
 import com.idega.core.builder.business.BuilderService;
+import com.idega.core.builder.data.ICPage;
+import com.idega.core.business.ICTreeNodeComparator;
+import com.idega.core.data.ICTreeNode;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
@@ -24,6 +28,8 @@ import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.Text;
+import com.idega.user.business.UserBusiness;
+import com.idega.user.data.User;
 
 /**
  * @author laddi
@@ -31,6 +37,7 @@ import com.idega.presentation.text.Text;
 public class NavigationTree extends Block {
 
 	private final static String PARAMETER_SELECTED_PAGE = "nt_selected_page";
+	private final static String SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE = "nt_open_on_user_homepage";
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 
 	private String textStyleName = "text";
@@ -39,22 +46,23 @@ public class NavigationTree extends Block {
 	private IWResourceBundle _iwrb;
 	private IWBundle _iwb;
 	private BuilderService _builderService;
-
 	private ICTreeNode _currentPage;
-	private int _currentPageID;
 
+	private int _currentPageID;
 	private ICTreeNode _rootPage;
 
 	protected Collection _currentPages;
 	protected Collection _selectedPages;
-	
+
 	private boolean _showRoot = false;
 	private boolean _useDifferentStyles = false;
 	private boolean _autoCreateHoverStyles = false;
 	private boolean _showBorder = false;
 	private boolean _debug = false;
 	private boolean _markOnlyCurrentPage = false;
-	
+	private boolean iOpenOnUserHomePage = false;
+	private boolean iOrderPagesAlphabetically = false;
+
 	private int _rootPageID = -1;
 	private int _initialIndent = 0;
 	private int _indent = 12;
@@ -68,7 +76,7 @@ public class NavigationTree extends Block {
 	private String _width = String.valueOf(150);
 	private String _backgroundColor;
 	private String _borderColor;
-	
+
 	private Map _depthColor;
 	private Map _depthHoverColor;
 	private Map _depthImage;
@@ -84,6 +92,7 @@ public class NavigationTree extends Block {
 	private Map _depthAlignment;
 	private Map _depthOpenImage;
 	private Map _depthClosedImage;
+	private Map _depthOrderPagesAlphabetically;
 
 	private Image _iconImage;
 	private Image _iconHoverImage;
@@ -93,7 +102,9 @@ public class NavigationTree extends Block {
 	private Image _closedImage;
 	private Image _blankImage;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
 	 */
 	public void main(IWContext iwc) throws Exception {
@@ -102,20 +113,22 @@ public class NavigationTree extends Block {
 		_builderService = getBuilderService(iwc);
 
 		setRootNode(iwc);
-		
+
 		parse(iwc);
 		add(getTree(iwc));
 	}
-	
+
 	protected void setRootNode(IWContext iwc) throws RemoteException {
 		if (_rootPageID == -1) {
 			_rootPageID = _builderService.getRootPageId();
 		}
 		_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
-	
+
 	/**
-	 * Initialized the surrounding <code>Table</code> and adds all pages to the tree.
+	 * Initialized the surrounding <code>Table</code> and adds all pages to the
+	 * tree.
+	 * 
 	 * @param iwc
 	 * @return
 	 */
@@ -133,26 +146,27 @@ public class NavigationTree extends Block {
 			if (_borderColor != null)
 				table.setLineColor(_borderColor);
 		}
-		
+
 		int row = 1;
 		int depth = 0;
-		
+
 		row = addHeaderObject(table, row);
-		row = addToTree(iwc, getRootNode().getChildrenIterator(), table, row, depth);
+		row = addToTree(iwc, getRootNode().getChildren(), table, row, depth);
 		if (_showRoot) {
 			addObject(iwc, getRootNode(), table, row, depth);
 			setRowAttributes(table, getRootNode(), row, depth, false);
 		}
-		
+
 		return table;
 	}
-	
+
 	protected int addHeaderObject(Table table, int row) {
 		return row;
 	}
-	
+
 	/**
 	 * Adds the given <code>Iterator</code> of child pages to the tree.
+	 * 
 	 * @param iwc
 	 * @param children
 	 * @param table
@@ -160,7 +174,13 @@ public class NavigationTree extends Block {
 	 * @param depth
 	 * @return
 	 */
-	protected int addToTree(IWContext iwc, Iterator children, Table table, int row, int depth) {
+	protected int addToTree(IWContext iwc, Collection childrenCollection, Table table, int row, int depth) {
+		List list = new ArrayList(childrenCollection);
+		if (getDepthOrderPagesAlphabetically(depth)) {
+			Collections.sort(list, new ICTreeNodeComparator(iwc.getCurrentLocale()));
+		}
+		
+		Iterator children = list.iterator();
 		while (children.hasNext()) {
 			ICTreeNode page = (ICTreeNode) children.next();
 
@@ -172,23 +192,25 @@ public class NavigationTree extends Block {
 			catch (Exception re) {
 				log(re);
 			}
-			
+
 			if (hasPermission) {
 				addObject(iwc, page, table, row, depth);
 				row = setRowAttributes(table, page, row, depth, !children.hasNext());
-				
+
 				if (isOpen(page) && page.getChildCount() > 0) {
-					row = addToTree(iwc, page.getChildrenIterator(), table, row, depth + 1);
+					row = addToTree(iwc, page.getChildren(), table, row, depth + 1);
 				}
 			}
 		}
-		
+
 		return row;
 	}
-	
+
 	/**
-	 * Adds the <code>PresentationObject</code> corresponding to the specified <code>PageTreeNode</code> and depth as well
-	 * as the icon image (if it exists).
+	 * Adds the <code>PresentationObject</code> corresponding to the specified
+	 * <code>PageTreeNode</code> and depth as well as the icon image (if it
+	 * exists).
+	 * 
 	 * @param iwc
 	 * @param page
 	 * @param table
@@ -200,32 +222,32 @@ public class NavigationTree extends Block {
 
 		Image curtainImage = getCurtainImage(depth, isOpen(page));
 		if (curtainImage != null && page.getChildCount() > 0) {
-			table.add(curtainImage, 2, row);	
+			table.add(curtainImage, 2, row);
 		}
 		else if (_blankImage != null) {
 			table.add(_blankImage, 2, row);
 		}
-		
+
 		boolean isSelected = isSelected(page);
 		boolean isCurrent = isCurrent(page);
-		
-		Image linkImage = null; 
+
+		Image linkImage = null;
 		if (isSelected) {
 			linkImage = getDepthSelectedImage(depth);
 		}
 		else if (isCurrent) {
 			linkImage = getDepthCurrentImage(depth);
 		}
-		
+
 		if (linkImage == null) {
 			linkImage = getDepthImage(depth);
 		}
-		
+
 		if (linkImage != null) {
 			if (_imagePadding > 0)
 				linkImage.setPaddingRight(_imagePadding);
 			table.add(linkImage, 1, row);
-			
+
 			if (!isSelected && !isCurrent) {
 				Image linkHoverImage = getDepthHoverImage(depth);
 				if (linkHoverImage != null) {
@@ -236,7 +258,7 @@ public class NavigationTree extends Block {
 				}
 			}
 		}
-		
+
 		String hoverColor = getDepthHoverColor(page, depth);
 		if (hoverColor != null) {
 			link.setMarkupAttributeMultivalued("onmouseover", "getElementById('row" + row + "').style.background='" + hoverColor + "'");
@@ -248,9 +270,11 @@ public class NavigationTree extends Block {
 
 		table.add(link, 1, row);
 	}
-	
+
 	/**
-	 * Gets the <code>PresentationObject</code> corresponding to the specified <code>PageTreeNode</code> and depth.
+	 * Gets the <code>PresentationObject</code> corresponding to the specified
+	 * <code>PageTreeNode</code> and depth.
+	 * 
 	 * @param page
 	 * @param iwc
 	 * @param depth
@@ -259,11 +283,11 @@ public class NavigationTree extends Block {
 	protected String getLocalizedName(ICTreeNode node, IWContext iwc) {
 		return ((PageTreeNode) node).getLocalizedNodeName(iwc);
 	}
-	
+
 	protected boolean getIsCategory(ICTreeNode node) {
-		return ( (PageTreeNode) node).isCategory();
+		return ((PageTreeNode) node).isCategory();
 	}
-	
+
 	private PresentationObject getLink(ICTreeNode page, IWContext iwc, int depth) {
 		String name = getLocalizedName(page, iwc);
 
@@ -277,7 +301,7 @@ public class NavigationTree extends Block {
 			return text;
 		}
 	}
-	
+
 	protected void addParameterToLink(Link link, ICTreeNode page) {
 		boolean isCategory = getIsCategory(page);
 		if (!isCategory)
@@ -285,9 +309,11 @@ public class NavigationTree extends Block {
 		else
 			link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
 	}
-	
+
 	/**
-	 * Returns the open/closed image to display to the far right of the page in the tree.
+	 * Returns the open/closed image to display to the far right of the page in
+	 * the tree.
+	 * 
 	 * @param page
 	 * @return
 	 */
@@ -296,7 +322,7 @@ public class NavigationTree extends Block {
 			return _openImage;
 		return _closedImage;
 	}
-	
+
 	private Image getCurtainImage(int depth, boolean isOpen) {
 		if (isOpen) {
 			if (_depthOpenImage != null) {
@@ -311,9 +337,10 @@ public class NavigationTree extends Block {
 			return _closedImage;
 		}
 	}
-	
+
 	/**
 	 * Sets the attributes for the specified row and depth.
+	 * 
 	 * @param table
 	 * @param row
 	 * @param depth
@@ -323,12 +350,12 @@ public class NavigationTree extends Block {
 		table.setCellpadding(1, row, _padding);
 		if (table.getColumns() == 2)
 			table.setVerticalAlignment(2, row, Table.VERTICAL_ALIGN_BOTTOM);
-		
+
 		String alignment = getDepthAlignment(depth);
 		if (alignment == null) {
 			alignment = _textAlignment;
 		}
-		
+
 		if (alignment.equals(Table.HORIZONTAL_ALIGN_LEFT)) {
 			table.setCellpaddingLeft(1, row, getIndent(depth));
 		}
@@ -339,12 +366,12 @@ public class NavigationTree extends Block {
 		String color = getDepthColor(page, depth);
 		if (color != null)
 			table.setRowColor(row, color);
-		
+
 		String height = getDepthHeight(depth);
 		if (height != null) {
 			table.setHeight(row, height);
 		}
-		
+
 		int topPadding = getDepthPaddingTop(depth);
 		if (topPadding != -1) {
 			table.setVerticalAlignment(1, row, Table.VERTICAL_ALIGN_TOP);
@@ -368,10 +395,10 @@ public class NavigationTree extends Block {
 				table.setRowColor(row, spacingColor);
 			}
 			table.setHeight(row, _spaceBetween);
-			
+
 			addBreak = true;
 		}
-		
+
 		Image depthSpacingImage = getDepthSpacingImage(depth);
 		if (isLastChild && depth != 0) {
 			depthSpacingImage = getDepthSpacingImage(depth - 1);
@@ -384,27 +411,31 @@ public class NavigationTree extends Block {
 			table.add(depthSpacingImage, 1, row);
 			addBreak = true;
 		}
-		
+
 		if (addBreak) {
 			row++;
 		}
 
 		return row;
 	}
-	
+
 	/**
 	 * Get the indent for the depth specified.
+	 * 
 	 * @param depth
 	 * @return
 	 */
 	private int getIndent(int depth) {
 		return (depth * _indent) + _initialIndent + _padding;
 	}
-	
+
 	/**
-	 * Gets the background color for the depth specified.  If no color is specified for the depth, the general color is 
-	 * returned. If the general color is non existing, NULL is returned.
-	 * @param depth		The depth to get the background color for.
+	 * Gets the background color for the depth specified. If no color is specified
+	 * for the depth, the general color is returned. If the general color is non
+	 * existing, NULL is returned.
+	 * 
+	 * @param depth
+	 *          The depth to get the background color for.
 	 * @return
 	 */
 	private String getDepthColor(ICTreeNode page, int depth) {
@@ -447,7 +478,7 @@ public class NavigationTree extends Block {
 				}
 			}
 		}
-				
+
 		if (_depthColor != null) {
 			String color = (String) _depthColor.get(new Integer(depth));
 			if (color != null)
@@ -455,14 +486,17 @@ public class NavigationTree extends Block {
 		}
 		if (_backgroundColor != null)
 			return _backgroundColor;
-			
+
 		return null;
 	}
-	
+
 	/**
-	 * Gets the background color for the depth specified.  If no color is specified for the depth, the general color is 
-	 * returned. If the general color is non existing, NULL is returned.
-	 * @param depth		The depth to get the background color for.
+	 * Gets the background color for the depth specified. If no color is specified
+	 * for the depth, the general color is returned. If the general color is non
+	 * existing, NULL is returned.
+	 * 
+	 * @param depth
+	 *          The depth to get the background color for.
 	 * @return
 	 */
 	private String getDepthHoverColor(ICTreeNode page, int depth) {
@@ -482,10 +516,12 @@ public class NavigationTree extends Block {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gets the row height for the depth specified.
-	 * @param depth		The depth to get the row height for.
+	 * 
+	 * @param depth
+	 *          The depth to get the row height for.
 	 * @return
 	 */
 	private String getDepthHeight(int depth) {
@@ -497,10 +533,12 @@ public class NavigationTree extends Block {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the spacing color for the depth specified.
-	 * @param depth		The depth to get the row height for.
+	 * 
+	 * @param depth
+	 *          The depth to get the row height for.
 	 * @return
 	 */
 	private String getDepthSpacingColor(int depth) {
@@ -512,10 +550,12 @@ public class NavigationTree extends Block {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the spacing image for the depth specified.
-	 * @param depth		The depth to get the row height for.
+	 * 
+	 * @param depth
+	 *          The depth to get the row height for.
 	 * @return
 	 */
 	private Image getDepthSpacingImage(int depth) {
@@ -527,10 +567,12 @@ public class NavigationTree extends Block {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the alignment for the depth specified.
-	 * @param depth		The depth to get the row height for.
+	 * 
+	 * @param depth
+	 *          The depth to get the row height for.
 	 * @return
 	 */
 	private String getDepthAlignment(int depth) {
@@ -542,10 +584,12 @@ public class NavigationTree extends Block {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the top padding for the depth specified.
-	 * @param depth		The depth to get the top padding for.
+	 * 
+	 * @param depth
+	 *          The depth to get the top padding for.
 	 * @return
 	 */
 	private int getDepthPaddingTop(int depth) {
@@ -557,11 +601,14 @@ public class NavigationTree extends Block {
 		}
 		return -1;
 	}
-	
+
 	/**
-	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
-	 * If the general icon image is non existing, NULL is returned.
-	 * @param depth		The depth to get the icon image for.
+	 * Gets the icon image for the depth specified. If no image is specified for
+	 * the depth, the general icon image is returned. If the general icon image is
+	 * non existing, NULL is returned.
+	 * 
+	 * @param depth
+	 *          The depth to get the icon image for.
 	 * @return
 	 */
 	private Image getDepthImage(int depth) {
@@ -576,14 +623,17 @@ public class NavigationTree extends Block {
 			_iconImage.setAlignment(_imageAlignment);
 			return _iconImage;
 		}
-			
+
 		return null;
 	}
-	
+
 	/**
-	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
-	 * If the general icon image is non existing, NULL is returned.
-	 * @param depth		The depth to get the icon image for.
+	 * Gets the icon image for the depth specified. If no image is specified for
+	 * the depth, the general icon image is returned. If the general icon image is
+	 * non existing, NULL is returned.
+	 * 
+	 * @param depth
+	 *          The depth to get the icon image for.
 	 * @return
 	 */
 	private Image getDepthHoverImage(int depth) {
@@ -598,14 +648,17 @@ public class NavigationTree extends Block {
 			_iconHoverImage.setAlignment(_imageAlignment);
 			return _iconHoverImage;
 		}
-			
+
 		return null;
 	}
-	
+
 	/**
-	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
-	 * If the general icon image is non existing, NULL is returned.
-	 * @param depth		The depth to get the icon image for.
+	 * Gets the icon image for the depth specified. If no image is specified for
+	 * the depth, the general icon image is returned. If the general icon image is
+	 * non existing, NULL is returned.
+	 * 
+	 * @param depth
+	 *          The depth to get the icon image for.
 	 * @return
 	 */
 	private Image getDepthSelectedImage(int depth) {
@@ -620,14 +673,17 @@ public class NavigationTree extends Block {
 			_iconSelectedImage.setAlignment(_imageAlignment);
 			return _iconSelectedImage;
 		}
-			
+
 		return null;
 	}
-	
+
 	/**
-	 * Gets the icon image for the depth specified.  If no image is specified for the depth, the general icon image is returned.
-	 * If the general icon image is non existing, NULL is returned.
-	 * @param depth		The depth to get the icon image for.
+	 * Gets the icon image for the depth specified. If no image is specified for
+	 * the depth, the general icon image is returned. If the general icon image is
+	 * non existing, NULL is returned.
+	 * 
+	 * @param depth
+	 *          The depth to get the icon image for.
 	 * @return
 	 */
 	private Image getDepthCurrentImage(int depth) {
@@ -642,14 +698,35 @@ public class NavigationTree extends Block {
 			_iconCurrentImage.setAlignment(_imageAlignment);
 			return _iconCurrentImage;
 		}
-			
+
 		return null;
 	}
-	
+
+	/**
+	 * Gets whether to order pages for specified depth level alphabetically.  Will
+	 * return the default value if nothing is set for the specified depth.
+	 * 
+	 * @param depth
+	 *          The depth to get whether to order alphabetically or not.
+	 * @return
+	 */
+	private boolean getDepthOrderPagesAlphabetically(int depth) {
+		if (_depthOrderPagesAlphabetically != null) {
+			Boolean order = (Boolean) _depthOrderPagesAlphabetically.get(new Integer(depth));
+			if (order != null) {
+				return order.booleanValue();
+			}
+		}
+		return iOrderPagesAlphabetically;
+	}
+
 	/**
 	 * Gets the stylename for the specified depth.
-	 * @param styleName	The stylename to use.
-	 * @param depth			The depth to get the stylename for.
+	 * 
+	 * @param styleName
+	 *          The stylename to use.
+	 * @param depth
+	 *          The depth to get the stylename for.
 	 * @return
 	 */
 	private String getStyleName(String styleName, int depth) {
@@ -663,8 +740,11 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Checks to see if the specified <code>PageTreeNode</code> is open or closed.
-	 * @param page	The <code>PageTreeNode</code> to check.
+	 * Checks to see if the specified <code>PageTreeNode</code> is open or
+	 * closed.
+	 * 
+	 * @param page
+	 *          The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
 	protected boolean isOpen(ICTreeNode page) {
@@ -673,10 +753,13 @@ public class NavigationTree extends Block {
 			isOpen = isSelected(page);
 		return isOpen;
 	}
-	
+
 	/**
-	 * Checks to see if the specified <code>PageTreeNode</code> is the current page or one of its parent pages.
-	 * @param page	The <code>PageTreeNode</code> to check.
+	 * Checks to see if the specified <code>PageTreeNode</code> is the current
+	 * page or one of its parent pages.
+	 * 
+	 * @param page
+	 *          The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
 	protected boolean isCurrent(ICTreeNode page) {
@@ -684,10 +767,13 @@ public class NavigationTree extends Block {
 			return true;
 		return false;
 	}
-	
+
 	/**
-	 * Checks to see if the specified <code>PageTreeNode</code> is the selected page of one of its parent pages.
-	 * @param page	The <code>PageTreeNode</code> to check.
+	 * Checks to see if the specified <code>PageTreeNode</code> is the selected
+	 * page of one of its parent pages.
+	 * 
+	 * @param page
+	 *          The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
 	protected boolean isSelected(ICTreeNode page) {
@@ -695,13 +781,15 @@ public class NavigationTree extends Block {
 			return true;
 		return false;
 	}
-	
+
 	/**
-	 * Retrieves the current page as well as the selected page and puts all parents into a <code>Collection</code> to draw
-	 * the tree with the correct branches open/closed.
+	 * Retrieves the current page as well as the selected page and puts all
+	 * parents into a <code>Collection</code> to draw the tree with the correct
+	 * branches open/closed.
+	 * 
 	 * @param iwc
 	 */
-	protected void parse(IWContext iwc) {
+protected void parse(IWContext iwc) {
 		try {
 			_currentPage = _builderService.getPageTree(_builderService.getCurrentPageId(iwc));
 			_currentPageID = _currentPage.getNodeID();
@@ -742,27 +830,65 @@ public class NavigationTree extends Block {
 				re.printStackTrace();
 			}
 		}
-		else
+		else {
 			debug("No selected page parameter in request.");
+			
+			if (iOpenOnUserHomePage && iwc.isLoggedOn()) {
+				boolean openOnUserHomePage = true;
+				try {
+					openOnUserHomePage = ((Boolean) iwc.getSessionAttribute(SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE)).booleanValue();
+				}
+				catch (NullPointerException npe) {
+					openOnUserHomePage = true;
+				}
+				
+				try {
+					User newUser = iwc.getCurrentUser();
+					int homePageID = getUserBusiness(iwc).getHomePageIDForUser(newUser);
+					if (openOnUserHomePage && homePageID != -1) {
+						_selectedPages = new ArrayList();
+						
+						ICTreeNode selectedParent = _builderService.getPageTree(homePageID);
+						while (selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
+							debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
+							_selectedPages.add(new Integer(selectedParent.getNodeID()));
+							selectedParent = selectedParent.getParentNode();
+						}
+						iwc.setSessionAttribute(SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE, Boolean.FALSE);
+					}
+				}
+				catch (RemoteException re) {
+					re.printStackTrace();
+				}
+			}
+		}
 	}
-	
-	/* (non-Javadoc)
+	protected UserBusiness getUserBusiness(IWContext iwc) throws java.rmi.RemoteException {
+		return (UserBusiness) IBOLookup.getServiceInstance(iwc, UserBusiness.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.idega.presentation.PresentationObject#getBundleIdentifier()
 	 */
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.idega.presentation.Block#autoCreateGlobalHoverStyles()
 	 */
 	protected boolean autoCreateGlobalHoverStyles() {
 		return _autoCreateHoverStyles;
 	}
-	
+
 	/**
-	 * Sets the page to use as the root for the tree.  If nothing is selected, the root page of the <code>IBDomain</code>
-	 * is used.
+	 * Sets the page to use as the root for the tree. If nothing is selected, the
+	 * root page of the <code>IBDomain</code> is used.
+	 * 
 	 * @param rootPageID
 	 */
 	public void setRootPage(ICPage rootPage) {
@@ -770,7 +896,8 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the indent from parent to child.  Set to 12 by default.
+	 * Sets the indent from parent to child. Set to 12 by default.
+	 * 
 	 * @param indent
 	 */
 	public void setIndent(int indent) {
@@ -778,7 +905,8 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets to show the root page in the tree.  Set to FALSE by default.
+	 * Sets to show the root page in the tree. Set to FALSE by default.
+	 * 
 	 * @param showRoot
 	 */
 	public void setShowRoot(boolean showRoot) {
@@ -786,7 +914,8 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the spacing between each row of the tree.  Set to 0 by default.
+	 * Sets the spacing between each row of the tree. Set to 0 by default.
+	 * 
 	 * @param spaceBetween
 	 */
 	public void setSpaceBetween(int spaceBetween) {
@@ -794,7 +923,9 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets to use different styles for each level of the tree.  Set to FALSE by default.
+	 * Sets to use different styles for each level of the tree. Set to FALSE by
+	 * default.
+	 * 
 	 * @param useDifferentStyles
 	 */
 	public void setUseDifferentStyles(boolean useDifferentStyles) {
@@ -802,15 +933,18 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets to auto create hovers styles in the style sheet for link styles.  Set to FALSE by default.
+	 * Sets to auto create hovers styles in the style sheet for link styles. Set
+	 * to FALSE by default.
+	 * 
 	 * @param autoCreateHoverStyles
 	 */
 	public void setAutoCreateHoverStyles(boolean autoCreateHoverStyles) {
 		_autoCreateHoverStyles = autoCreateHoverStyles;
 	}
-	
+
 	/**
 	 * Sets the background color for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param color
 	 */
@@ -819,9 +953,10 @@ public class NavigationTree extends Block {
 			_depthColor = new HashMap();
 		_depthColor.put(new Integer(depth - 1), color);
 	}
-	
+
 	/**
 	 * Sets the background hover color for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param color
 	 */
@@ -830,9 +965,10 @@ public class NavigationTree extends Block {
 			_depthHoverColor = new HashMap();
 		_depthHoverColor.put(new Integer(depth - 1), color);
 	}
-	
+
 	/**
 	 * Sets the background color for all depth levels.
+	 * 
 	 * @param color
 	 */
 	public void setBackgroundColor(String color) {
@@ -841,6 +977,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the icon image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -849,9 +986,10 @@ public class NavigationTree extends Block {
 			_depthImage = new HashMap();
 		_depthImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
 	 * Sets the current icon image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -860,9 +998,10 @@ public class NavigationTree extends Block {
 			_depthCurrentImage = new HashMap();
 		_depthCurrentImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
 	 * Sets the selected icon image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -871,9 +1010,10 @@ public class NavigationTree extends Block {
 			_depthSelectedImage = new HashMap();
 		_depthSelectedImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
 	 * Sets the icon image to display for a specific depth level on hover.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -882,9 +1022,10 @@ public class NavigationTree extends Block {
 			_depthHoverImage = new HashMap();
 		_depthHoverImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
 	 * Sets the icon image to display for a specific depth level on hover.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -893,9 +1034,10 @@ public class NavigationTree extends Block {
 			_depthHeight = new HashMap();
 		_depthHeight.put(new Integer(depth - 1), height);
 	}
-	
+
 	/**
 	 * Sets the spacing color to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -904,9 +1046,10 @@ public class NavigationTree extends Block {
 			_depthSpacingColor = new HashMap();
 		_depthSpacingColor.put(new Integer(depth - 1), color);
 	}
-	
+
 	/**
 	 * Sets the spacing image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -915,9 +1058,10 @@ public class NavigationTree extends Block {
 			_depthSpacingImage = new HashMap();
 		_depthSpacingImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
-	 * Sets the icon image to display for a specific depth level on hover.
+	 * Sets the icon image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -926,9 +1070,22 @@ public class NavigationTree extends Block {
 			_depthPaddingTop = new HashMap();
 		_depthPaddingTop.put(new Integer(depth - 1), new Integer(padding));
 	}
-	
+
+	/**
+	 * Sets to order pages alphabetically for a specific depth level.
+	 * 
+	 * @param depth
+	 * @param orderAlphabetically
+	 */
+	public void setDepthOrderPagesAlphabetically(int depth, boolean orderAlphabetically) {
+		if (_depthOrderPagesAlphabetically == null)
+			_depthOrderPagesAlphabetically = new HashMap();
+		_depthOrderPagesAlphabetically.put(new Integer(depth - 1), new Boolean(orderAlphabetically));
+	}
+
 	/**
 	 * Sets the icon image to display for all depth levels.
+	 * 
 	 * @param image
 	 */
 	public void setIconImage(Image image) {
@@ -937,6 +1094,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the hover icon image to display for all depth levels.
+	 * 
 	 * @param image
 	 */
 	public void setIconHoverImage(Image image) {
@@ -945,6 +1103,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the current icon image to display for all depth levels.
+	 * 
 	 * @param image
 	 */
 	public void setIconCurrentImage(Image image) {
@@ -953,6 +1112,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the selected icon image to display for all depth levels.
+	 * 
 	 * @param image
 	 */
 	public void setIconSelectedImage(Image image) {
@@ -961,6 +1121,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the alignment of the text/link relative to the icon image specified.
+	 * 
 	 * @param imageAlignment
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setIconImage(com.idega.block.presentation.Image)
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setDepthImage(int,com.idega.block.presentation.Image)
@@ -970,7 +1131,8 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the distance from the icon image to the link.  Set to 0 by default.
+	 * Sets the distance from the icon image to the link. Set to 0 by default.
+	 * 
 	 * @param imagePadding
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setIconImage(com.idega.block.presentation.Image)
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setDepthImage(int,com.idega.block.presentation.Image)
@@ -978,9 +1140,10 @@ public class NavigationTree extends Block {
 	public void setImagePadding(int imagePadding) {
 		_imagePadding = imagePadding;
 	}
-	
+
 	/**
-	 * Sets the indent for the first level in the tree.  Set to 0 by default.
+	 * Sets the indent for the first level in the tree. Set to 0 by default.
+	 * 
 	 * @param initialIndent
 	 */
 	public void setInitialIndent(int initialIndent) {
@@ -988,8 +1151,10 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the maximum depth for styles in the <code>NavigationTree</code>.  Used to restrict how far down the tree new
-	 * styles are specified.  Set to -1 by default, meaning no restrictions.
+	 * Sets the maximum depth for styles in the <code>NavigationTree</code>.
+	 * Used to restrict how far down the tree new styles are specified. Set to -1
+	 * by default, meaning no restrictions.
+	 * 
 	 * @param maxDepthForStyles
 	 */
 	public void setMaxDepthForStyles(int maxDepthForStyles) {
@@ -997,7 +1162,9 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the padding for individual cells in the <code>NavigationTree</code>.  Set to 0 by default.
+	 * Sets the padding for individual cells in the <code>NavigationTree</code>.
+	 * Set to 0 by default.
+	 * 
 	 * @param padding
 	 */
 	public void setPadding(int padding) {
@@ -1005,7 +1172,9 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the width of the <code>NavigationTree</code>.  Set to 150px by default.
+	 * Sets the width of the <code>NavigationTree</code>. Set to 150px by
+	 * default.
+	 * 
 	 * @param width
 	 */
 	public void setWidth(String width) {
@@ -1013,8 +1182,9 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the name of the style to use for links in the stylesheet.  Is set by default to a global name, can be altered
-	 * to allow for individual settings.
+	 * Sets the name of the style to use for links in the stylesheet. Is set by
+	 * default to a global name, can be altered to allow for individual settings.
+	 * 
 	 * @param linkStyleName
 	 */
 	public void setLinkStyleName(String linkStyleName) {
@@ -1022,16 +1192,18 @@ public class NavigationTree extends Block {
 	}
 
 	/**
-	 * Sets the name of the style to use for texts in the stylesheet.  Is set by default to a global name, can be altered
-	 * to allow for individual settings.
+	 * Sets the name of the style to use for texts in the stylesheet. Is set by
+	 * default to a global name, can be altered to allow for individual settings.
+	 * 
 	 * @param textStyleName
 	 */
 	public void setTextStyleName(String textStyleName) {
 		this.textStyleName = textStyleName;
 	}
-	
+
 	/**
 	 * Sets the color for the border around the <code>NavigationTree</code>
+	 * 
 	 * @param borderColor
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setShowBorder(boolean)
 	 */
@@ -1041,14 +1213,16 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets whether to set a border around the entire <code>NavigationTree</code>
+	 * 
 	 * @param showBorder
 	 */
 	public void setShowBorder(boolean showBorder) {
 		_showBorder = showBorder;
 	}
-	
+
 	/**
 	 * Sets the closed <code>Image</code> to display in the tree.
+	 * 
 	 * @param closedImage
 	 */
 	public void setClosedImage(Image closedImage) {
@@ -1057,6 +1231,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the closed image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -1065,17 +1240,19 @@ public class NavigationTree extends Block {
 			_depthClosedImage = new HashMap();
 		_depthClosedImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
 	 * Sets the open <code>Image</code> to display in the tree.
+	 * 
 	 * @param openImage
 	 */
 	public void setOpenImage(Image openImage) {
 		_openImage = openImage;
 	}
-	
+
 	/**
 	 * Sets the open image to display for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param image
 	 */
@@ -1084,17 +1261,20 @@ public class NavigationTree extends Block {
 			_depthOpenImage = new HashMap();
 		_depthOpenImage.put(new Integer(depth - 1), image);
 	}
-	
+
 	/**
-	 * Sets the blank <code>Image</code> to display in the tree when page has no children.
+	 * Sets the blank <code>Image</code> to display in the tree when page has no
+	 * children.
+	 * 
 	 * @param blankImage
 	 */
 	public void setBlankImage(Image blankImage) {
 		_blankImage = blankImage;
 	}
-	
+
 	/**
 	 * Sets to debug actions.
+	 * 
 	 * @param debug
 	 */
 	public void setDebug(boolean debug) {
@@ -1103,38 +1283,47 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Returns the padding used for the tree.
+	 * 
 	 * @return
 	 */
 	protected int getPadding() {
 		return _padding;
 	}
-	
+
 	/**
-	 * Returns the background color used for the tree.  Returns NULL if no color is set.
+	 * Returns the background color used for the tree. Returns NULL if no color is
+	 * set.
+	 * 
 	 * @return
 	 */
 	protected String getBackgroundColor() {
 		return _backgroundColor;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.idega.presentation.PresentationObject#debug(java.lang.String)
 	 */
 	public void debug(String outputString) {
 		if (_debug)
-			System.out.println("[NavigationTree]: "+outputString);
+			System.out.println("[NavigationTree]: " + outputString);
 	}
 
 	/**
-	 * Sets the background color for the pages that are 'current', i.e. the current page or its parent pages.
-	 * @param currentColor The currentColor to set.
+	 * Sets the background color for the pages that are 'current', i.e. the
+	 * current page or its parent pages.
+	 * 
+	 * @param currentColor
+	 *          The currentColor to set.
 	 */
 	public void setCurrentColor(String currentColor) {
 		setDepthCurrentColor(1, currentColor);
 	}
-	
+
 	/**
 	 * Sets the background color for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param color
 	 */
@@ -1143,10 +1332,13 @@ public class NavigationTree extends Block {
 			_depthCurrentColor = new HashMap();
 		_depthCurrentColor.put(new Integer(depth - 1), color);
 	}
-	
+
 	/**
-	 * Sets the background color for the pages that are 'selected', i.e. the selected page or its parent pages.
-	 * @param selectedColor The selectedColor to set.
+	 * Sets the background color for the pages that are 'selected', i.e. the
+	 * selected page or its parent pages.
+	 * 
+	 * @param selectedColor
+	 *          The selectedColor to set.
 	 */
 	public void setSelectedColor(String selectedColor) {
 		setDepthSelectedColor(1, selectedColor);
@@ -1154,6 +1346,7 @@ public class NavigationTree extends Block {
 
 	/**
 	 * Sets the background color for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param color
 	 */
@@ -1162,9 +1355,10 @@ public class NavigationTree extends Block {
 			_depthSelectedColor = new HashMap();
 		_depthSelectedColor.put(new Integer(depth - 1), color);
 	}
-	
+
 	/**
 	 * Sets the alignment for a specific depth level.
+	 * 
 	 * @param depth
 	 * @param alignment
 	 */
@@ -1173,23 +1367,32 @@ public class NavigationTree extends Block {
 			_depthAlignment = new HashMap();
 		_depthAlignment.put(new Integer(depth - 1), alignment);
 	}
-	
+
 	public void setAlignment(String alignment) {
 		_textAlignment = alignment;
 	}
-	
+
 	protected ICTreeNode getRootNode() {
 		return _rootPage;
 	}
-	
+
 	protected Object getRootNodeId() {
 		return new Integer(_rootPageID);
 	}
-	
+
 	/**
-	 * @param onlyCurrentPage The _markOnlyCurrentPage to set.
+	 * @param onlyCurrentPage
+	 *          The _markOnlyCurrentPage to set.
 	 */
 	public void setToMarkOnlyCurrentPage(boolean onlyCurrentPage) {
 		_markOnlyCurrentPage = onlyCurrentPage;
+	}
+
+	public void setOpenOnUserHomepage(boolean openOnUserHomepage) {
+		iOpenOnUserHomePage = openOnUserHomepage;
+	}
+	
+	public void setToOrderPagesAlphabetically(boolean orderAlphabetically) {
+		iOrderPagesAlphabetically = orderAlphabetically;
 	}
 }
