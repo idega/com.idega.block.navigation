@@ -35,7 +35,7 @@ public class NavigationMenu extends Block {
 			   HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
 
   private int viewType = 1;
-  private int rootNode = 1;
+  private int rootNode = -1;
 
   private IWBundle iwb;
   private IWResourceBundle iwrb;
@@ -44,22 +44,33 @@ public class NavigationMenu extends Block {
   private int fontSize = 2;
   private String fontColor = "#000000";
   private String bgrColor = "#FFFFFF";
-  private String higligtFontColor = "#999999";
-  private String higligtBgrColor = "#FFFFFF";
+  private String highlightFontColor = "#999999";
+  private String subHighlightFontColor = "#999999";
+  private String higlightBgrColor = "#FFFFFF";
   private String tableBackGroundColor = null;
   private String width = null;
   private String height = null;
 
   private boolean _styles = true;
+  private boolean _subStyles = true;
   private String _name;
   private String _hoverName;
+  private String _subName;
+  private String _subHoverName;
   private String fontStyle;
+  private String subFontStyle;
   private String fontHoverColor;
   private boolean fontHoverUnderline = false;
+  private String subFontHoverColor;
+  private boolean subFontHoverUnderline = false;
 
   private Image _iconImage;
   private Image _iconOverImage;
+  private Image _subIconImage;
+  private Image _subIconOverImage;
   private Image _spacer;
+  private Image spacer;
+  private Image subNodeImage;
   private int _widthFromIcon = 5;
   private int _subWidthFromParent = 10;
 
@@ -74,6 +85,7 @@ public class NavigationMenu extends Block {
   private boolean asFlipped = false;
   private boolean withRootAsHome = true;
   private boolean _showSubPages = false;
+  private boolean _showAllSubPages = false;
   private String HomeVerticalAlignment = VerticalAlignmentHandler.BOTTOM;
   private String HomeHorizontalAlignment = HorizontalAlignmentHandler.RIGHT;
 
@@ -83,6 +95,11 @@ public class NavigationMenu extends Block {
 
   public void main(IWContext iwc){
     setStyles();
+
+    if ( rootNode == -1 ) {
+      rootNode = BuilderLogic.getStartPageId(iwc);
+    }
+
     String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
     currentPageId = sCurrentPageId !=null ? Integer.parseInt(sCurrentPageId):rootNode;
 
@@ -126,16 +143,16 @@ public class NavigationMenu extends Block {
 
     Link L = null;
     Text text = null;
-    Image spacer = Table.getTransparentCell(iwc);
+    spacer = Table.getTransparentCell(iwc);
       spacer.setWidth(_widthFromIcon);
-    Image subNodeImage = (Image) spacer.clone();
+    subNodeImage = (Image) spacer.clone();
       subNodeImage.setWidth(_subWidthFromParent);
       subNodeImage.setHeight(2);
 
     Iterator iterator = nodeVector.iterator();
     while (iterator.hasNext()) {
       PageTreeNode n = (PageTreeNode) iterator.next();
-      L = getLink(n.getNodeName(),n.getNodeID(),rootNode,_addParentID);
+      L = getLink(n.getNodeName(),n.getNodeID(),rootNode,_addParentID,false);
       if ( _iconImage != null ) {
 
 	Image image = new Image(_iconImage.getMediaURL(iwc));
@@ -151,25 +168,18 @@ public class NavigationMenu extends Block {
 	T.add(L,col++,row);
       else {
 	T.add(L,col,row++);
-	if ( _showSubPages && (n.getNodeID() == currentPageId || n.getNodeID() == parentPageId) && n.getNodeID() != rootNode ) {
-	  Iterator i = n.getChildren();
-	  while (i.hasNext()) {
-	    PageTreeNode subNode = (PageTreeNode) i.next();
-	    L = getLink(subNode.getNodeName(),subNode.getNodeID(),subNode.getParentNode().getNodeID(),true);
-	    T.add(subNodeImage,col,row);
-	    if ( _iconImage != null ) {
-	      Image image = new Image(_iconImage.getMediaURL(iwc));
-	      if ( _iconOverImage != null )
-		L.setOnMouseOverImage(image,_iconOverImage);
-	      T.add(image,col,row);
-	      T.add(spacer,col,row);
-	    }
-	    T.add(L,col,row++);
-	  }
-	}
+        if ( _showAllSubPages ) {
+          if (  n.getNodeID() != rootNode )
+            row = addSubLinks(iwc,T,col,row,L,n);
+        }
+        else {
+          if ( _showSubPages && (n.getNodeID() == currentPageId || n.getNodeID() == parentPageId) && n.getNodeID() != rootNode ) {
+            row = addSubLinks(iwc,T,col,row,L,n);
+          }
+        }
       }
 
-      if ( _spacer != null ) {
+      if ( _spacer != null && iterator.hasNext() ) {
 	if ( !vertical )
 	  T.add(_spacer,col++,row);
 	else
@@ -180,17 +190,44 @@ public class NavigationMenu extends Block {
     add(T);
   }
 
-  private Link getLink(String text, int PageId, int parentPageID, boolean addParentID){
+  private int addSubLinks(IWContext iwc,Table table, int column, int row, Link link, PageTreeNode node) {
+    Iterator i = node.getChildren();
+    while (i.hasNext()) {
+      PageTreeNode subNode = (PageTreeNode) i.next();
+      link = getLink(subNode.getNodeName(),subNode.getNodeID(),node.getNodeID(),true,true);
+      if ( _subWidthFromParent > 0 )
+        table.add(subNodeImage,column,row);
+      if ( _subIconImage != null ) {
+        Image image = new Image(_subIconImage.getMediaURL(iwc));
+        if ( _subIconOverImage != null )
+          link.setOnMouseOverImage(image,_subIconOverImage);
+        table.add(image,column,row);
+        table.add(spacer,column,row);
+      }
+      table.add(link,column,row++);
+    }
+    return row;
+  }
+
+  private Link getLink(String text, int PageId, int parentPageID, boolean addParentID,boolean isSubPage){
     Link L  = new Link(text);
       if(_styles){
-	if ( PageId == currentPageId )
-	  L.setStyle(_hoverName);
-	else
-	  L.setStyle(_name);
+	if ( isSubPage && _subStyles ) {
+          if ( PageId == currentPageId )
+            L.setStyle(_subHoverName);
+          else
+            L.setStyle(_subName);
+        }
+        else {
+          if ( PageId == currentPageId )
+            L.setStyle(_hoverName);
+          else
+            L.setStyle(_name);
+        }
       }
       else {
 	if ( PageId == currentPageId )
-	  L.setFontColor(higligtFontColor);
+	  L.setFontColor(highlightFontColor);
 	else
 	  L.setFontColor(fontColor);
 	L.setFontSize(fontSize);
@@ -219,6 +256,8 @@ public class NavigationMenu extends Block {
 	_name = "nav_"+Double.toString(Math.random());
     }
     _hoverName  = "hover_"+_name;
+    _subName = "sub_"+_name;
+    _subHoverName = "subHover_"+_name;
 
     if ( getParentPage() != null && fontStyle != null) {
       TextStyler styler = new TextStyler(fontStyle);
@@ -231,8 +270,8 @@ public class NavigationMenu extends Block {
       getParentPage().setStyleDefinition("A."+_name+":hover",styler.getStyleString());
 
       TextStyler styler2 = new TextStyler(fontStyle);
-      if ( higligtFontColor != null )
-	styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,higligtFontColor);
+      if ( highlightFontColor != null )
+	styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,highlightFontColor);
       String style = styler2.getStyleString();
 
       getParentPage().setStyleDefinition("A."+_hoverName,style);
@@ -245,6 +284,33 @@ public class NavigationMenu extends Block {
     }
     else {
       _styles = false;
+    }
+
+    if ( getParentPage() != null && subFontStyle != null) {
+      TextStyler styler = new TextStyler(subFontStyle);
+      if ( subFontHoverUnderline )
+	styler.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION,StyleConstants.TEXT_DECORATION_UNDERLINE);
+      if ( subFontHoverColor != null )
+	styler.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,subFontHoverColor);
+
+      getParentPage().setStyleDefinition("A."+_subName,subFontStyle);
+      getParentPage().setStyleDefinition("A."+_subName+":hover",styler.getStyleString());
+
+      TextStyler styler2 = new TextStyler(subFontStyle);
+      if ( subHighlightFontColor != null )
+	styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,subHighlightFontColor);
+      String style = styler2.getStyleString();
+
+      getParentPage().setStyleDefinition("A."+_subHoverName,style);
+
+      if ( subFontHoverUnderline )
+	styler2.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION,StyleConstants.TEXT_DECORATION_UNDERLINE);
+      if ( subFontHoverColor != null )
+	styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,subFontHoverColor);
+      getParentPage().setStyleDefinition("A."+_subHoverName+":hover",styler2.getStyleString());
+    }
+    else {
+      _subStyles = false;
     }
   }
 
@@ -282,12 +348,24 @@ public class NavigationMenu extends Block {
     fontStyle = style;
   }
 
+  public void setSubFontStyle(String style){
+    subFontStyle = style;
+  }
+
   public void setFontHoverColor(String color){
     fontHoverColor = color;
   }
 
+  public void setSubpagesFontHoverColor(String color){
+    subFontHoverColor = color;
+  }
+
   public void setFontHoverUnderline(boolean underline){
     fontHoverUnderline = underline;
+  }
+
+  public void setSubpagesFontHoverUnderline(boolean underline){
+    subFontHoverUnderline = underline;
   }
 
   public void setBackgroundColor(String color){
@@ -299,11 +377,15 @@ public class NavigationMenu extends Block {
   }
 
   public void setHighlightFontColor(String color){
-    higligtFontColor = color;
+    highlightFontColor = color;
+  }
+
+  public void setSubpagesHighlightFontColor(String color){
+    subHighlightFontColor = color;
   }
 
   public void setHighligtBackgroundColor(String color){
-    higligtFontColor = color;
+    highlightFontColor = color;
   }
 
   public void setWidth(String width){
@@ -349,8 +431,16 @@ public class NavigationMenu extends Block {
     _iconImage = iconImage;
   }
 
+  public void setSubpageIconImage(Image iconImage) {
+    _subIconImage = iconImage;
+  }
+
   public void setIconOverImage(Image iconOverImage) {
     _iconOverImage = iconOverImage;
+  }
+
+  public void setSubpageIconOverImage(Image iconOverImage) {
+    _subIconOverImage = iconOverImage;
   }
 
   public void setWidthFromIcon(int widthFromIcon) {
@@ -366,11 +456,18 @@ public class NavigationMenu extends Block {
   }
 
   public void setAddParentID(boolean addID) {
-    _addParentID = addID;
+    if ( addID && ( !_showSubPages || !_showAllSubPages ) )
+      _addParentID = addID;
   }
 
   public void setShowSubPages(boolean showSubPages) {
     _showSubPages = showSubPages;
+    setAddParentID(true);
+  }
+
+  public void setShowAllSubPages(boolean showAllSubPages) {
+    _showAllSubPages = showAllSubPages;
+    setAddParentID(true);
   }
 
   public Object clone() {
@@ -383,6 +480,21 @@ public class NavigationMenu extends Block {
       }
       if ( this._iconOverImage != null ) {
 	obj._iconOverImage = (Image) this._iconOverImage.clone();
+      }
+      if ( this._subIconImage != null ) {
+	obj._subIconImage = (Image) this._subIconImage.clone();
+      }
+      if ( this._subIconOverImage != null ) {
+	obj._subIconOverImage = (Image) this._subIconOverImage.clone();
+      }
+      if ( this._spacer != null ) {
+	obj._spacer = (Image) this._spacer.clone();
+      }
+      if ( this.spacer != null ) {
+	obj.spacer = (Image) this.spacer.clone();
+      }
+      if ( this.subNodeImage != null ) {
+	obj.subNodeImage = (Image) this.subNodeImage.clone();
       }
     }
     catch (Exception ex) {
