@@ -43,15 +43,16 @@ public class UserHomeLink extends Block {
 	}
 
 	public void main(IWContext iwc){
-		User newUser = iwc.getCurrentUser();
+		
 		Table table = new Table();
 		table.setCellpadding(0);
 		table.setCellspacing(0);
 		int column = 1;
 		int pageID = this.getParentPageID();
 		
-		if(newUser!=null){
+		if(iwc.isLoggedOn()){
 			try{
+				User newUser = iwc.getCurrentUser();
 				int homePageID = getUserBusiness(iwc).getHomePageIDForUser(newUser);
 				if(homePageID!=-1){
 					Link link = new Link();
