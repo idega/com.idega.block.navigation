@@ -24,7 +24,7 @@ import com.idega.builder.handler.HorizontalAlignmentHandler;
  * Description:
  * Copyright:    Copyright (c) 2000-2001 idega.is All Rights Reserved
  * Company:      idega
-  *@author <a href="mailto:aron@idega.is">Aron Birkir</a>
+  *@author <a href="mailto:aron@idega.is">Aron Birkir</a> & <a href="mailto:laddi@idega.is">Thorhallur Helgason</a>
  * @version 1.0
  */
 
@@ -51,6 +51,7 @@ public class NavigationMenu extends Block {
 
   private boolean _styles = true;
   private String _name;
+  private String _hoverName;
   private String fontStyle;
 
   private Image _iconImage;
@@ -94,7 +95,6 @@ public class NavigationMenu extends Block {
       T.setWidth(width);
     if(height != null)
       T.setHeight(height);
-    T.setColor(bgrColor);
 
     Link L = null;
     Text text = null;
@@ -102,7 +102,7 @@ public class NavigationMenu extends Block {
       spacer.setWidth(_widthFromIcon);
 
     if(withRootAsHome){
-      L = getLink(node.getNodeName(),node.getNodeID());
+      L = getLink(node.getNodeName(),node.getNodeID(),currentPageId);
       if(vertical && !bottom){
         if ( _iconImage != null ) {
           Image image = new Image(_iconImage.getMediaServletString());
@@ -133,10 +133,7 @@ public class NavigationMenu extends Block {
     if(I!=null){
       while(I.hasNext()){
         PageTreeNode n = (PageTreeNode) I.next();
-        if ( n.getNodeID() == currentPageId )
-          text = getText(n.getNodeName());
-        else
-          L = getLink(n.getNodeName(),n.getNodeID());
+        L = getLink(n.getNodeName(),n.getNodeID(),currentPageId);
         if ( _iconImage != null ) {
           Image image = new Image(_iconImage.getMediaServletString());
           if ( _iconOverImage != null && L != null )
@@ -144,10 +141,7 @@ public class NavigationMenu extends Block {
           T.add(image,col,row);
           T.add(spacer,col,row);
         }
-        if ( n.getNodeID() == currentPageId )
-          T.add(text,col,row);
-        else
-          T.add(L,col,row);
+        T.add(L,col,row);
         if ( _spacer != null && !vertical ) {
           col++;
           T.add(_spacer,col,row);
@@ -161,7 +155,7 @@ public class NavigationMenu extends Block {
 
     if(withRootAsHome){
       if(bottom || !left){
-        L = getLink(node.getNodeName(),node.getNodeID());
+        L = getLink(node.getNodeName(),node.getNodeID(),currentPageId);
         if ( _iconImage != null ) {
           Image image = new Image(_iconImage.getMediaServletString());
           if ( _iconOverImage != null )
@@ -176,10 +170,13 @@ public class NavigationMenu extends Block {
     add(T);
   }
 
-  private Link getLink(String text, int PageId){
+  private Link getLink(String text, int PageId, int currentPageId){
     Link L  = new Link(text);
       if(_styles){
-        L.setStyle(_name);
+        if ( PageId == currentPageId )
+          L.setStyle(_hoverName);
+        else
+          L.setStyle(_name);
       }
       else {
         L.setFontColor(currentPageId != PageId?fontColor:higligtFontColor);
@@ -197,20 +194,6 @@ public class NavigationMenu extends Block {
     return L;
   }
 
-  private Text getText(String text){
-    Text T  = new Link(text);
-      if(_styles){
-        com.idega.util.text.TextStyler styler = new com.idega.util.text.TextStyler(fontStyle);
-        styler.setStyleValue(com.idega.util.text.StyleConstants.ATTRIBUTE_COLOR,higligtFontColor);
-        T.setFontStyle(styler.getStyleString());
-      }
-      else {
-        T.setFontColor(higligtFontColor);
-        T.setFontSize(fontSize);
-      }
-    return T;
-  }
-
   private void setStyles() {
     if ( _name == null )
       _name = this.getName();
@@ -220,6 +203,7 @@ public class NavigationMenu extends Block {
       else
         _name = "nav_"+Double.toString(Math.random());
     }
+    _hoverName  = "hover_"+_name;
 
     if ( getParentPage() != null && fontStyle != null) {
       TextStyler styler = new TextStyler(fontStyle);
@@ -229,6 +213,18 @@ public class NavigationMenu extends Block {
       getParentPage().setStyleDefinition("A."+_name+":visited",fontStyle);
       getParentPage().setStyleDefinition("A."+_name+":active",fontStyle);
       getParentPage().setStyleDefinition("A."+_name+":hover",styler.getStyleString());
+
+      TextStyler styler2 = new TextStyler(fontStyle);
+      if ( higligtFontColor != null )
+        styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR,higligtFontColor);
+      String style = styler2.getStyleString();
+
+      getParentPage().setStyleDefinition("A."+_hoverName+":link",style);
+      getParentPage().setStyleDefinition("A."+_hoverName+":visited",style);
+      getParentPage().setStyleDefinition("A."+_hoverName+":active",style);
+
+      styler2.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION,StyleConstants.TEXT_DECORATION_UNDERLINE);
+      getParentPage().setStyleDefinition("A."+_hoverName+":hover",styler2.getStyleString());
     }
     else {
       _styles = false;
