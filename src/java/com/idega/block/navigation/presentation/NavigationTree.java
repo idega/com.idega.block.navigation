@@ -343,19 +343,18 @@ public class NavigationTree extends Block {
 	 * @return
 	 */
 	private String getDepthHoverColor(PageTreeNode page, int depth) {
-		if (page.equals(this._rootPage)) {
-			return null;
-		}
-		else if (isCurrent(page)) {
+		if (isCurrent(page)) {
 			return null;
 		}
 		else if (isSelected(page)) {
 			return null;
 		}
 		else {
-			String color = (String) _depthHoverColor.get(new Integer(depth));
-			if (color != null) {
-				return color;
+			if (_depthHoverColor != null) {
+				String color = (String) _depthHoverColor.get(new Integer(depth));
+				if (color != null) {
+					return color;
+				}
 			}
 			return null;
 		}
