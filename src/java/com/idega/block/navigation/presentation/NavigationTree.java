@@ -266,15 +266,9 @@ public class NavigationTree extends Block {
 	
 	private PresentationObject getLink(ICTreeNode page, IWContext iwc, int depth) {
 		String name = getLocalizedName(page, iwc);
-		boolean isCategory = getIsCategory(page);
 
 		if (page.getNodeID() != _currentPageID) {
 			Link link = getStyleLink(name, getStyleName(linkStyleName, depth));
-			if (!isCategory)
-				link.setPage(page.getNodeID());
-			else
-				link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
-
 			addParameterToLink(link, page);
 			return link;
 		}
@@ -285,7 +279,11 @@ public class NavigationTree extends Block {
 	}
 	
 	protected void addParameterToLink(Link link, ICTreeNode page) {
-		
+		boolean isCategory = getIsCategory(page);
+		if (!isCategory)
+			link.setPage(page.getNodeID());
+		else
+			link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
 	}
 	
 	/**
@@ -412,7 +410,7 @@ public class NavigationTree extends Block {
 	private String getDepthColor(ICTreeNode page, int depth) {
 		if (!page.equals(this.getRootNode())) {
 			if (_markOnlyCurrentPage) {
-				if (page.getNodeID() == _currentPageID) {
+				if (isCurrent(page)) {
 					if (_depthCurrentColor != null) {
 						String color = (String) _depthCurrentColor.get(new Integer(depth));
 						if (color != null) {
@@ -681,7 +679,7 @@ public class NavigationTree extends Block {
 	 * @param page	The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	private boolean isCurrent(ICTreeNode page) {
+	protected boolean isCurrent(ICTreeNode page) {
 		if (_currentPages != null && _currentPages.contains(new Integer(page.getNodeID())))
 			return true;
 		return false;
