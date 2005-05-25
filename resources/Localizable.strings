@@ -2,6 +2,7 @@ body=
 go=Forts\u00E4tt
 iw.component.com.idega.block.login.presentation.WelcomeMessage.name=
 iw.component.com.idega.block.navigation.presentation.NavigationDropdownMenu.name=NavigationDropdownMenu
+iw.component.com.idega.block.navigation.presentation.NavigationList.name=NavigationList (CSS)
 iw.component.com.idega.block.navigation.presentation.NavigationMenu.name=NavigationMenu
 iw.component.com.idega.block.navigation.presentation.NavigationTree.name=
 iw.component.com.idega.block.navigation.presentation.UserHomeLink.name=
