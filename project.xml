@@ -5,7 +5,8 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Navigation Block</name>
   <artifactId>com.idega.block.navigation</artifactId>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <currentVersion>1.0.1</currentVersion>
+  <!--currentVersion>1.0-SNAPSHOT</currentVersion-->
   <inceptionYear>2000</inceptionYear>
   <shortDescription>Navigation</shortDescription>
   <versions>
@@ -45,8 +46,8 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <!--<version>1.9</version>-->
-      <version>SNAPSHOT</version>
+      <!--HELPER--><version>3.0.5</version><!--HELPER-->
+      <!--HELPERversion>SNAPSHOT</versionHELPER-->
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -56,8 +57,8 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.builder</artifactId>
-      <!--<version>1.1</version>-->
-      <version>SNAPSHOT</version>
+      <!--HELPER--><version>1.4.2</version><!--HELPER-->
+      <!--HELPERversion>SNAPSHOT</versionHELPER-->
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -67,8 +68,8 @@
     <dependency>
         <groupId>bundles</groupId>
         <artifactId>com.idega.slide</artifactId>
-        <!--<version>1.9</version>-->
-        <version>SNAPSHOT</version>
+        <!--HELPER--><version>0.4.2</version><!--HELPER-->
+        <!--HELPERversion>SNAPSHOT</versionHELPER-->
         <type>jar</type>
         <url>http://www.idega.com/</url>
         <properties><eclipse.dependency>true</eclipse.dependency></properties>
@@ -76,7 +77,8 @@
     <dependency>
         <groupId>bundles</groupId>
         <artifactId>com.idega.content</artifactId>
-        <version>SNAPSHOT</version>
+        <!--HELPER--><version>0.6.2</version><!--HELPER-->
+        <!--HELPERversion>SNAPSHOT</versionHELPER-->
         <type>jar</type>
         <url>http://www.idega.com/</url>
         <properties><eclipse.dependency>true</eclipse.dependency></properties>
@@ -87,9 +89,6 @@
         <version>2.2pre1.iwbuild4</version>
         <type>jar</type>
         <url>http://www.slide.com/</url>
-		<properties>
-			<idegaweb.bundle.include>true</idegaweb.bundle.include>
-		</properties>
     </dependency>  
     <dependency>
       <groupId>commons-httpclient</groupId>
@@ -97,9 +96,6 @@
       <version>2.0.2</version>
       <type>jar</type>
       <url>http://jakarta.apache.org/commons/httpclient/</url>
-      <properties>
-        <idegaweb.bundle.include>true</idegaweb.bundle.include>
-      </properties>
     </dependency>
   </dependencies>
 </project>
