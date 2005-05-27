@@ -5,11 +5,17 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Navigation Block</name>
   <artifactId>com.idega.block.navigation</artifactId>
-  <currentVersion>1.0.1</currentVersion>
-  <!--currentVersion>1.0-SNAPSHOT</currentVersion-->
+  <!--currentVersion>1.0.1</currentVersion-->
+  <currentVersion>1.0-SNAPSHOT</currentVersion>
+
   <inceptionYear>2000</inceptionYear>
   <shortDescription>Navigation</shortDescription>
   <versions>
+    <version>
+      <id>1.0.1</id>
+      <name>1.0.1</name>
+      <tag>NAVIGATION_1_0_1</tag>
+    </version>
   </versions>
   <branches/>
   <developers>
@@ -46,8 +52,9 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <!--HELPER--><version>3.0.5</version><!--HELPER-->
-      <!--HELPERversion>SNAPSHOT</versionHELPER-->
+      <!--version>3.0.5</version-->
+      <version>SNAPSHOT</version>
+
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -57,8 +64,9 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.builder</artifactId>
-      <!--HELPER--><version>1.4.2</version><!--HELPER-->
-      <!--HELPERversion>SNAPSHOT</versionHELPER-->
+      <!--version>1.4.2</version-->
+      <version>SNAPSHOT</version>
+
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -66,30 +74,36 @@
       </properties>
     </dependency>
     <dependency>
-        <groupId>bundles</groupId>
-        <artifactId>com.idega.slide</artifactId>
-        <!--HELPER--><version>0.4.2</version><!--HELPER-->
-        <!--HELPERversion>SNAPSHOT</versionHELPER-->
-        <type>jar</type>
-        <url>http://www.idega.com/</url>
-        <properties><eclipse.dependency>true</eclipse.dependency></properties>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.slide</artifactId>
+      <!--version>0.4.2</version-->
+      <version>SNAPSHOT</version>
+
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
-        <groupId>bundles</groupId>
-        <artifactId>com.idega.content</artifactId>
-        <!--HELPER--><version>0.6.2</version><!--HELPER-->
-        <!--HELPERversion>SNAPSHOT</versionHELPER-->
-        <type>jar</type>
-        <url>http://www.idega.com/</url>
-        <properties><eclipse.dependency>true</eclipse.dependency></properties>
+      <groupId>bundles</groupId>
+      <artifactId>com.idega.content</artifactId>
+      <!--version>0.6.2</version-->
+      <version>SNAPSHOT</version>
+
+      <type>jar</type>
+      <url>http://www.idega.com/</url>
+      <properties>
+        <eclipse.dependency>true</eclipse.dependency>
+      </properties>
     </dependency>
     <dependency>
-        <groupId>slide</groupId>
-        <artifactId>jakarta-slide-webdavlib</artifactId>
-        <version>2.2pre1.iwbuild4</version>
-        <type>jar</type>
-        <url>http://www.slide.com/</url>
-    </dependency>  
+      <groupId>slide</groupId>
+      <artifactId>jakarta-slide-webdavlib</artifactId>
+      <version>2.2pre1.iwbuild4</version>
+      <type>jar</type>
+      <url>http://www.slide.com/</url>
+    </dependency>
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
