@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.3 2005/03/02 09:18:49 laddi Exp $
+ * $Id: NavigationList.java,v 1.4 2005/07/11 16:35:38 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -43,10 +43,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/03/02 09:18:49 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/07/11 16:35:38 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class NavigationList extends Block {
 
@@ -76,8 +76,11 @@ public class NavigationList extends Block {
 	private boolean _markOnlyCurrentPage = false;
 	private boolean iOpenOnUserHomePage = false;
 	private boolean iOrderPagesAlphabetically = false;
+	private boolean iHideSubPages = false;
+	private boolean iUseStyleLinks = true;
 
 	private int _rootPageID = -1;
+	private String iSelectedID = null;
 	
 	private Map _depthOrderPagesAlphabetically;
 
@@ -171,7 +174,7 @@ public class NavigationList extends Block {
 				addObject(iwc, page, nodeComponent, row, depth);
 				row = setRowAttributes(nodeComponent, page, row, depth, !children.hasNext());
 
-				if (isOpen(page) && page.getChildCount() > 0) {
+				if (isOpen(page) && page.getChildCount() > 0 && !iHideSubPages) {
 					UIComponent newList = getSubTreeComponent(nodeComponent,row,depth);
 					row = addToTree(iwc, page.getChildren(), newList, row, depth + 1);
 				}
@@ -225,8 +228,15 @@ public class NavigationList extends Block {
 	 * @param depth
 	 */
 	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth) {
+		ListItem listItem = new ListItem();
 		UIComponent link = getLink(page, iwc, depth);
-		list.getChildren().add(link);
+		listItem.add(link);
+		
+		if (page.getNodeID() != getCurrentPageId() && iSelectedID != null) {
+			listItem.setID(iSelectedID);
+		}
+		
+		list.getChildren().add(listItem);
 	}
 	
 	/**
@@ -249,14 +259,19 @@ public class NavigationList extends Block {
 	protected UIComponent getLink(ICTreeNode page, IWContext iwc, int depth) {
 		String name = getLocalizedName(page, iwc);
 
-		if (page.getNodeID() != getCurrentPageId()) {
-			Link link = getStyleLink(name, getStyleName(linkStyleName, depth));
-			addParameterToLink(link, page);
-			return link;
+		if (iUseStyleLinks) {
+			if (page.getNodeID() != getCurrentPageId()) {
+				Link link = getStyleLink(name, getStyleName(linkStyleName, depth));
+				addParameterToLink(link, page);
+				return link;
+			}
+			else {
+				Text text = getStyleText(name, getStyleName(textStyleName, depth));
+				return text;
+			}
 		}
 		else {
-			Text text = getStyleText(name, getStyleName(textStyleName, depth));
-			return text;
+			return new Text(name);
 		}
 	}
 	
@@ -604,4 +619,15 @@ public class NavigationList extends Block {
 		iOrderPagesAlphabetically = orderAlphabetically;
 	}
 
+	public void setHideSubPages(boolean hide) {
+		iHideSubPages = hide;
+	}
+	
+	public void setSelectedID(String ID) {
+		iSelectedID = ID;
+	}
+	
+	public void setUseStyleLinks(boolean useStyleLinks) {
+		iUseStyleLinks = useStyleLinks;
+	}
 }
