@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.4 2005/07/11 16:35:38 laddi Exp $
+ * $Id: NavigationList.java,v 1.5 2005/07/11 18:34:29 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -43,10 +43,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/07/11 16:35:38 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/07/11 18:34:29 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class NavigationList extends Block {
 
@@ -81,6 +81,7 @@ public class NavigationList extends Block {
 
 	private int _rootPageID = -1;
 	private String iSelectedID = null;
+	private String iListID = null;
 	
 	private Map _depthOrderPagesAlphabetically;
 
@@ -118,6 +119,9 @@ public class NavigationList extends Block {
 	protected UIComponent getTree(IWContext iwc) {
 		//TODO: implement a CSS version here
 		Lists list = new Lists();
+		if (iListID != null) {
+			list.setID(iListID);
+		}
 		String styleClass = getStyleClass();
 		if(styleClass!=null){
 			list.setStyleClass(styleClass);
@@ -621,6 +625,10 @@ public class NavigationList extends Block {
 
 	public void setHideSubPages(boolean hide) {
 		iHideSubPages = hide;
+	}
+	
+	public void setListID(String ID) {
+		iListID = ID;
 	}
 	
 	public void setSelectedID(String ID) {
