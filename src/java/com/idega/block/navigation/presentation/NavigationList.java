@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.6 2005/07/12 00:23:51 laddi Exp $
+ * $Id: NavigationList.java,v 1.7 2005/07/13 11:17:25 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -43,10 +43,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/07/12 00:23:51 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/07/13 11:17:25 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class NavigationList extends Block {
 
@@ -173,7 +173,7 @@ public class NavigationList extends Block {
 			}
 
 			if (hasPermission) {
-				UIComponent nodeComponent = getNodeComponent(pageList,row,depth);
+				UIComponent nodeComponent = getNodeComponent(pageList,page,row,depth);
 				
 				addObject(iwc, page, nodeComponent, row, depth);
 				row = setRowAttributes(nodeComponent, page, row, depth, !children.hasNext());
@@ -210,8 +210,11 @@ public class NavigationList extends Block {
 	 * @param depth
 	 * @return
 	 */
-	protected UIComponent getNodeComponent(UIComponent outerContainer,int row,int depth){
+	protected UIComponent getNodeComponent(UIComponent outerContainer,ICTreeNode page,int row,int depth){
 		ListItem item = new ListItem();
+		if ((isOpen(page) || page.getNodeID() == getCurrentPageId()) && iSelectedID != null) {
+			item.setID(iSelectedID);
+		}
 		outerContainer.getChildren().add(item);
 		return item;
 	}
@@ -232,15 +235,8 @@ public class NavigationList extends Block {
 	 * @param depth
 	 */
 	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth) {
-		ListItem listItem = new ListItem();
 		UIComponent link = getLink(page, iwc, depth);
-		listItem.add(link);
-		
-		if ((isOpen(page) || page.getNodeID() == getCurrentPageId()) && iSelectedID != null) {
-			listItem.setID(iSelectedID);
-		}
-		
-		list.getChildren().add(listItem);
+		list.getChildren().add(link);
 	}
 	
 	/**
