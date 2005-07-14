@@ -20,10 +20,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2005/02/22 18:02:17 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/07/14 11:45:23 $ by $Author: laddi $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.38 $
+ * @version $Revision: 1.39 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -159,7 +159,7 @@ public class NavigationTree extends NavigationList{
 	 * Overrided here because of legacy Table implementation.
 	 * 
 	 */
-	protected UIComponent getNodeComponent(UIComponent outerContainer,int row,int depth){
+	protected UIComponent getNodeComponent(UIComponent outerContainer,ICTreeNode page,int row,int depth){
 		if(isUseStyleBasedLayout()){
 			return super.getSubTreeComponent(outerContainer,row,depth);
 		}
