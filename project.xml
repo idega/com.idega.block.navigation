@@ -5,7 +5,7 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Navigation Block</name>
   <artifactId>com.idega.block.navigation</artifactId>
-  <currentVersion>1.0.1</currentVersion-->
+  <currentVersion>1.0.1</currentVersion>
   <!--currentVersion>1.0-SNAPSHOT</currentVersion-->
 
   <inceptionYear>2000</inceptionYear>
