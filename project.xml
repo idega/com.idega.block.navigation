@@ -6,8 +6,8 @@
   <name>idegaWeb Navigation Block</name>
   <artifactId>com.idega.block.navigation</artifactId>
   <!--currentVersion>1.0.1</currentVersion-->
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
 
+  <currentVersion>1.1</currentVersion>
   <inceptionYear>2000</inceptionYear>
   <shortDescription>Navigation</shortDescription>
   <versions>
@@ -15,6 +15,11 @@
       <id>1.0.1</id>
       <name>1.0.1</name>
       <tag>NAVIGATION_1_0_1</tag>
+    </version>
+    <version>
+      <id>1.1</id>
+      <name>1.1</name>
+      <tag>NAVIGATION_1_1</tag>
     </version>
   </versions>
   <branches/>
@@ -52,7 +57,10 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <!--HELPER--><version>3.0.5</version><!--HELPER-->
+      <!--HELPER-->
+
+      <version>3.0.5</version>
+      <!--HELPER-->
       <!--HELPERversion>SNAPSHOT</versionHELPER-->
 
       <type>jar</type>
@@ -64,7 +72,10 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.builder</artifactId>
-      <!--HELPER--><version>1.4.2</version><!--HELPER-->
+      <!--HELPER-->
+
+      <version>1.4.2</version>
+      <!--HELPER-->
       <!--HELPERversion>SNAPSHOT</versionHELPER-->
 
       <type>jar</type>
@@ -76,7 +87,10 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.slide</artifactId>
-      <!--HELPER--><version>0.4.2</version><!--HELPER-->
+      <!--HELPER-->
+
+      <version>0.4.2</version>
+      <!--HELPER-->
       <!--HELPERversion>SNAPSHOT</versionHELPER-->
 
       <type>jar</type>
@@ -88,7 +102,10 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.content</artifactId>
-      <!--HELPER--><version>0.6.2</version><!--HELPER-->
+      <!--HELPER-->
+
+      <version>0.6.2</version>
+      <!--HELPER-->
       <!--HELPERversion>SNAPSHOT</versionHELPER-->
 
       <type>jar</type>
