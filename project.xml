@@ -7,7 +7,7 @@
   <artifactId>com.idega.block.navigation</artifactId>
   <!--currentVersion>1.0.1</currentVersion-->
 
-  <currentVersion>1.1</currentVersion>
+  <currentVersion>1.1-SNAPSHOT</currentVersion>
   <inceptionYear>2000</inceptionYear>
   <shortDescription>Navigation</shortDescription>
   <versions>
