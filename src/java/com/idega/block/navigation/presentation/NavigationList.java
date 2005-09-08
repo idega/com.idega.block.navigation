@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.9 2005/07/27 15:00:00 laddi Exp $
+ * $Id: NavigationList.java,v 1.10 2005/09/08 22:36:57 gimmi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import javax.faces.component.UIComponent;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.business.IBOLookup;
@@ -32,6 +33,7 @@ import com.idega.presentation.text.Link;
 import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
 import com.idega.presentation.text.Text;
+import com.idega.presentation.ui.Parameter;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
 
@@ -43,10 +45,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/07/27 15:00:00 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/09/08 22:36:57 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class NavigationList extends Block {
 
@@ -82,6 +84,7 @@ public class NavigationList extends Block {
 	private int _rootPageID = -1;
 	private String iSelectedID = null;
 	private String iListID = null;
+	private HashMap _parameters = new HashMap();
 	
 	private Map _depthOrderPagesAlphabetically;
 
@@ -284,10 +287,18 @@ public class NavigationList extends Block {
 
 	protected void addParameterToLink(Link link, ICTreeNode page) {
 		boolean isCategory = getIsCategory(page);
-		if (!isCategory)
+		if (!isCategory) {
 			link.setPage(page.getNodeID());
-		else
+		} else {
 			link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
+		}
+		List parameters = (List) _parameters.get(new Integer(page.getNodeID()));
+		if (parameters != null) {
+			Iterator iter = parameters.iterator();
+			while (iter.hasNext()) {
+				link.addParameter((Parameter)iter.next());
+			}
+		}
 	}
 
 
@@ -636,5 +647,17 @@ public class NavigationList extends Block {
 	
 	public void setUseStyleLinks(boolean useStyleLinks) {
 		iUseStyleLinks = useStyleLinks;
+	}
+	
+	public void setParameterForPage(ICPage page, String parameterName, String parameterValue) {
+		if (page != null && parameterName != null && !parameterName.trim().equals("")) {
+			List list = (List) _parameters.get(page.getPrimaryKey());
+			if (list == null) {
+				list = new Vector();
+				_parameters.put(page.getPrimaryKey(), list);
+			}
+			Parameter p = new Parameter(parameterName, parameterValue);
+			list.add(p);
+		}
 	}
 }
