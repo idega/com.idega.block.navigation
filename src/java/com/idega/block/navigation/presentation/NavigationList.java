@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.10 2005/09/08 22:36:57 gimmi Exp $
+ * $Id: NavigationList.java,v 1.11 2005/10/15 14:37:59 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -29,6 +29,7 @@ import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
+import com.idega.presentation.PresentationObject;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
@@ -45,10 +46,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/09/08 22:36:57 $ by $Author: gimmi $
+ *  Last modified: $Date: 2005/10/15 14:37:59 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class NavigationList extends Block {
 
@@ -134,7 +135,7 @@ public class NavigationList extends Block {
 
 		//row = addHeaderObject(table, row);
 		if (getShowRoot()) {
-			UIComponent nodeComponent = getNodeComponent(list,getRootNode(),row,depth);
+			UIComponent nodeComponent = getNodeComponent(list,null,getRootNode(),row,depth,0);
 			addObject(iwc, getRootNode(), nodeComponent, row, depth);
 			//setRowAttributes(list, getRootNode(), row, depth, false);
 		}
@@ -162,6 +163,7 @@ public class NavigationList extends Block {
 		}
 		
 		Iterator children = pagesList.iterator();
+		int index = 0;
 		while (children.hasNext()) {
 			ICTreeNode page = (ICTreeNode) children.next();
 
@@ -177,16 +179,17 @@ public class NavigationList extends Block {
 			}
 
 			if (hasPermission) {
-				UIComponent nodeComponent = getNodeComponent(pageList,page,row,depth);
+				UIComponent nodeComponent = getNodeComponent(pageList,pagesList,page,row,depth,index);
 				
 				addObject(iwc, page, nodeComponent, row, depth);
-				row = setRowAttributes(nodeComponent, page, row, depth, !children.hasNext());
+				row = setRowAttributes(nodeComponent, page, row, depth, (index == 0), !children.hasNext());
 
 				if (isOpen(page) && page.getChildCount() > 0 && !iHideSubPages) {
 					UIComponent newList = getSubTreeComponent(nodeComponent,row,depth);
 					row = addToTree(iwc, page.getChildren(), newList, row, depth + 1);
 				}
 			}
+			index++;
 		}
 
 		return row;
@@ -214,17 +217,51 @@ public class NavigationList extends Block {
 	 * @param depth
 	 * @return
 	 */
-	protected UIComponent getNodeComponent(UIComponent outerContainer,ICTreeNode page,int row,int depth){
+	protected UIComponent getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth,int index){
 		ListItem item = new ListItem();
-		if ((isOpen(page) || page.getNodeID() == getCurrentPageId()) && iSelectedID != null) {
-			item.setID(iSelectedID);
+		if (isSelectedPage(page)) {
+			item.setStyleClass("selected");
+			if (iSelectedID != null) {
+				item.setID(iSelectedID);
+			}
+		}
+		if (pages != null) {
+			int size = pages.size() - 1;
+			if (index < size) {
+				if (isSelectedPage((ICTreeNode) pages.get(index + 1))) {
+					item.setStyleClass("beforeSelected");
+				}
+			}
+			if (index == size && isSelectedPage(page)) {
+				item.setStyleClass("lastSelected");
+			}
+			if (index > 0) {
+				if (isSelectedPage((ICTreeNode) pages.get(index - 1))) {
+					item.setStyleClass("afterSelected");
+				}
+			}
+			if (index == 0 && isSelectedPage(page)) {
+				item.setStyleClass("firstSelected");
+			}
 		}
 		outerContainer.getChildren().add(item);
 		return item;
 	}
 	
-	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isLastChild) {
-		//Does nothing here but is used by the NavigationTree component
+	private boolean isSelectedPage(ICTreeNode page) {
+		if (isOpen(page) || page.getNodeID() == getCurrentPageId()) {
+			return true;
+		}
+		return false;
+	}
+	
+	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
+		if (isFirstChild) {
+			((PresentationObject) listComponent).setStyleClass("firstChild");
+		}
+		if (isLastChild) {
+			((PresentationObject) listComponent).setStyleClass("lastChild");
+		}
 		return row;
 	}
 	

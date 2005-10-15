@@ -3,7 +3,9 @@
  */
 package com.idega.block.navigation.presentation;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.faces.component.UIComponent;
 import com.idega.core.data.ICTreeNode;
@@ -20,10 +22,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2005/07/14 11:45:23 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/10/15 14:37:59 $ by $Author: laddi $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.40 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -134,7 +136,7 @@ public class NavigationTree extends NavigationList{
 		row = addToTree(iwc, getRootNode().getChildren(), table, row, depth);
 		if (getShowRoot()) {
 			addObject(iwc, getRootNode(), table, row, depth);
-			setRowAttributes(table, getRootNode(), row, depth, false);
+			setRowAttributes(table, null, getRootNode(), row, depth, false, true);
 		}
 
 		return table;
@@ -159,7 +161,7 @@ public class NavigationTree extends NavigationList{
 	 * Overrided here because of legacy Table implementation.
 	 * 
 	 */
-	protected UIComponent getNodeComponent(UIComponent outerContainer,ICTreeNode page,int row,int depth){
+	protected UIComponent getNodeComponent(UIComponent outerContainer,ICTreeNode page,Collection pages,int row,int depth, int index){
 		if(isUseStyleBasedLayout()){
 			return super.getSubTreeComponent(outerContainer,row,depth);
 		}
@@ -169,13 +171,13 @@ public class NavigationTree extends NavigationList{
 		}
 	}
 	
-	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isLastChild) {
+	protected int setRowAttributes(UIComponent listComponent, List pages, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
 		if(listComponent instanceof Table){
 			Table table = (Table)listComponent;
 			return setTableRowAttributes(table,page,row,depth,isLastChild);
 		}
 		else{
-			return super.setRowAttributes(listComponent,page,row,depth,isLastChild);
+			return super.setRowAttributes(listComponent,page,row,depth,isFirstChild,isLastChild);
 		}
 	}
 	
