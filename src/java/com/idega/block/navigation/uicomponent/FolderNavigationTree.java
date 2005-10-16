@@ -100,6 +100,7 @@ public class FolderNavigationTree extends NavigationTree {
 	}
 
 	protected int addToTree(IWContext iwc, Iterator children, Table table, int row, int depth) {
+		int index = 0;
 		while (children.hasNext()) {
 			Object obj = children.next();
 			try {
@@ -107,7 +108,7 @@ public class FolderNavigationTree extends NavigationTree {
 			
 
 				addObject(iwc, node, table, row, depth);
-				row = setRowAttributes(table, node, row, depth, !children.hasNext());
+				row = setRowAttributes(table, node, row, depth, (index == 0), !children.hasNext());
 				
 				if (isOpen(node) && node.getChildCount() > 0) {
 					row = addToTree(iwc, node.getChildrenIterator(), table, row, depth + 1);
@@ -115,6 +116,7 @@ public class FolderNavigationTree extends NavigationTree {
 			} catch (ClassCastException c) {
 				c.printStackTrace();
 			}
+			index++;
 		}
 		
 		return row;
