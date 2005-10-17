@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.11 2005/10/15 14:37:59 laddi Exp $
+ * $Id: NavigationList.java,v 1.12 2005/10/17 04:29:12 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -46,10 +46,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/10/15 14:37:59 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/10/17 04:29:12 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class NavigationList extends Block {
 
@@ -81,6 +81,7 @@ public class NavigationList extends Block {
 	private boolean iOrderPagesAlphabetically = false;
 	private boolean iHideSubPages = false;
 	private boolean iUseStyleLinks = true;
+	private boolean rootSelected = false;
 
 	private int _rootPageID = -1;
 	private String iSelectedID = null;
@@ -135,9 +136,15 @@ public class NavigationList extends Block {
 
 		//row = addHeaderObject(table, row);
 		if (getShowRoot()) {
-			UIComponent nodeComponent = getNodeComponent(list,null,getRootNode(),row,depth,0);
-			addObject(iwc, getRootNode(), nodeComponent, row, depth);
-			//setRowAttributes(list, getRootNode(), row, depth, false);
+			ICTreeNode page = getRootNode();
+			List pageList = new ArrayList();
+			pageList.add(page);
+			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0);
+			((PresentationObject) nodeComponent).setStyleClass("firstChild");
+			addObject(iwc, page, nodeComponent, row, depth);
+			if (isSelected(page)) {
+				rootSelected = true;
+			}
 		}
 
 		row = addToTree(iwc, getRootNode().getChildren(), list, row, depth);
@@ -243,6 +250,9 @@ public class NavigationList extends Block {
 			if (index == 0 && isSelectedPage(page)) {
 				item.setStyleClass("firstSelected");
 			}
+			if (index == 0 && getShowRoot() && rootSelected) {
+				item.setStyleClass("afterSelected");
+			}
 		}
 		outerContainer.getChildren().add(item);
 		return item;
@@ -256,7 +266,7 @@ public class NavigationList extends Block {
 	}
 	
 	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
-		if (isFirstChild) {
+		if (isFirstChild && !getShowRoot()) {
 			((PresentationObject) listComponent).setStyleClass("firstChild");
 		}
 		if (isLastChild) {
