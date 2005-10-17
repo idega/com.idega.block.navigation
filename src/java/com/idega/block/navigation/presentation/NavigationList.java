@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.13 2005/10/17 05:22:30 laddi Exp $
+ * $Id: NavigationList.java,v 1.14 2005/10/17 05:37:21 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -46,10 +46,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/10/17 05:22:30 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/10/17 05:37:21 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class NavigationList extends Block {
 
@@ -137,14 +137,15 @@ public class NavigationList extends Block {
 		//row = addHeaderObject(table, row);
 		if (getShowRoot()) {
 			ICTreeNode page = getRootNode();
+			if (isSelectedPage(page)) {
+				rootSelected = true;
+			}
+
 			List pageList = new ArrayList();
 			pageList.add(page);
 			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0);
 			((PresentationObject) nodeComponent).setStyleClass("firstChild");
 			addObject(iwc, page, nodeComponent, row, depth);
-			if (isSelected(page)) {
-				rootSelected = true;
-			}
 		}
 
 		row = addToTree(iwc, getRootNode().getChildren(), list, row, depth);
@@ -250,7 +251,7 @@ public class NavigationList extends Block {
 			if (index == 0 && isSelectedPage(page)) {
 				item.setStyleClass("firstSelected");
 			}
-			if (index == 0 && getShowRoot() && rootSelected) {
+			if (index == 0 && getShowRoot() && rootSelected && !page.equals(getRootNode())) {
 				item.setStyleClass("afterSelected");
 			}
 		}
