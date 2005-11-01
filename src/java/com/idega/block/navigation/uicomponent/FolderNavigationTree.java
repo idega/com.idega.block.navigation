@@ -107,7 +107,7 @@ public class FolderNavigationTree extends NavigationTree {
 			WebDAVBean node = (WebDAVBean) obj;
 			
 
-				addObject(iwc, node, table, row, depth);
+				addObject(iwc, node, table, row, depth, false);
 				row = setRowAttributes(table, node, row, depth, (index == 0), !children.hasNext());
 				
 				if (isOpen(node) && node.getChildCount() > 0) {
