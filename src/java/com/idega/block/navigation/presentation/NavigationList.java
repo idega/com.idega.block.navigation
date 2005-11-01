@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.15 2005/10/17 06:04:24 laddi Exp $
+ * $Id: NavigationList.java,v 1.16 2005/11/01 19:19:27 tryggvil Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -19,14 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.business.IBOLookup;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
 import com.idega.core.business.ICTreeNodeComparator;
 import com.idega.core.data.ICTreeNode;
-import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
@@ -46,10 +45,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/10/17 06:04:24 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/11/01 19:19:27 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class NavigationList extends Block {
 
@@ -60,13 +59,8 @@ public class NavigationList extends Block {
 	private String textStyleName = "text";
 	private String linkStyleName = "link";
 
-	private transient IWResourceBundle _iwrb;
-	private transient IWBundle _iwb;
-	private transient BuilderService _builderService;
-	private transient ICTreeNode _currentPage;
-
 	private int _currentPageID;
-	private ICTreeNode _rootPage;
+	
 	private int _maxDepthForStyles = -1;
 
 	protected Collection _currentPages;
@@ -89,7 +83,16 @@ public class NavigationList extends Block {
 	private HashMap _parameters = new HashMap();
 	
 	private Map _depthOrderPagesAlphabetically;
-
+	private boolean showForbiddenPagesAsDisabled=false;
+	private boolean displaySelectedPageAsLink=false;
+	private String disabledStyleClass="disabled";
+	private String selectedStyleClass="selected";
+	private String beforeSelectedStyleClass="beforeSelected";
+	private String lastSelectedStyleClass="lastSelected";
+	private String afterSelectedStyleClass="afterSelected";
+	private String firstSelectedStyleClass="firstSelected";
+	private String firstChildStyleClass="firstChild";
+	private String lastChildStyleClass="lastChild";
 
 	/*
 	 * (non-Javadoc)
@@ -97,21 +100,17 @@ public class NavigationList extends Block {
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
 	 */
 	public void main(IWContext iwc) throws Exception {
-		_iwb = getBundle(iwc);
-		_iwrb = getResourceBundle(iwc);
-		_builderService = getBuilderService(iwc);
 
 		setRootNode(iwc);
-
 		parse(iwc);
 		add(getTree(iwc));
 	}
 
 	protected void setRootNode(IWContext iwc) throws RemoteException {
 		if (_rootPageID == -1) {
-			_rootPageID = _builderService.getRootPageId();
+			_rootPageID = getBuilderService(iwc).getRootPageId();
 		}
-		_rootPage = new PageTreeNode(_rootPageID, iwc);
+		//_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
 
 	/**
@@ -143,9 +142,9 @@ public class NavigationList extends Block {
 
 			List pageList = new ArrayList();
 			pageList.add(page);
-			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0);
+			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0, false);
 			((PresentationObject) nodeComponent).setStyleClass("firstChild");
-			addObject(iwc, page, nodeComponent, row, depth);
+			addObject(iwc, page, nodeComponent, row, depth, false);
 		}
 
 		row = addToTree(iwc, getRootNode().getChildren(), list, row, depth);
@@ -186,15 +185,19 @@ public class NavigationList extends Block {
 				log(re);
 			}
 
-			if (hasPermission) {
-				UIComponent nodeComponent = getNodeComponent(pageList,pagesList,page,row,depth,index);
+			if (hasPermission||showForbiddenPagesAsDisabled) {
 				
-				addObject(iwc, page, nodeComponent, row, depth);
+				boolean linkIsDisabled = (!hasPermission)&&showForbiddenPagesAsDisabled;
+				UIComponent nodeComponent = getNodeComponent(pageList,pagesList,page,row,depth,index, linkIsDisabled);
+				addObject(iwc, page, nodeComponent, row, depth, linkIsDisabled);
 				row = setRowAttributes(nodeComponent, page, row, depth, (index == 0), !children.hasNext());
 
-				if (isOpen(page) && page.getChildCount() > 0 && !iHideSubPages) {
-					UIComponent newList = getSubTreeComponent(nodeComponent,row,depth);
-					row = addToTree(iwc, page.getChildren(), newList, row, depth + 1);
+				//only recurse down tree if hasPermission==true
+				if(hasPermission){
+					if (isOpen(page) && page.getChildCount() > 0 && !iHideSubPages) {
+						UIComponent newList = getSubTreeComponent(nodeComponent,row,depth);
+						row = addToTree(iwc, page.getChildren(), newList, row, depth + 1);
+					}
 				}
 			}
 			index++;
@@ -223,12 +226,13 @@ public class NavigationList extends Block {
 	 * @param outerContainer
 	 * @param row
 	 * @param depth
+	 * @param isdisabled TODO
 	 * @return
 	 */
-	protected UIComponent getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth,int index){
+	protected UIComponent getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth,int index, boolean isdisabled){
 		ListItem item = new ListItem();
 		if (isSelectedPage(page)) {
-			item.setStyleClass("selected");
+			item.setStyleClass(getSelectedStyleClass());
 			if (iSelectedID != null) {
 				item.setID(iSelectedID);
 			}
@@ -237,22 +241,25 @@ public class NavigationList extends Block {
 			int size = pages.size() - 1;
 			if (index < size) {
 				if (isSelectedPage((ICTreeNode) pages.get(index + 1))) {
-					item.setStyleClass("beforeSelected");
+					item.setStyleClass(getBeforeSelectedStyleClass());
 				}
 			}
 			if (index == size && isSelectedPage(page) && !rootSelected) {
-				item.setStyleClass("lastSelected");
+				item.setStyleClass(getLastSelectedStyleClass());
 			}
 			if (index > 0) {
 				if (isSelectedPage((ICTreeNode) pages.get(index - 1))) {
-					item.setStyleClass("afterSelected");
+					item.setStyleClass(getAfterSelectedStyleClass());
 				}
 			}
 			if (index == 0 && isSelectedPage(page) && !getShowRoot()) {
-				item.setStyleClass("firstSelected");
+				item.setStyleClass(getFirstSelectedStyleClass());
 			}
 			if (index == 0 && getShowRoot() && rootSelected && !page.equals(getRootNode())) {
-				item.setStyleClass("afterSelected");
+				item.setStyleClass(getAfterSelectedStyleClass());
+			}
+			if(isdisabled){
+				item.setStyleClass(getDisabledStyleClass());
 			}
 		}
 		outerContainer.getChildren().add(item);
@@ -268,10 +275,10 @@ public class NavigationList extends Block {
 	
 	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
 		if (isFirstChild && !getShowRoot()) {
-			((PresentationObject) listComponent).setStyleClass("firstChild");
+			((PresentationObject) listComponent).setStyleClass(getFirstChildStyleClass());
 		}
 		if (isLastChild) {
-			((PresentationObject) listComponent).setStyleClass("lastChild");
+			((PresentationObject) listComponent).setStyleClass(getLastChildStyleClass());
 		}
 		return row;
 	}
@@ -282,12 +289,13 @@ public class NavigationList extends Block {
 	 * 
 	 * @param iwc
 	 * @param page
-	 * @param table
 	 * @param row
 	 * @param depth
+	 * @param linkIsDisabled TODO
+	 * @param table
 	 */
-	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth) {
-		UIComponent link = getLink(page, iwc, depth);
+	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth, boolean linkIsDisabled) {
+		UIComponent link = getLink(page, iwc, depth, linkIsDisabled);
 		list.getChildren().add(link);
 	}
 	
@@ -308,23 +316,41 @@ public class NavigationList extends Block {
 		return ((PageTreeNode) node).isCategory();
 	}
 
-	protected UIComponent getLink(ICTreeNode page, IWContext iwc, int depth) {
+	protected UIComponent getLink(ICTreeNode page, IWContext iwc, int depth, boolean linkIsDisabled) {
 		String name = getLocalizedName(page, iwc);
 
 		if (iUseStyleLinks) {
 			if (page.getNodeID() != getCurrentPageId()) {
-				Link link = getStyleLink(name, getStyleName(linkStyleName, depth));
-				addParameterToLink(link, page);
+				String linkStyleClass=linkStyleName;
+				Link link = getStyleLink(name, getStyleName(linkStyleClass, depth));
+				if(linkIsDisabled){
+					link.setURL("#");
+				}
+				else{
+					addParameterToLink(link, page);
+				}
 				return link;
 			}
 			else {
-				Text text = getStyleText(name, getStyleName(textStyleName, depth));
-				return text;
+				if(displaySelectedPageAsLink){
+					Link link = getStyleLink(name, getStyleName(linkStyleName, depth));
+					addParameterToLink(link, page);
+					return link;
+				}
+				else{
+					Text text = getStyleText(name, getStyleName(textStyleName, depth));
+					return text;
+				}
 			}
 		}
 		else {
 			Link link = new Link(name);
-			addParameterToLink(link, page);
+			if(linkIsDisabled){
+				link.setURL("#");
+			}
+			else{
+				addParameterToLink(link, page);
+			}
 			return link;
 		}
 	}
@@ -440,15 +466,17 @@ public class NavigationList extends Block {
 	 * @param iwc
 	 */
 	protected void parse(IWContext iwc) {
+		BuilderService builderService = null;
 		try {
-			_currentPage = _builderService.getPageTree(_builderService.getCurrentPageId(iwc));
-			_currentPageID = _currentPage.getNodeID();
+			builderService = getBuilderService(iwc);
+			ICTreeNode currentPage = builderService.getPageTree(builderService.getCurrentPageId(iwc));
+			_currentPageID = currentPage.getNodeID();
 			_currentPages = new ArrayList();
 			_currentPages.add(new Integer(_currentPageID));
 			debug("Current page is set.");
 		
 			if (_currentPageID != ((Integer) getRootNodeId()).intValue()) {
-				ICTreeNode parent = _currentPage.getParentNode();
+				ICTreeNode parent = currentPage.getParentNode();
 				if (parent != null) {
 					while (parent != null && parent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 						debug("Adding page with ID = " + parent.getNodeID() + " to currentMap");
@@ -469,7 +497,7 @@ public class NavigationList extends Block {
 			try {
 				_selectedPages = new ArrayList();
 				
-				ICTreeNode selectedParent = _builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
+				ICTreeNode selectedParent = builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
 				while (selectedParent != null && selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 					debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
 					_selectedPages.add(new Integer(selectedParent.getNodeID()));
@@ -498,7 +526,7 @@ public class NavigationList extends Block {
 					if (openOnUserHomePage && homePageID != -1) {
 						_selectedPages = new ArrayList();
 						
-						ICTreeNode selectedParent = _builderService.getPageTree(homePageID);
+						ICTreeNode selectedParent = builderService.getPageTree(homePageID);
 						while (selectedParent != null && selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
 							debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
 							_selectedPages.add(new Integer(selectedParent.getNodeID()));
@@ -651,7 +679,19 @@ public class NavigationList extends Block {
 	}
 
 	protected ICTreeNode getRootNode() {
-		return _rootPage;
+		//return _rootPage;
+		IWContext iwc = IWContext.getInstance();
+		if (_rootPageID == -1) {
+			try {
+				_rootPageID = getBuilderService(iwc).getRootPageId();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		ICTreeNode rootPage = new PageTreeNode(_rootPageID, iwc);
+		return rootPage;
+		//_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
 
 	protected Object getRootNodeId() {
@@ -708,4 +748,239 @@ public class NavigationList extends Block {
 			list.add(p);
 		}
 	}
+	
+	/**
+	 * <p>
+	 * Sets the list to show also pages in the list that the current logged in user does not have (view) access to.<br/>
+	 * </p>
+	 * @param ifShow
+	 */
+	public void setShowForbiddenPagesAsDisabled(boolean ifShow){
+		showForbiddenPagesAsDisabled=ifShow;
+	}
+	
+	/**
+	 * <p>
+	 * Sets the style class that is rendered out when the property "showForbiddenPagesAsDisabled" is set to true.<br/>
+	 * The default value is "disabled".
+	 * </p>
+	 * @param styleClass
+	 */
+	public void setDisabledStyleClass(String styleClass){
+		this.disabledStyleClass=styleClass;
+	}
+	
+	public String getDisabledStyleClass(){
+		return disabledStyleClass;
+	}
+	
+	/**
+	 * @see javax.faces.component.StateHolder#saveState(javax.faces.context.FacesContext)
+	 */
+	public Object saveState(FacesContext ctx) {
+		Object values[] = new Object[32];
+		values[0] = super.saveState(ctx);
+		values[1] = this.textStyleName;
+		values[2] = this.linkStyleName;
+		values[3] = new Integer(_currentPageID);
+		//values[4] = _rootPage;
+		values[4] = new Integer(_maxDepthForStyles);
+		values[5] = _currentPages;
+		values[6] = _selectedPages;
+		values[7] = Boolean.valueOf(_showRoot);
+		values[8] = Boolean.valueOf(_useDifferentStyles);
+		values[9] = Boolean.valueOf(_autoCreateHoverStyles);
+		values[10] = Boolean.valueOf(_debug);
+		values[11] = Boolean.valueOf(_markOnlyCurrentPage);
+		values[12] = Boolean.valueOf(iOpenOnUserHomePage);
+		values[13] = Boolean.valueOf(iOrderPagesAlphabetically);
+		values[14] = Boolean.valueOf(iHideSubPages);
+		values[15] = Boolean.valueOf(iUseStyleLinks);
+		values[16] = Boolean.valueOf(rootSelected);
+		values[17] = new Integer(_rootPageID);
+		values[18] = iSelectedID;
+		values[19] = iListID;
+		values[20] = _parameters;
+		values[21] = _depthOrderPagesAlphabetically;
+		values[22] = Boolean.valueOf(showForbiddenPagesAsDisabled);
+		values[23] = disabledStyleClass;
+		values[24] = Boolean.valueOf(displaySelectedPageAsLink);
+		values[25] = selectedStyleClass;
+		values[26] = beforeSelectedStyleClass;
+		values[27] = lastSelectedStyleClass;
+		values[28] = afterSelectedStyleClass;
+		values[29] = firstSelectedStyleClass;
+		values[30] = firstChildStyleClass;
+		values[31] = lastChildStyleClass;
+		return values;
+	}
+	
+	/**
+	 * @see javax.faces.component.StateHolder#restoreState(javax.faces.context.FacesContext, java.lang.Object)
+	 */
+	public void restoreState(FacesContext ctx, Object state) {
+		Object values[] = (Object[])state;
+		super.restoreState(ctx, values[0]);
+		textStyleName=(String)values[1];
+		linkStyleName=(String)values[2];
+		_currentPageID=((Integer)values[3]).intValue();
+		//_rootPage=(ICTreeNode)values[4];
+		_maxDepthForStyles=((Integer)values[4]).intValue();
+		_currentPages=(Collection)values[5];
+		_selectedPages=(Collection)values[6];
+		_showRoot=((Boolean)values[7]).booleanValue();
+		_useDifferentStyles=((Boolean)values[8]).booleanValue();
+		_autoCreateHoverStyles=((Boolean)values[9]).booleanValue();
+		_debug=((Boolean)values[10]).booleanValue();
+		_markOnlyCurrentPage=((Boolean)values[11]).booleanValue();
+		iOpenOnUserHomePage=((Boolean)values[12]).booleanValue();
+		iOrderPagesAlphabetically=((Boolean)values[13]).booleanValue();
+		iHideSubPages=((Boolean)values[14]).booleanValue();
+		iUseStyleLinks=((Boolean)values[15]).booleanValue();
+		rootSelected=((Boolean)values[16]).booleanValue();
+		_rootPageID=((Integer)values[17]).intValue();
+		iSelectedID=(String)values[18];
+		iListID=(String)values[19];
+		_parameters=(HashMap)values[20];
+		_depthOrderPagesAlphabetically=(Map)values[21];
+		showForbiddenPagesAsDisabled=((Boolean)values[22]).booleanValue();
+		disabledStyleClass=(String)values[23];
+		displaySelectedPageAsLink=((Boolean)values[24]).booleanValue();
+		selectedStyleClass=(String)values[25];
+		beforeSelectedStyleClass=(String)values[26];
+		lastSelectedStyleClass=(String)values[27];
+		afterSelectedStyleClass=(String)values[28];
+		firstSelectedStyleClass=(String)values[29];
+		firstChildStyleClass=(String)values[30];
+		lastChildStyleClass=(String)values[31];
+		
+	}
+
+	
+	/**
+	 * @return Returns the displaySelectedPageAsLink.
+	 */
+	public boolean isDisplaySelectedPageAsLink() {
+		return displaySelectedPageAsLink;
+	}
+	
+	/**
+	 * @param displaySelectedPageAsLink The displaySelectedPageAsLink to set.
+	 */
+	public void setDisplaySelectedPageAsLink(boolean displaySelectedPageAsLink) {
+		this.displaySelectedPageAsLink = displaySelectedPageAsLink;
+	}
+	
+	
+	/**
+	 * @return Returns the selectedStyleClass.
+	 */
+	public String getSelectedStyleClass() {
+		return selectedStyleClass;
+	}
+
+	
+	/**
+	 * @param selectedStyleClass The selectedStyleClass to set.
+	 */
+	public void setSelectedStyleClass(String selectedStyleClass) {
+		this.selectedStyleClass = selectedStyleClass;
+	}
+
+	
+	/**
+	 * @return Returns the afterSelectedStyleClass.
+	 */
+	public String getAfterSelectedStyleClass() {
+		return afterSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @param afterSelectedStyleClass The afterSelectedStyleClass to set.
+	 */
+	public void setAfterSelectedStyleClass(String afterSelectedStyleClass) {
+		this.afterSelectedStyleClass = afterSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @return Returns the beforeSelectedStyleClass.
+	 */
+	public String getBeforeSelectedStyleClass() {
+		return beforeSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @param beforeSelectedStyleClass The beforeSelectedStyleClass to set.
+	 */
+	public void setBeforeSelectedStyleClass(String beforeSelectedStyleClass) {
+		this.beforeSelectedStyleClass = beforeSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @return Returns the firstChildStyleClass.
+	 */
+	public String getFirstChildStyleClass() {
+		return firstChildStyleClass;
+	}
+
+	
+	/**
+	 * @param firstChildStyleClass The firstChildStyleClass to set.
+	 */
+	public void setFirstChildStyleClass(String firstChildStyleClass) {
+		this.firstChildStyleClass = firstChildStyleClass;
+	}
+
+	
+	/**
+	 * @return Returns the firstSelectedStyleClass.
+	 */
+	public String getFirstSelectedStyleClass() {
+		return firstSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @param firstSelectedStyleClass The firstSelectedStyleClass to set.
+	 */
+	public void setFirstSelectedStyleClass(String firstSelectedStyleClass) {
+		this.firstSelectedStyleClass = firstSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @return Returns the lastChildStyleClass.
+	 */
+	public String getLastChildStyleClass() {
+		return lastChildStyleClass;
+	}
+
+	
+	/**
+	 * @param lastChildStyleClass The lastChildStyleClass to set.
+	 */
+	public void setLastChildStyleClass(String lastChildStyleClass) {
+		this.lastChildStyleClass = lastChildStyleClass;
+	}
+
+	
+	/**
+	 * @return Returns the lastSelectedStyleClass.
+	 */
+	public String getLastSelectedStyleClass() {
+		return lastSelectedStyleClass;
+	}
+
+	
+	/**
+	 * @param lastSelectedStyleClass The lastSelectedStyleClass to set.
+	 */
+	public void setLastSelectedStyleClass(String lastSelectedStyleClass) {
+		this.lastSelectedStyleClass = lastSelectedStyleClass;
+	}
+	
 }
