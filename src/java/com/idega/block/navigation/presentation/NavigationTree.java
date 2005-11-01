@@ -21,10 +21,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2005/10/16 17:54:00 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/11/01 19:19:49 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.41 $
+ * @version $Revision: 1.42 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -134,7 +134,7 @@ public class NavigationTree extends NavigationList{
 		row = addHeaderObject(table, row);
 		row = addToTree(iwc, getRootNode().getChildren(), table, row, depth);
 		if (getShowRoot()) {
-			addObject(iwc, getRootNode(), table, row, depth);
+			addObject(iwc, getRootNode(), table, row, depth, false);
 			setRowAttributes(table, getRootNode(), row, depth, false, true);
 		}
 
@@ -160,7 +160,7 @@ public class NavigationTree extends NavigationList{
 	 * Overrided here because of legacy Table implementation.
 	 * 
 	 */
-	protected UIComponent getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth, int index){
+	protected UIComponent getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth, int index, boolean isdisabled){
 		if(isUseStyleBasedLayout()){
 			return super.getSubTreeComponent(outerContainer,row,depth);
 		}
@@ -313,17 +313,17 @@ public class NavigationTree extends NavigationList{
 	 * 
 	 * @param iwc
 	 * @param page
-	 * @param table
 	 * @param row
 	 * @param depth
+	 * @param table
 	 */
-	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth) {
+	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth, boolean linkIsDisabled) {
 		if(list instanceof Table){
 			Table table = (Table)list;
 			addObjectToTable(iwc,page,table,row,depth);
 		}
 		else{
-			super.addObject(iwc,page,list,row,depth);
+			super.addObject(iwc,page,list,row,depth, linkIsDisabled);
 		}
 	}
 	
@@ -339,7 +339,7 @@ public class NavigationTree extends NavigationList{
 	 * @param depth
 	 */
 	protected void addObjectToTable(IWContext iwc, ICTreeNode page, Table table, int row, int depth) {
-		PresentationObject link = (PresentationObject)getLink(page, iwc, depth);
+		PresentationObject link = (PresentationObject)getLink(page, iwc, depth, false);
 
 		Image curtainImage = getCurtainImage(depth, isOpen(page));
 		if (curtainImage != null && page.getChildCount() > 0) {
