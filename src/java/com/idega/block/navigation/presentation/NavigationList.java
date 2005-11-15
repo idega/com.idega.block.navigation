@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.17 2005/11/03 11:20:11 laddi Exp $
+ * $Id: NavigationList.java,v 1.18 2005/11/15 23:17:20 tryggvil Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -45,10 +45,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/11/03 11:20:11 $ by $Author: laddi $
+ *  Last modified: $Date: 2005/11/15 23:17:20 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class NavigationList extends Block {
 
@@ -108,7 +108,20 @@ public class NavigationList extends Block {
 
 	protected void setRootNode(IWContext iwc) throws RemoteException {
 		if (_rootPageID == -1) {
-			_rootPageID = getBuilderService(iwc).getRootPageId();
+			if(getIsRootCurrentPage()){
+				int currentPageId = getBuilderService(iwc).getCurrentPageId(iwc);
+				_rootPageID = currentPageId;
+			}
+			else if(getIsRootCurrentPageParent()){
+				ICPage currentPage = getBuilderService(iwc).getCurrentPage(iwc);
+				ICTreeNode currentParent = currentPage.getParentNode();
+				if(currentParent!=null){
+					_rootPageID = currentParent.getIndex(currentParent);
+				}
+			}
+			else{
+				_rootPageID = getBuilderService(iwc).getRootPageId();
+			}
 		}
 		//_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
@@ -143,7 +156,7 @@ public class NavigationList extends Block {
 			List pageList = new ArrayList();
 			pageList.add(page);
 			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0, false);
-			((PresentationObject) nodeComponent).setStyleClass("firstChild");
+			((PresentationObject) nodeComponent).setStyleClass(getFirstChildStyleClass());
 			addObject(iwc, page, nodeComponent, row, depth, false);
 		}
 
@@ -990,6 +1003,42 @@ public class NavigationList extends Block {
 	 */
 	public void setLastSelectedStyleClass(String lastSelectedStyleClass) {
 		this.lastSelectedStyleClass = lastSelectedStyleClass;
+	}
+	
+	/**
+	 * <p>
+	 * Sets the "root" of this navigation list as the parent of the current (i.e. currently requested) page.
+	 * </p>
+	 * @param rootIsParentOfCurrentPage
+	 */
+	public void setRootAsCurrentPageParent(boolean rootIsParentOfCurrentPage){
+		getAttributes().put("rootAsCurrentPageParent",new Boolean(rootIsParentOfCurrentPage));
+	}
+	
+	public boolean getIsRootCurrentPageParent(){
+		Boolean b = (Boolean) getAttributes().get("rootAsCurrentPageParent");
+		if(b!=null){
+			return b.booleanValue();
+		}
+		return false;
+	}
+	
+	/**
+	 * <p>
+	 * Sets the "root" of this navigation list as the current (i.e. currently requested) page.
+	 * </p>
+	 * @param rootIsParentOfCurrentPage
+	 */
+	public void setRootAsCurrentPage(boolean rootIsParentOfCurrentPage){
+		getAttributes().put("rootAsCurrentPage",new Boolean(rootIsParentOfCurrentPage));
+	}
+	
+	public boolean getIsRootCurrentPage(){
+		Boolean b = (Boolean) getAttributes().get("rootAsCurrentPage");
+		if(b!=null){
+			return b.booleanValue();
+		}
+		return false;
 	}
 	
 }
