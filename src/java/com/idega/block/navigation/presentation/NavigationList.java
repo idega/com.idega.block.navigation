@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.18 2005/11/15 23:17:20 tryggvil Exp $
+ * $Id: NavigationList.java,v 1.19 2005/11/24 01:05:15 tryggvil Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -45,10 +45,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/11/15 23:17:20 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2005/11/24 01:05:15 $ by $Author: tryggvil $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public class NavigationList extends Block {
 
@@ -60,7 +60,6 @@ public class NavigationList extends Block {
 	private String linkStyleName = "link";
 
 	private int _currentPageID;
-	
 	private int _maxDepthForStyles = -1;
 
 	protected Collection _currentPages;
@@ -93,6 +92,8 @@ public class NavigationList extends Block {
 	private String firstSelectedStyleClass="firstSelected";
 	private String firstChildStyleClass="firstChild";
 	private String lastChildStyleClass="lastChild";
+	private String extraLastItemStyleClass="extraAfterLastChild";
+	private boolean addExtraLastItem=false;
 
 	/*
 	 * (non-Javadoc)
@@ -162,6 +163,13 @@ public class NavigationList extends Block {
 
 		row = addToTree(iwc, getRootNode().getChildren(), list, row, depth);
 
+		if(getAddExtraLastItem()){
+			
+			ListItem nodeComponent = new ListItem();
+			nodeComponent.setStyleClass(getExtraLastItemStyleClass());
+			list.getChildren().add(nodeComponent);
+		}
+		
 		return list;
 	}
 
@@ -800,7 +808,7 @@ public class NavigationList extends Block {
 	 * @see javax.faces.component.StateHolder#saveState(javax.faces.context.FacesContext)
 	 */
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[32];
+		Object values[] = new Object[34];
 		values[0] = super.saveState(ctx);
 		values[1] = this.textStyleName;
 		values[2] = this.linkStyleName;
@@ -834,6 +842,8 @@ public class NavigationList extends Block {
 		values[29] = firstSelectedStyleClass;
 		values[30] = firstChildStyleClass;
 		values[31] = lastChildStyleClass;
+		values[32] = extraLastItemStyleClass;
+		values[33] = new Boolean(addExtraLastItem);
 		return values;
 	}
 	
@@ -875,7 +885,8 @@ public class NavigationList extends Block {
 		firstSelectedStyleClass=(String)values[29];
 		firstChildStyleClass=(String)values[30];
 		lastChildStyleClass=(String)values[31];
-		
+		extraLastItemStyleClass=(String)values[32];
+		addExtraLastItem=((Boolean)values[33]).booleanValue();
 	}
 
 	
@@ -1039,6 +1050,35 @@ public class NavigationList extends Block {
 			return b.booleanValue();
 		}
 		return false;
+	}
+	
+	/**
+	 * <p>
+	 * Sets if an extra (empty) &lt;li&gt; item should be rendered at the end of the list.<br/>
+	 * This list-item gets by default the style class extraAfterLastChild.<br/>
+	 * </p>
+	 * @param addExtraLastItem
+	 */
+	public void setAddExtraLastItem(boolean addExtraLastItem){
+		this.addExtraLastItem=addExtraLastItem;
+	}
+	
+	public boolean getAddExtraLastItem(){
+		return addExtraLastItem;
+	}
+	
+	/**
+	 * @return Returns the extraAfterLastChildStyleClass.
+	 */
+	public String getExtraLastItemStyleClass() {
+		return extraLastItemStyleClass;
+	}
+	
+	/**
+	 * @param extraAfterLastChildStyleClass The extraAfterLastChildStyleClass to set.
+	 */
+	public void setExtraLastItemStyleClass(String extraAfterLastChildStyleClass) {
+		this.extraLastItemStyleClass = extraAfterLastChildStyleClass;
 	}
 	
 }
