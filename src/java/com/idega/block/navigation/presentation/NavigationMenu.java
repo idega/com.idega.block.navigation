@@ -124,7 +124,7 @@ public class NavigationMenu extends Block {
 		}
 		Iterator iter = node.getChildrenIterator();
 		while (iter.hasNext())
-			nodeVector.add((PageTreeNode) iter.next());
+			nodeVector.add(iter.next());
 		if (withRootAsHome && (bottom || !left))
 			nodeVector.add(node);
 		int row = 1, col = 1;
