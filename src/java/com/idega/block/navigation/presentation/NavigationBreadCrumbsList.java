@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.1 2005/12/28 11:15:34 gimmi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.2 2005/12/28 12:43:43 gimmi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -111,7 +111,7 @@ public class NavigationBreadCrumbsList extends Block {
 		showRoot = show;
 	}
 	
-	public void setHideCategoryPages(boolean hide) {
+	public void setIgnoreCategoryPages(boolean hide) {
 		ignoreCategoryPages = hide;
 	}
 	
