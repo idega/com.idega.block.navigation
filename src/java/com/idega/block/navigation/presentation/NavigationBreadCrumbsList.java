@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.2 2005/12/28 12:43:43 gimmi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.3 2005/12/29 14:53:44 gimmi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -29,6 +29,7 @@ public class NavigationBreadCrumbsList extends Block {
 	
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 
+	private String ID = null;
 	private ICPage rootPage = null;
 	private boolean showRoot = true;
 	private boolean ignoreCategoryPages = false;
@@ -80,7 +81,9 @@ public class NavigationBreadCrumbsList extends Block {
 		Collections.reverse(pages);
 		
 		Lists list = new Lists();
-		list.setId(super.getId());
+		if (ID != null) {
+			list.setId(ID);
+		}
 		Iterator iter = pages.iterator();
 		boolean first = true;
 		while (iter.hasNext()) {
@@ -115,16 +118,21 @@ public class NavigationBreadCrumbsList extends Block {
 		ignoreCategoryPages = hide;
 	}
 	
+	public void setId(String Id) {
+		this.ID = Id;
+	}
+	
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 	
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[4];
+		Object values[] = new Object[5];
 		values[0] = super.saveState(ctx);
 		values[1] = new Boolean(ignoreCategoryPages);
 		values[2] = rootPage;
 		values[3] = new Boolean(showRoot);
+		values[4] = ID;
 		
 		return values;
 	}
@@ -135,5 +143,6 @@ public class NavigationBreadCrumbsList extends Block {
 		ignoreCategoryPages = ((Boolean) values[1]).booleanValue();
 		rootPage = (ICPage) values[2];
 		showRoot = ((Boolean) values[3]).booleanValue();
+		ID = (String) values[4];
 	}
 }
