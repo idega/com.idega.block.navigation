@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.19 2005/11/24 01:05:15 tryggvil Exp $
+ * $Id: NavigationList.java,v 1.20 2006/02/19 17:28:13 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -45,10 +45,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2005/11/24 01:05:15 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/02/19 17:28:13 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class NavigationList extends Block {
 
@@ -101,7 +101,6 @@ public class NavigationList extends Block {
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
 	 */
 	public void main(IWContext iwc) throws Exception {
-
 		setRootNode(iwc);
 		parse(iwc);
 		add(getTree(iwc));
@@ -124,7 +123,6 @@ public class NavigationList extends Block {
 				_rootPageID = getBuilderService(iwc).getRootPageId();
 			}
 		}
-		//_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
 
 	/**
@@ -135,7 +133,6 @@ public class NavigationList extends Block {
 	 * @return
 	 */
 	protected UIComponent getTree(IWContext iwc) {
-		//TODO: implement a CSS version here
 		Lists list = new Lists();
 		if (iListID != null) {
 			list.setID(iListID);
@@ -147,7 +144,6 @@ public class NavigationList extends Block {
 		int row = 1;
 		int depth = 0;
 
-		//row = addHeaderObject(table, row);
 		if (getShowRoot()) {
 			ICTreeNode page = getRootNode();
 			if (isSelectedPage(page)) {
@@ -184,7 +180,6 @@ public class NavigationList extends Block {
 	 * @return
 	 */
 	protected int addToTree(IWContext iwc, Collection childrenCollection, UIComponent pageList, int row, int depth) {
-		
 		List pagesList = new ArrayList(childrenCollection);
 		if (getDepthOrderPagesAlphabetically(depth)) {
 			Collections.sort(pagesList, new ICTreeNodeComparator(iwc.getCurrentLocale()));
@@ -207,7 +202,6 @@ public class NavigationList extends Block {
 			}
 
 			if (hasPermission||showForbiddenPagesAsDisabled) {
-				
 				boolean linkIsDisabled = (!hasPermission)&&showForbiddenPagesAsDisabled;
 				UIComponent nodeComponent = getNodeComponent(pageList,pagesList,page,row,depth,index, linkIsDisabled);
 				addObject(iwc, page, nodeComponent, row, depth, linkIsDisabled);

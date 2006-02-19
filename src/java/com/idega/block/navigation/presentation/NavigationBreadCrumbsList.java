@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.3 2005/12/29 14:53:44 gimmi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.4 2006/02/19 17:28:13 laddi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -37,19 +37,22 @@ public class NavigationBreadCrumbsList extends Block {
 	public void main(IWContext iwc) throws Exception {
 		BuilderService iBuilderService = getBuilderService(iwc);
 
+		int rootPageID = -1;
 		if (rootPage == null) {
-			rootPage = iBuilderService.getRootPage();
+			rootPageID = iBuilderService.getRootPageId();
 		}
-		ICPage currentPage = iBuilderService.getCurrentPage(iwc);
-
+		else {
+			rootPageID = new Integer(rootPage.getPrimaryKey().toString()).intValue();
+		}
+		int currentPageID = iBuilderService.getCurrentPageId(iwc);
 		
 		List pages = new ArrayList();
-		PageTreeNode page = new PageTreeNode(((Integer) currentPage.getPrimaryKey()).intValue(), iwc);
+		PageTreeNode page = new PageTreeNode(currentPageID, iwc);
 		boolean showPage = true;
 		boolean isCategoryPage = false;
 
 		while (showPage) {
-			if (page.getNodeID() == ((Integer) rootPage.getPrimaryKey()).intValue()) {
+			if (page.getNodeID() == rootPageID) {
 				showPage = false;
 			}
 			
@@ -61,7 +64,7 @@ public class NavigationBreadCrumbsList extends Block {
 			}
 			
 			if (!isCategoryPage) {
-				if (page.getNodeID() == ((Integer) currentPage.getPrimaryKey()).intValue()) {
+				if (page.getNodeID() == currentPageID) {
 					Text pageText = new Text(page.getLocalizedNodeName(iwc));
 					pages.add(pageText);
 				}
