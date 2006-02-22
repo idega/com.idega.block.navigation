@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
-import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
@@ -27,14 +26,11 @@ public class NavigationDropdownMenu extends Block {
 
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 
-	private IWBundle iwb;
 	private IWResourceBundle iwrb;
 
 	private String prmDropdown = "nav__drp__mnu_";
 
 	private int rootNode = -1;
-	private int currentPageId = -1;
-	private int parentPageId = -1;
 	private int spaceBetween = 0;
 
 	private boolean useSubmitButton = false;

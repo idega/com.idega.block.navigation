@@ -21,10 +21,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2005/11/01 19:19:49 $ by $Author: tryggvil $
+ *  Last modified: $Date: 2006/02/22 20:49:20 $ by $Author: laddi $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.42 $
+ * @version $Revision: 1.43 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -395,19 +395,6 @@ public class NavigationTree extends NavigationList{
 	}
 
 	
-	/**
-	 * Returns the open/closed image to display to the far right of the page in
-	 * the tree.
-	 * 
-	 * @param page
-	 * @return
-	 */
-	private Image getCurtainImage(ICTreeNode page) {
-		if (isOpen(page))
-			return _openImage;
-		return _closedImage;
-	}
-
 	private Image getCurtainImage(int depth, boolean isOpen) {
 		if (isOpen) {
 			if (_depthOpenImage != null) {

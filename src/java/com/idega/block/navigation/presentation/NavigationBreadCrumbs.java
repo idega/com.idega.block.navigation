@@ -39,8 +39,6 @@ public class NavigationBreadCrumbs extends Block {
 	private String iSeperatorStyleName;
 	
 	private BuilderService iBuilderService;
-	private PageTreeNode iCurrentNode;
-	
 	boolean iIgnoreCategoryPages = false;
 	
 	/* (non-Javadoc)

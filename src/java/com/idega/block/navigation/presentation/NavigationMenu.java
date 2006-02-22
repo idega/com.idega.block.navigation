@@ -8,8 +8,6 @@ import com.idega.builder.handler.HorizontalVerticalViewHandler;
 import com.idega.builder.handler.VerticalAlignmentHandler;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
-import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWResourceBundle;
 import com.idega.idegaweb.IWStyleManager;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
@@ -31,15 +29,11 @@ public class NavigationMenu extends Block {
 	private final static int VERTICAL = HorizontalVerticalViewHandler.VERTICAL, HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
 	private int viewType = 1;
 	private int rootNode = -1;
-	private IWBundle iwb;
-	private IWResourceBundle iwrb;
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 	private int fontSize = 2;
 	private String fontColor = "#000000";
-	private String bgrColor = "#FFFFFF";
 	private String highlightFontColor = "#999999";
 	private String subHighlightFontColor = "#999999";
-	private String higlightBgrColor = "#FFFFFF";
 	private String tableBackGroundColor = null;
 	private String width = null;
 	private String height = null;
@@ -363,7 +357,6 @@ public class NavigationMenu extends Block {
 		subFontHoverUnderline = underline;
 	}
 	public void setBackgroundColor(String color) {
-		bgrColor = color;
 	}
 	public void setTableBackgroundColor(String color) {
 		tableBackGroundColor = color;
