@@ -81,115 +81,126 @@ public class NavigationMenu extends Block {
 	public void main(IWContext iwc) throws Exception{
 		setStyles();
 		BuilderService bs = getBuilderService(iwc);
-		if (rootNode == -1) {
-			rootNode = bs.getRootPageId();
+		if (this.rootNode == -1) {
+			this.rootNode = bs.getRootPageId();
 		}
 		//String sCurrentPageId = iwc.getParameter(com.idega.builder.business.BuilderLogic.IB_PAGE_PARAMETER);
-		currentPageId = bs.getCurrentPageId(iwc);
+		this.currentPageId = bs.getCurrentPageId(iwc);
 		try {
-			parentPageId = Integer.parseInt(iwc.getParameter("parent_id"));
+			this.parentPageId = Integer.parseInt(iwc.getParameter("parent_id"));
 		}
 		catch (NumberFormatException e) {
-			parentPageId = -1;
+			this.parentPageId = -1;
 		}
 		
-		if (parentPageId == -1 && _addParentID) {
+		if (this.parentPageId == -1 && this._addParentID) {
 			try {
-				parentPageId = ((Integer) iwc.getSessionAttribute("parent_id")).intValue();
+				this.parentPageId = ((Integer) iwc.getSessionAttribute("parent_id")).intValue();
 			}
 			catch (Exception e) {
-				parentPageId = -1;
-				parentPageId = rootNode;
+				this.parentPageId = -1;
+				this.parentPageId = this.rootNode;
 			}
 		}
 		
-		if (parentPageId != -1) {
-			iwc.setSessionAttribute("parent_id", new Integer(parentPageId));
+		if (this.parentPageId != -1) {
+			iwc.setSessionAttribute("parent_id", new Integer(this.parentPageId));
 		}
 		
-		PageTreeNode node = new PageTreeNode(rootNode, iwc);
-		boolean bottom = !HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
-		boolean left = !HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
-		boolean vertical = viewType == VERTICAL;
+		PageTreeNode node = new PageTreeNode(this.rootNode, iwc);
+		boolean bottom = !this.HomeVerticalAlignment.equals(VerticalAlignmentHandler.TOP);
+		boolean left = !this.HomeHorizontalAlignment.equals(HorizontalAlignmentHandler.RIGHT);
+		boolean vertical = this.viewType == VERTICAL;
 		Vector nodeVector = new Vector();
-		if (withRootAsHome && ((!bottom && vertical) || (!vertical && left))) {
+		if (this.withRootAsHome && ((!bottom && vertical) || (!vertical && left))) {
 			nodeVector.add(node);
-			withRootAsHome = false;
+			this.withRootAsHome = false;
 		}
 		Iterator iter = node.getChildrenIterator();
-		while (iter.hasNext())
+		while (iter.hasNext()) {
 			nodeVector.add(iter.next());
-		if (withRootAsHome && (bottom || !left))
+		}
+		if (this.withRootAsHome && (bottom || !left)) {
 			nodeVector.add(node);
+		}
 		int row = 1, col = 1;
 		Table T = new Table();
-		T.setCellpadding(cellPadding);
-		T.setCellspacing(cellSpacing);
-		if (tableBackGroundColor != null)
-			T.setColor(tableBackGroundColor);
-		if (width != null)
-			T.setWidth(width);
-		if (height != null)
-			T.setHeight(height);
+		T.setCellpadding(this.cellPadding);
+		T.setCellspacing(this.cellSpacing);
+		if (this.tableBackGroundColor != null) {
+			T.setColor(this.tableBackGroundColor);
+		}
+		if (this.width != null) {
+			T.setWidth(this.width);
+		}
+		if (this.height != null) {
+			T.setHeight(this.height);
+		}
 		Link L = null;
-		spacer = Table.getTransparentCell(iwc);
-		spacer.setWidth(_widthFromIcon);
-		subNodeImage = (Image) spacer.clone();
-		subNodeImage.setWidth(_subWidthFromParent);
-		subNodeImage.setHeight(2);
-		Image spaceBetween = (Image) spacer.clone();
-		spaceBetween.setHeight(_spaceBetween);
+		this.spacer = Table.getTransparentCell(iwc);
+		this.spacer.setWidth(this._widthFromIcon);
+		this.subNodeImage = (Image) this.spacer.clone();
+		this.subNodeImage.setWidth(this._subWidthFromParent);
+		this.subNodeImage.setHeight(2);
+		Image spaceBetween = (Image) this.spacer.clone();
+		spaceBetween.setHeight(this._spaceBetween);
 		Iterator iterator = nodeVector.iterator();
 		while (iterator.hasNext()) {
 			PageTreeNode n = (PageTreeNode) iterator.next();
-			L = getLink(n.getLocalizedNodeName(iwc), n.getNodeID(), rootNode, _addParentID, false);
-			if (_iconImage != null) {
-				Image image = new Image(_iconImage.getMediaURL(iwc));
-				if (_iconOverImage != null)
-					L.setOnMouseOverImage(image, _iconOverImage);
+			L = getLink(n.getLocalizedNodeName(iwc), n.getNodeID(), this.rootNode, this._addParentID, false);
+			if (this._iconImage != null) {
+				Image image = new Image(this._iconImage.getMediaURL(iwc));
+				if (this._iconOverImage != null) {
+					L.setOnMouseOverImage(image, this._iconOverImage);
+				}
 				T.add(image, col, row);
-				T.add(spacer, col, row);
-				if (!vertical)
+				T.add(this.spacer, col, row);
+				if (!vertical) {
 					col++;
+				}
 			}
-			if (!vertical)
+			if (!vertical) {
 				T.add(L, col++, row);
+			}
 			else {
 				//T.mergeCells(col, row, col + 1, row);  //merging the cells causes wrong behaviour on the vertical alignment of the link
 				T.add(L, col+1, row++);					 
-				if (_showAllSubPages) {
-					if (n.getNodeID() != rootNode)
+				if (this._showAllSubPages) {
+					if (n.getNodeID() != this.rootNode) {
 						row = addSubLinks(iwc, T, col, row, L, n);
+					}
 				}
 				else {
-					if (_showSubPages && (n.getNodeID() == currentPageId || n.getNodeID() == parentPageId) && n.getNodeID() != rootNode) {
+					if (this._showSubPages && (n.getNodeID() == this.currentPageId || n.getNodeID() == this.parentPageId) && n.getNodeID() != this.rootNode) {
 						row = addSubLinks(iwc, T, col, row, L, n);
 					}
 				}
 			}
-			if (_spacer != null && iterator.hasNext()) {
-				if (!vertical)
-					T.add(_spacer, col++, row);
-				else
-					T.add(_spacer, col, row++);
+			if (this._spacer != null && iterator.hasNext()) {
+				if (!vertical) {
+					T.add(this._spacer, col++, row);
+				}
+				else {
+					T.add(this._spacer, col, row++);
+				}
 			}
-			if (spacerText != null && iterator.hasNext()) {
-				Text text = new Text(spacerText);
-				if (spacerTextStyle != null) {
-					text.setFontStyle(spacerTextStyle);
+			if (this.spacerText != null && iterator.hasNext()) {
+				Text text = new Text(this.spacerText);
+				if (this.spacerTextStyle != null) {
+					text.setFontStyle(this.spacerTextStyle);
 				}
 				if (!vertical) {
-					T.setCellpaddingLeft(col, row, spacerTextPadding);
-					T.setCellpaddingRight(col, row, spacerTextPadding);
+					T.setCellpaddingLeft(col, row, this.spacerTextPadding);
+					T.setCellpaddingRight(col, row, this.spacerTextPadding);
 					T.add(text, col++, row);
 				}
 				else {
-					T.setCellpaddingTop(col, row, spacerTextPadding);
-					T.setCellpaddingBottom(col, row, spacerTextPadding);
+					T.setCellpaddingTop(col, row, this.spacerTextPadding);
+					T.setCellpaddingBottom(col, row, this.spacerTextPadding);
 					T.add(text, col, row++);
 				}
 			}
-			if (_spaceBetween > 0 && vertical) {
+			if (this._spaceBetween > 0 && vertical) {
 				T.add(spaceBetween, col, row++);
 			}
 		}
@@ -206,15 +217,16 @@ public class NavigationMenu extends Block {
 		while (i.hasNext()) {
 			PageTreeNode subNode = (PageTreeNode) i.next();
 			link = getLink(subNode.getLocalizedNodeName(iwc), subNode.getNodeID(), node.getNodeID(), true, true);
-			if (_subWidthFromParent > 0) {
-				subTable.add(subNodeImage, 1, subRow);
+			if (this._subWidthFromParent > 0) {
+				subTable.add(this.subNodeImage, 1, subRow);
 			}
-			if (_subIconImage != null) {
-				Image image = new Image(_subIconImage.getMediaURL(iwc));
-				if (_subIconOverImage != null)
-					link.setOnMouseOverImage(image, _subIconOverImage);
+			if (this._subIconImage != null) {
+				Image image = new Image(this._subIconImage.getMediaURL(iwc));
+				if (this._subIconOverImage != null) {
+					link.setOnMouseOverImage(image, this._subIconOverImage);
+				}
 				subTable.add(image, 2, subRow);
-				subTable.add(spacer, 2, subRow);
+				subTable.add(this.spacer, 2, subRow);
 			}
 			subTable.add(link, 2, subRow++);
 		}
@@ -223,152 +235,174 @@ public class NavigationMenu extends Block {
 	}
 	private Link getLink(String text, int PageId, int parentPageID, boolean addParentID, boolean isSubPage) {
 		Link L = new Link(text);
-		if (_styles) {
-			if (isSubPage && _subStyles) {
-				if (PageId == currentPageId)
-					L.setStyle(_subHoverName);
-				else
-					L.setStyle(_subName);
+		if (this._styles) {
+			if (isSubPage && this._subStyles) {
+				if (PageId == this.currentPageId) {
+					L.setStyle(this._subHoverName);
+				}
+				else {
+					L.setStyle(this._subName);
+				}
 			}
 			else {
-				if (PageId == currentPageId)
-					L.setStyle(_hoverName);
-				else
-					L.setStyle(_name);
+				if (PageId == this.currentPageId) {
+					L.setStyle(this._hoverName);
+				}
+				else {
+					L.setStyle(this._name);
+				}
 			}
 		}
 		else {
-			if (PageId == currentPageId)
-				L.setFontColor(highlightFontColor);
-			else
-				L.setFontColor(fontColor);
-			L.setFontSize(fontSize);
+			if (PageId == this.currentPageId) {
+				L.setFontColor(this.highlightFontColor);
+			}
+			else {
+				L.setFontColor(this.fontColor);
+			}
+			L.setFontSize(this.fontSize);
 		}
 		L.setPage(PageId);
-		if (addParentID)
+		if (addParentID) {
 			L.addParameter("parent_id", parentPageID);
-		if (asButton) {
-			L.setAsImageButton(asButton, true);
 		}
-		else if (asTab) {
-			L.setAsImageTab(asTab, true, asFlipped);
+		if (this.asButton) {
+			L.setAsImageButton(this.asButton, true);
+		}
+		else if (this.asTab) {
+			L.setAsImageTab(this.asTab, true, this.asFlipped);
 		}
 		return L;
 	}
 	private void setStyles() {
-		if (_name == null)
-			_name = this.getName();
-		if (_name == null) {
-			if (getICObjectInstanceID() != -1)
-				_name = "nav_" + Integer.toString(getICObjectInstanceID());
-			else
-				_name = "nav_" + Double.toString(Math.random());
+		if (this._name == null) {
+			this._name = this.getName();
 		}
-		_hoverName = "hover_" + _name;
-		_subName = "sub_" + _name;
-		_subHoverName = "subHover_" + _name;
-		if (fontStyle == null) {
-			fontStyle = IWStyleManager.getInstance().getStyle("A");
+		if (this._name == null) {
+			if (getICObjectInstanceID() != -1) {
+				this._name = "nav_" + Integer.toString(getICObjectInstanceID());
+			}
+			else {
+				this._name = "nav_" + Double.toString(Math.random());
+			}
 		}
-		if (getParentPage() != null && fontStyle != null) {
-			TextStyler styler = new TextStyler(fontStyle);
-			if (fontHoverUnderline)
+		this._hoverName = "hover_" + this._name;
+		this._subName = "sub_" + this._name;
+		this._subHoverName = "subHover_" + this._name;
+		if (this.fontStyle == null) {
+			this.fontStyle = IWStyleManager.getInstance().getStyle("A");
+		}
+		if (getParentPage() != null && this.fontStyle != null) {
+			TextStyler styler = new TextStyler(this.fontStyle);
+			if (this.fontHoverUnderline) {
 				styler.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION, StyleConstants.TEXT_DECORATION_UNDERLINE);
-			if (fontHoverColor != null)
-				styler.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, fontHoverColor);
-			getParentPage().setStyleDefinition("A." + _name, fontStyle);
-			getParentPage().setStyleDefinition("A." + _name + ":hover", styler.getStyleString());
-			TextStyler styler2 = new TextStyler(fontStyle);
-			if (highlightFontColor != null)
-				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, highlightFontColor);
+			}
+			if (this.fontHoverColor != null) {
+				styler.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, this.fontHoverColor);
+			}
+			getParentPage().setStyleDefinition("A." + this._name, this.fontStyle);
+			getParentPage().setStyleDefinition("A." + this._name + ":hover", styler.getStyleString());
+			TextStyler styler2 = new TextStyler(this.fontStyle);
+			if (this.highlightFontColor != null) {
+				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, this.highlightFontColor);
+			}
 			String style = styler2.getStyleString();
-			getParentPage().setStyleDefinition("A." + _hoverName, style);
-			if (fontHoverUnderline)
+			getParentPage().setStyleDefinition("A." + this._hoverName, style);
+			if (this.fontHoverUnderline) {
 				styler2.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION, StyleConstants.TEXT_DECORATION_UNDERLINE);
-			if (fontHoverColor != null)
-				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, fontHoverColor);
-			getParentPage().setStyleDefinition("A." + _hoverName + ":hover", styler2.getStyleString());
+			}
+			if (this.fontHoverColor != null) {
+				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, this.fontHoverColor);
+			}
+			getParentPage().setStyleDefinition("A." + this._hoverName + ":hover", styler2.getStyleString());
 		}
 		else {
-			_styles = false;
+			this._styles = false;
 		}
-		if (getParentPage() != null && subFontStyle != null) {
-			TextStyler styler = new TextStyler(subFontStyle);
-			if (subFontHoverUnderline)
+		if (getParentPage() != null && this.subFontStyle != null) {
+			TextStyler styler = new TextStyler(this.subFontStyle);
+			if (this.subFontHoverUnderline) {
 				styler.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION, StyleConstants.TEXT_DECORATION_UNDERLINE);
-			if (subFontHoverColor != null)
-				styler.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, subFontHoverColor);
-			getParentPage().setStyleDefinition("A." + _subName, subFontStyle);
-			getParentPage().setStyleDefinition("A." + _subName + ":hover", styler.getStyleString());
-			TextStyler styler2 = new TextStyler(subFontStyle);
-			if (subHighlightFontColor != null)
-				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, subHighlightFontColor);
+			}
+			if (this.subFontHoverColor != null) {
+				styler.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, this.subFontHoverColor);
+			}
+			getParentPage().setStyleDefinition("A." + this._subName, this.subFontStyle);
+			getParentPage().setStyleDefinition("A." + this._subName + ":hover", styler.getStyleString());
+			TextStyler styler2 = new TextStyler(this.subFontStyle);
+			if (this.subHighlightFontColor != null) {
+				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, this.subHighlightFontColor);
+			}
 			String style = styler2.getStyleString();
-			getParentPage().setStyleDefinition("A." + _subHoverName, style);
-			if (subFontHoverUnderline)
+			getParentPage().setStyleDefinition("A." + this._subHoverName, style);
+			if (this.subFontHoverUnderline) {
 				styler2.setStyleValue(StyleConstants.ATTRIBUTE_TEXT_DECORATION, StyleConstants.TEXT_DECORATION_UNDERLINE);
-			if (subFontHoverColor != null)
-				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, subFontHoverColor);
-			getParentPage().setStyleDefinition("A." + _subHoverName + ":hover", styler2.getStyleString());
+			}
+			if (this.subFontHoverColor != null) {
+				styler2.setStyleValue(StyleConstants.ATTRIBUTE_COLOR, this.subFontHoverColor);
+			}
+			getParentPage().setStyleDefinition("A." + this._subHoverName + ":hover", styler2.getStyleString());
 		}
 		else {
-			_subStyles = false;
+			this._subStyles = false;
 		}
 	}
 	public void setViewType(int type) {
-		viewType = type;
+		this.viewType = type;
 	}
 	public void setHorizontal(boolean horizontal) {
-		if (horizontal)
-			viewType = HORIZONTAL;
+		if (horizontal) {
+			this.viewType = HORIZONTAL;
+		}
 	}
 	public void setVertical(boolean vertical) {
-		if (vertical)
-			viewType = VERTICAL;
+		if (vertical) {
+			this.viewType = VERTICAL;
+		}
 	}
 	public void setRootNode(ICPage page) {
-		rootNode = page.getID();
+		this.rootNode = page.getID();
 	}
 	public void setRootNode(int rootId) {
-		rootNode = rootId;
+		this.rootNode = rootId;
 	}
 	public void setFontColor(String color) {
-		fontColor = color;
+		this.fontColor = color;
 	}
 	public void setFontSize(int size) {
-		fontSize = size;
+		this.fontSize = size;
 	}
 	public void setFontStyle(String style) {
-		fontStyle = style;
+		this.fontStyle = style;
 	}
 	public void setSubFontStyle(String style) {
-		subFontStyle = style;
+		this.subFontStyle = style;
 	}
 	public void setFontHoverColor(String color) {
-		fontHoverColor = color;
+		this.fontHoverColor = color;
 	}
 	public void setSubpagesFontHoverColor(String color) {
-		subFontHoverColor = color;
+		this.subFontHoverColor = color;
 	}
 	public void setFontHoverUnderline(boolean underline) {
-		fontHoverUnderline = underline;
+		this.fontHoverUnderline = underline;
 	}
 	public void setSubpagesFontHoverUnderline(boolean underline) {
-		subFontHoverUnderline = underline;
+		this.subFontHoverUnderline = underline;
 	}
 	public void setBackgroundColor(String color) {
 	}
 	public void setTableBackgroundColor(String color) {
-		tableBackGroundColor = color;
+		this.tableBackGroundColor = color;
 	}
 	public void setHighlightFontColor(String color) {
-		highlightFontColor = color;
+		this.highlightFontColor = color;
 	}
 	public void setSubpagesHighlightFontColor(String color) {
-		subHighlightFontColor = color;
+		this.subHighlightFontColor = color;
 	}
 	public void setHighligtBackgroundColor(String color) {
-		highlightFontColor = color;
+		this.highlightFontColor = color;
 	}
 	public void setWidth(String width) {
 		this.width = width;
@@ -377,63 +411,66 @@ public class NavigationMenu extends Block {
 		this.height = height;
 	}
 	public void setUseRootAsHome(boolean useRootAsHome) {
-		withRootAsHome = useRootAsHome;
+		this.withRootAsHome = useRootAsHome;
 	}
 	public void setPadding(int padding) {
-		cellPadding = padding;
+		this.cellPadding = padding;
 	}
 	public void setSpacing(int spacing) {
-		cellSpacing = spacing;
+		this.cellSpacing = spacing;
 	}
 	public void setSpaceBetween(int spaceBetween) {
-		_spaceBetween = spaceBetween;
+		this._spaceBetween = spaceBetween;
 	}
 	public void setHomeHorizontalAlignment(String align) {
-		if (align.equals(HorizontalAlignmentHandler.LEFT) || align.equals(HorizontalAlignmentHandler.RIGHT))
-			HomeHorizontalAlignment = align;
+		if (align.equals(HorizontalAlignmentHandler.LEFT) || align.equals(HorizontalAlignmentHandler.RIGHT)) {
+			this.HomeHorizontalAlignment = align;
+		}
 	}
 	public void setHomeVerticalAlignment(String align) {
-		if (align.equals(VerticalAlignmentHandler.BOTTOM) || align.equals(VerticalAlignmentHandler.TOP))
-			HomeVerticalAlignment = align;
+		if (align.equals(VerticalAlignmentHandler.BOTTOM) || align.equals(VerticalAlignmentHandler.TOP)) {
+			this.HomeVerticalAlignment = align;
+		}
 	}
 	public void setAsButtons(boolean asButtons) {
-		asButton = asButtons;
+		this.asButton = asButtons;
 	}
 	public void setAsTabs(boolean asTabs, boolean Flipped) {
-		asTab = asTabs;
-		asFlipped = Flipped;
+		this.asTab = asTabs;
+		this.asFlipped = Flipped;
 	}
 	public void setIconImage(Image iconImage) {
-		_iconImage = iconImage;
+		this._iconImage = iconImage;
 	}
 	public void setSubpageIconImage(Image iconImage) {
-		_subIconImage = iconImage;
+		this._subIconImage = iconImage;
 	}
 	public void setIconOverImage(Image iconOverImage) {
-		_iconOverImage = iconOverImage;
+		this._iconOverImage = iconOverImage;
 	}
 	public void setSubpageIconOverImage(Image iconOverImage) {
-		_subIconOverImage = iconOverImage;
+		this._subIconOverImage = iconOverImage;
 	}
 	public void setWidthFromIcon(int widthFromIcon) {
-		_widthFromIcon = widthFromIcon;
+		this._widthFromIcon = widthFromIcon;
 	}
 	public void setSubPageWidthFromParent(int subWidthFromParent) {
-		_subWidthFromParent = subWidthFromParent;
+		this._subWidthFromParent = subWidthFromParent;
 	}
 	public void setSpacerImage(Image spacerImage) {
-		_spacer = spacerImage;
+		this._spacer = spacerImage;
 	}
 	public void setAddParentID(boolean addID) {
-		if (addID && (!_showSubPages || !_showAllSubPages))
-			_addParentID = addID;
+		if (addID && (!this._showSubPages || !this._showAllSubPages)) {
+			this._addParentID = addID;
+		}
 	}
 	public void setShowSubPages(boolean showSubPages) {
-		_showSubPages = showSubPages;
+		this._showSubPages = showSubPages;
 		setAddParentID(true);
 	}
 	public void setShowAllSubPages(boolean showAllSubPages) {
-		_showAllSubPages = showAllSubPages;
+		this._showAllSubPages = showAllSubPages;
 		setAddParentID(true);
 	}
 	public Object clone() {

@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.4 2006/02/19 17:28:13 laddi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.5 2006/04/09 11:38:11 laddi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -38,11 +38,11 @@ public class NavigationBreadCrumbsList extends Block {
 		BuilderService iBuilderService = getBuilderService(iwc);
 
 		int rootPageID = -1;
-		if (rootPage == null) {
+		if (this.rootPage == null) {
 			rootPageID = iBuilderService.getRootPageId();
 		}
 		else {
-			rootPageID = new Integer(rootPage.getPrimaryKey().toString()).intValue();
+			rootPageID = new Integer(this.rootPage.getPrimaryKey().toString()).intValue();
 		}
 		int currentPageID = iBuilderService.getCurrentPageId(iwc);
 		
@@ -56,7 +56,7 @@ public class NavigationBreadCrumbsList extends Block {
 				showPage = false;
 			}
 			
-			if (ignoreCategoryPages && page.isCategory()) {
+			if (this.ignoreCategoryPages && page.isCategory()) {
 				isCategoryPage = true;
 			}
 			else {
@@ -84,8 +84,8 @@ public class NavigationBreadCrumbsList extends Block {
 		Collections.reverse(pages);
 		
 		Lists list = new Lists();
-		if (ID != null) {
-			list.setId(ID);
+		if (this.ID != null) {
+			list.setId(this.ID);
 		}
 		Iterator iter = pages.iterator();
 		boolean first = true;
@@ -110,15 +110,15 @@ public class NavigationBreadCrumbsList extends Block {
 	}
 	
 	public void setRootPage(ICPage page) {
-		rootPage = page;
+		this.rootPage = page;
 	}
 	
 	public void setShowRootPage(boolean show) {
-		showRoot = show;
+		this.showRoot = show;
 	}
 	
 	public void setIgnoreCategoryPages(boolean hide) {
-		ignoreCategoryPages = hide;
+		this.ignoreCategoryPages = hide;
 	}
 	
 	public void setId(String Id) {
@@ -132,10 +132,10 @@ public class NavigationBreadCrumbsList extends Block {
 	public Object saveState(FacesContext ctx) {
 		Object values[] = new Object[5];
 		values[0] = super.saveState(ctx);
-		values[1] = new Boolean(ignoreCategoryPages);
-		values[2] = rootPage;
-		values[3] = new Boolean(showRoot);
-		values[4] = ID;
+		values[1] = new Boolean(this.ignoreCategoryPages);
+		values[2] = this.rootPage;
+		values[3] = new Boolean(this.showRoot);
+		values[4] = this.ID;
 		
 		return values;
 	}
@@ -143,9 +143,9 @@ public class NavigationBreadCrumbsList extends Block {
 	public void restoreState(FacesContext ctx, Object state) {
 		Object values[] = (Object[])state;
 		super.restoreState(ctx, values[0]);
-		ignoreCategoryPages = ((Boolean) values[1]).booleanValue();
-		rootPage = (ICPage) values[2];
-		showRoot = ((Boolean) values[3]).booleanValue();
-		ID = (String) values[4];
+		this.ignoreCategoryPages = ((Boolean) values[1]).booleanValue();
+		this.rootPage = (ICPage) values[2];
+		this.showRoot = ((Boolean) values[3]).booleanValue();
+		this.ID = (String) values[4];
 	}
 }

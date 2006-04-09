@@ -45,24 +45,24 @@ public class NavigationBreadCrumbs extends Block {
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
 	 */
 	public void main(IWContext iwc) throws Exception {
-		iBuilderService = getBuilderService(iwc);
+		this.iBuilderService = getBuilderService(iwc);
 
-		if (iRoot == null) {
-			iRoot = iBuilderService.getRootPage();
+		if (this.iRoot == null) {
+			this.iRoot = this.iBuilderService.getRootPage();
 		}
-		iCurrentPage = iBuilderService.getCurrentPage(iwc);
+		this.iCurrentPage = this.iBuilderService.getCurrentPage(iwc);
 		
 		List pages = new ArrayList();
-		PageTreeNode page = new PageTreeNode(((Integer) iCurrentPage.getPrimaryKey()).intValue(), iwc);
+		PageTreeNode page = new PageTreeNode(((Integer) this.iCurrentPage.getPrimaryKey()).intValue(), iwc);
 		boolean showPage = true;
 		boolean isCategoryPage = false;
 		int level = 1;
 		while (showPage) {
-			if (page.getNodeID() == ((Integer) iRoot.getPrimaryKey()).intValue()) {
+			if (page.getNodeID() == ((Integer) this.iRoot.getPrimaryKey()).intValue()) {
 				showPage = false;
 			}
 			
-			if (iIgnoreCategoryPages && page.isCategory()) {
+			if (this.iIgnoreCategoryPages && page.isCategory()) {
 				isCategoryPage = true;
 			}
 			else {
@@ -70,25 +70,25 @@ public class NavigationBreadCrumbs extends Block {
 			}
 			
 			if (!isCategoryPage) {
-				if (page.getNodeID() == ((Integer) iCurrentPage.getPrimaryKey()).intValue()) {
+				if (page.getNodeID() == ((Integer) this.iCurrentPage.getPrimaryKey()).intValue()) {
 					Text pageText = new Text(page.getLocalizedNodeName(iwc));
-					if (iTextStyleName != null) {
-						pageText.setStyleClass(iTextStyleName);
+					if (this.iTextStyleName != null) {
+						pageText.setStyleClass(this.iTextStyleName);
 					}
 					pages.add(pageText);
 				}
 				else {
 					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
 					pageLink.setPage(page.getNodeID());
-					if (iLinkStyleName != null) {
-						pageLink.setStyleClass(iLinkStyleName);
+					if (this.iLinkStyleName != null) {
+						pageLink.setStyleClass(this.iLinkStyleName);
 					}
 					pages.add(pageLink);
 				}
 			}
 			level++;
 			
-			if (iLevels != -1 && level > iLevels) {
+			if (this.iLevels != -1 && level > this.iLevels) {
 				showPage = false;
 			}
 			
@@ -111,23 +111,23 @@ public class NavigationBreadCrumbs extends Block {
 			table.add(object, column, 1);
 
 			if (column == 1) {
-				table.setCellpaddingRight(column++, 1, iPadding);
+				table.setCellpaddingRight(column++, 1, this.iPadding);
 			}
 			else {
-				table.setCellpaddingLeft(column, 1, iPadding);
-				table.setCellpaddingRight(column++, 1, iPadding);
+				table.setCellpaddingLeft(column, 1, this.iPadding);
+				table.setCellpaddingRight(column++, 1, this.iPadding);
 			}
 			
 			if (iter.hasNext()) {
-				if (iSeperatorText != null) {
-					Text seperatorText = new Text(iSeperatorText);
-					if (iSeperatorStyleName != null) {
-						seperatorText.setStyleClass(iSeperatorStyleName);
+				if (this.iSeperatorText != null) {
+					Text seperatorText = new Text(this.iSeperatorText);
+					if (this.iSeperatorStyleName != null) {
+						seperatorText.setStyleClass(this.iSeperatorStyleName);
 					}
 					table.add(seperatorText, column++, 1);
 				}
-				else if (iSeperatorImage != null) {
-					table.add(iSeperatorImage, column++, 1);
+				else if (this.iSeperatorImage != null) {
+					table.add(this.iSeperatorImage, column++, 1);
 				}
 			}
 		}

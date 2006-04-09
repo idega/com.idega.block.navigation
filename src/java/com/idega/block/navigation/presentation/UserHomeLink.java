@@ -60,23 +60,28 @@ public class UserHomeLink extends Block {
 					link.setPage(homePageID);
 					link.setText(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
 					if (homePageID == pageID) {
-						if (_selectedLinkStyleClass != null)
-							link.setStyleClass(_selectedLinkStyleClass);
-						else if (_selectedLinkStyle != null)
-							link.setStyleAttribute(_selectedLinkStyle);
+						if (this._selectedLinkStyleClass != null) {
+							link.setStyleClass(this._selectedLinkStyleClass);
+						}
+						else if (this._selectedLinkStyle != null) {
+							link.setStyleAttribute(this._selectedLinkStyle);
+						}
 					}
 					else {
-						if (_linkStyleClass != null)
-							link.setStyleClass(_linkStyleClass);
-						else if (_linkStyle != null)
-							link.setStyleAttribute(_linkStyle);
+						if (this._linkStyleClass != null) {
+							link.setStyleClass(this._linkStyleClass);
+						}
+						else if (this._linkStyle != null) {
+							link.setStyleAttribute(this._linkStyle);
+						}
 					}
 					
-					if (_iconImage != null) {
+					if (this._iconImage != null) {
 						addTable = true;
-						table.add(_iconImage,column++,1);
-						if (_spaceBetween > 0)
-							table.setWidth(column++, 1, String.valueOf(_spaceBetween));
+						table.add(this._iconImage,column++,1);
+						if (this._spaceBetween > 0) {
+							table.setWidth(column++, 1, String.valueOf(this._spaceBetween));
+						}
 					}
 					table.add(link,column,1);
 					if (!addTable) {
@@ -89,16 +94,18 @@ public class UserHomeLink extends Block {
 			}
 		}
 		else {
-			if (_showNotLoggedOn) {
+			if (this._showNotLoggedOn) {
 				Text text = new Text(getResourceBundle(iwc).getLocalizedString(HOME_PAGE_KEY,HOME_PAGE_KEY_VALUE));
-				if (_loggedOffStyle != null)
-					text.setFontStyle(_loggedOffStyle);
+				if (this._loggedOffStyle != null) {
+					text.setFontStyle(this._loggedOffStyle);
+				}
 
-				if (_loggedOffIconImage != null) {
+				if (this._loggedOffIconImage != null) {
 					addTable = true;
-					table.add(_loggedOffIconImage,column++,1);
-					if (_spaceBetween > 0)
-						table.setWidth(column++, 1, String.valueOf(_spaceBetween));
+					table.add(this._loggedOffIconImage,column++,1);
+					if (this._spaceBetween > 0) {
+						table.setWidth(column++, 1, String.valueOf(this._spaceBetween));
+					}
 				}
 				table.add(text,column,1);
 				if (!addTable) {
@@ -120,38 +127,38 @@ public class UserHomeLink extends Block {
 	}
 	
 	public void setShowWhenLoggedOff(boolean showWhenLoggedOff) {
-		_showNotLoggedOn = showWhenLoggedOff;
+		this._showNotLoggedOn = showWhenLoggedOff;
 	}
 	
 	public void setLinkStyle(String style) {
-		_linkStyle = style;	
+		this._linkStyle = style;	
 	}
 	
 	public void setLinkStyleClass(String styleClass) {
-		_linkStyleClass = styleClass;
+		this._linkStyleClass = styleClass;
 	}
 	
 	public void setLoggedOffTextStyle(String style) {
-		_loggedOffStyle = style;	
+		this._loggedOffStyle = style;	
 	}
 	
 	public void setIconImage(Image image) {
-		_iconImage = image;	
+		this._iconImage = image;	
 	}
 	
 	public void setLoggedOffIconImage(Image image) {
-		_loggedOffIconImage = image;
+		this._loggedOffIconImage = image;
 	}
 	
 	public void setSpaceBetweenIconAndLink(int spaceBetween) {
-		_spaceBetween = spaceBetween;	
+		this._spaceBetween = spaceBetween;	
 	}
 	/**
 	 * Sets the selectedLinkStyleClass.
 	 * @param selectedLinkStyleClass The selectedLinkStyleClass to set
 	 */
 	public void setSelectedLinkStyleClass(String selectedLinkStyleClass) {
-		_selectedLinkStyleClass = selectedLinkStyleClass;
+		this._selectedLinkStyleClass = selectedLinkStyleClass;
 	}
 
 	/**
@@ -159,7 +166,7 @@ public class UserHomeLink extends Block {
 	 * @param selectedLinkStyle The selectedLinkStyle to set
 	 */
 	public void setSelectedLinkStyle(String selectedLinkStyle) {
-		_selectedLinkStyle = selectedLinkStyle;
+		this._selectedLinkStyle = selectedLinkStyle;
 	}
 
 }

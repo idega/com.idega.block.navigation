@@ -21,10 +21,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2006/02/22 20:49:20 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/04/09 11:38:11 $ by $Author: laddi $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.43 $
+ * @version $Revision: 1.44 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -71,8 +71,8 @@ public class NavigationTree extends NavigationList{
 	
 	public NavigationTree(){
 		//Overriding settings from the superclass:
-		_textAlignment = Table.HORIZONTAL_ALIGN_LEFT;
-		_imageAlignment = Image.ALIGNMENT_ABSOLUTE_MIDDLE;
+		this._textAlignment = Table.HORIZONTAL_ALIGN_LEFT;
+		this._imageAlignment = Image.ALIGNMENT_ABSOLUTE_MIDDLE;
 		setWidth(DEFAULT_WIDTH);
 		
 		//Temporary debug:
@@ -105,10 +105,10 @@ public class NavigationTree extends NavigationList{
 	 */
 	protected UIComponent getTreeTable(IWContext iwc) {
 		
-		if (_paddingImage != null) {
-			_paddingImage.setPaddingLeft(_imagePadding);
-			_paddingImage.setPaddingRight(_imagePadding);
-			_paddingImage.setAlignment(Image.ALIGNMENT_ABSOLUTE_MIDDLE);
+		if (this._paddingImage != null) {
+			this._paddingImage.setPaddingLeft(this._imagePadding);
+			this._paddingImage.setPaddingRight(this._imagePadding);
+			this._paddingImage.setAlignment(Image.ALIGNMENT_ABSOLUTE_MIDDLE);
 		}
 		
 		Table table = new Table();
@@ -117,15 +117,16 @@ public class NavigationTree extends NavigationList{
 			table.setWidth(width);
 		}
 		table.setCellpaddingAndCellspacing(0);
-		if (_openImage != null || _closedImage != null) {
+		if (this._openImage != null || this._closedImage != null) {
 			table.setColumns(2);
 			table.setWidth(1, Table.HUNDRED_PERCENT);
 		}
-		if (_showBorder) {
+		if (this._showBorder) {
 			table.setLineFrame(true);
 			table.setLinesBetween(true);
-			if (_borderColor != null)
-				table.setLineColor(_borderColor);
+			if (this._borderColor != null) {
+				table.setLineColor(this._borderColor);
+			}
 		}
 
 		int row = 1;
@@ -189,19 +190,20 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	protected int setTableRowAttributes(Table table, ICTreeNode page, int row, int depth, boolean isLastChild) {
-		table.setCellpadding(1, row, _padding);
-		if (table.getColumns() == 2)
+		table.setCellpadding(1, row, this._padding);
+		if (table.getColumns() == 2) {
 			table.setVerticalAlignment(2, row, Table.VERTICAL_ALIGN_BOTTOM);
+		}
 
 		String alignment = getDepthAlignment(depth);
 		if (alignment == null) {
-			alignment = _textAlignment;
+			alignment = this._textAlignment;
 		}
 
 		if (alignment.equals(Table.HORIZONTAL_ALIGN_LEFT)) {
-			if (_paddingImage != null && depth > 0) {
+			if (this._paddingImage != null && depth > 0) {
 				for (int a = 0; a < depth; a++) {
-					table.add(_paddingImage, 1, row);
+					table.add(this._paddingImage, 1, row);
 				}
 			}
 			else {
@@ -213,8 +215,9 @@ public class NavigationTree extends NavigationList{
 		}
 
 		String color = getDepthColor(page, depth);
-		if (color != null)
+		if (color != null) {
 			table.setRowColor(row, color);
+		}
 
 		String height = getDepthHeight(depth);
 		if (height != null) {
@@ -232,7 +235,7 @@ public class NavigationTree extends NavigationList{
 		table.setNoWrap(1, row++);
 
 		boolean addBreak = false;
-		if (_spaceBetween > 0) {
+		if (this._spaceBetween > 0) {
 			String spacingColor = null;
 			if (isLastChild && depth != 0) {
 				spacingColor = getDepthSpacingColor(depth - 1);
@@ -243,7 +246,7 @@ public class NavigationTree extends NavigationList{
 			if (spacingColor != null) {
 				table.setRowColor(row, spacingColor);
 			}
-			table.setHeight(row, _spaceBetween);
+			table.setHeight(row, this._spaceBetween);
 
 			addBreak = true;
 		}
@@ -347,8 +350,8 @@ public class NavigationTree extends NavigationList{
 			addParameterToLink(imageLink, page);
 			table.add(imageLink, 2, row);
 		}
-		else if (_blankImage != null) {
-			table.add(_blankImage, 2, row);
+		else if (this._blankImage != null) {
+			table.add(this._blankImage, 2, row);
 		}
 
 		boolean isSelected = isSelected(page);
@@ -367,8 +370,9 @@ public class NavigationTree extends NavigationList{
 		}
 
 		if (linkImage != null) {
-			if (_imagePadding > 0)
-				linkImage.setPaddingRight(_imagePadding);
+			if (this._imagePadding > 0) {
+				linkImage.setPaddingRight(this._imagePadding);
+			}
 			table.add(linkImage, 1, row);
 
 			if (!isSelected && !isCurrent) {
@@ -397,16 +401,16 @@ public class NavigationTree extends NavigationList{
 	
 	private Image getCurtainImage(int depth, boolean isOpen) {
 		if (isOpen) {
-			if (_depthOpenImage != null) {
-				return (Image) _depthOpenImage.get(new Integer(depth));
+			if (this._depthOpenImage != null) {
+				return (Image) this._depthOpenImage.get(new Integer(depth));
 			}
-			return _openImage;
+			return this._openImage;
 		}
 		else {
-			if (_depthClosedImage != null) {
-				return (Image) _depthClosedImage.get(new Integer(depth));
+			if (this._depthClosedImage != null) {
+				return (Image) this._depthClosedImage.get(new Integer(depth));
 			}
-			return _closedImage;
+			return this._closedImage;
 		}
 	}
 
@@ -420,16 +424,16 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private Image getDepthHoverImage(int depth) {
-		if (_depthHoverImage != null) {
-			Image image = (Image) _depthHoverImage.get(new Integer(depth));
+		if (this._depthHoverImage != null) {
+			Image image = (Image) this._depthHoverImage.get(new Integer(depth));
 			if (image != null) {
-				image.setAlignment(_imageAlignment);
+				image.setAlignment(this._imageAlignment);
 				return image;
 			}
 		}
-		if (_iconHoverImage != null) {
-			_iconHoverImage.setAlignment(_imageAlignment);
-			return _iconHoverImage;
+		if (this._iconHoverImage != null) {
+			this._iconHoverImage.setAlignment(this._imageAlignment);
+			return this._iconHoverImage;
 		}
 
 		return null;
@@ -450,50 +454,52 @@ public class NavigationTree extends NavigationList{
 		if (!page.equals(this.getRootNode())) {
 			if (getMarkOnlyCurrentPage()) {
 				if (getCurrentPageId() == page.getNodeID()) {
-					if (_depthCurrentColor != null) {
-						String color = (String) _depthCurrentColor.get(new Integer(depth));
+					if (this._depthCurrentColor != null) {
+						String color = (String) this._depthCurrentColor.get(new Integer(depth));
 						if (color != null) {
 							return color;
 						}
 						else {
-							return (String) _depthCurrentColor.get(new Integer(0));
+							return (String) this._depthCurrentColor.get(new Integer(0));
 						}
 					}
 				}
 			}
 			else {
 				if (isCurrent(page)) {
-					if (_depthCurrentColor != null) {
-						String color = (String) _depthCurrentColor.get(new Integer(depth));
+					if (this._depthCurrentColor != null) {
+						String color = (String) this._depthCurrentColor.get(new Integer(depth));
 						if (color != null) {
 							return color;
 						}
 						else {
-							return (String) _depthCurrentColor.get(new Integer(0));
+							return (String) this._depthCurrentColor.get(new Integer(0));
 						}
 					}
 				}
 				if (isSelected(page)) {
-					if (_depthSelectedColor != null) {
-						String color = (String) _depthSelectedColor.get(new Integer(depth));
+					if (this._depthSelectedColor != null) {
+						String color = (String) this._depthSelectedColor.get(new Integer(depth));
 						if (color != null) {
 							return color;
 						}
 						else {
-							return (String) _depthSelectedColor.get(new Integer(0));
+							return (String) this._depthSelectedColor.get(new Integer(0));
 						}
 					}
 				}
 			}
 		}
 
-		if (_depthColor != null) {
-			String color = (String) _depthColor.get(new Integer(depth));
-			if (color != null)
+		if (this._depthColor != null) {
+			String color = (String) this._depthColor.get(new Integer(depth));
+			if (color != null) {
 				return color;
+			}
 		}
-		if (_backgroundColor != null)
-			return _backgroundColor;
+		if (this._backgroundColor != null) {
+			return this._backgroundColor;
+		}
 
 		return null;
 	}	
@@ -507,8 +513,8 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private String getDepthHeight(int depth) {
-		if (_depthHeight != null) {
-			String height = (String) _depthHeight.get(new Integer(depth));
+		if (this._depthHeight != null) {
+			String height = (String) this._depthHeight.get(new Integer(depth));
 			if (height != null) {
 				return height;
 			}
@@ -524,8 +530,8 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private String getDepthSpacingColor(int depth) {
-		if (_depthSpacingColor != null) {
-			String color = (String) _depthSpacingColor.get(new Integer(depth));
+		if (this._depthSpacingColor != null) {
+			String color = (String) this._depthSpacingColor.get(new Integer(depth));
 			if (color != null) {
 				return color;
 			}
@@ -541,8 +547,8 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private Image getDepthSpacingImage(int depth) {
-		if (_depthSpacingImage != null) {
-			Image image = (Image) _depthSpacingImage.get(new Integer(depth));
+		if (this._depthSpacingImage != null) {
+			Image image = (Image) this._depthSpacingImage.get(new Integer(depth));
 			if (image != null) {
 				return image;
 			}
@@ -558,8 +564,8 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private String getDepthAlignment(int depth) {
-		if (_depthAlignment != null) {
-			String alignment = (String) _depthAlignment.get(new Integer(depth));
+		if (this._depthAlignment != null) {
+			String alignment = (String) this._depthAlignment.get(new Integer(depth));
 			if (alignment != null) {
 				return alignment;
 			}
@@ -575,8 +581,8 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private int getDepthPaddingTop(int depth) {
-		if (_depthPaddingTop != null) {
-			Integer padding = (Integer) _depthPaddingTop.get(new Integer(depth));
+		if (this._depthPaddingTop != null) {
+			Integer padding = (Integer) this._depthPaddingTop.get(new Integer(depth));
 			if (padding != null) {
 				return padding.intValue();
 			}
@@ -594,16 +600,16 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private Image getDepthImage(int depth) {
-		if (_depthImage != null) {
-			Image image = (Image) _depthImage.get(new Integer(depth));
+		if (this._depthImage != null) {
+			Image image = (Image) this._depthImage.get(new Integer(depth));
 			if (image != null) {
-				image.setAlignment(_imageAlignment);
+				image.setAlignment(this._imageAlignment);
 				return image;
 			}
 		}
-		if (_iconImage != null) {
-			_iconImage.setAlignment(_imageAlignment);
-			return _iconImage;
+		if (this._iconImage != null) {
+			this._iconImage.setAlignment(this._imageAlignment);
+			return this._iconImage;
 		}
 
 		return null;
@@ -621,16 +627,16 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private Image getDepthSelectedImage(int depth) {
-		if (_depthSelectedImage != null) {
-			Image image = (Image) _depthSelectedImage.get(new Integer(depth));
+		if (this._depthSelectedImage != null) {
+			Image image = (Image) this._depthSelectedImage.get(new Integer(depth));
 			if (image != null) {
-				image.setAlignment(_imageAlignment);
+				image.setAlignment(this._imageAlignment);
 				return image;
 			}
 		}
-		if (_iconSelectedImage != null) {
-			_iconSelectedImage.setAlignment(_imageAlignment);
-			return _iconSelectedImage;
+		if (this._iconSelectedImage != null) {
+			this._iconSelectedImage.setAlignment(this._imageAlignment);
+			return this._iconSelectedImage;
 		}
 
 		return null;
@@ -646,16 +652,16 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private Image getDepthCurrentImage(int depth) {
-		if (_depthCurrentImage != null) {
-			Image image = (Image) _depthCurrentImage.get(new Integer(depth));
+		if (this._depthCurrentImage != null) {
+			Image image = (Image) this._depthCurrentImage.get(new Integer(depth));
 			if (image != null) {
-				image.setAlignment(_imageAlignment);
+				image.setAlignment(this._imageAlignment);
 				return image;
 			}
 		}
-		if (_iconCurrentImage != null) {
-			_iconCurrentImage.setAlignment(_imageAlignment);
-			return _iconCurrentImage;
+		if (this._iconCurrentImage != null) {
+			this._iconCurrentImage.setAlignment(this._imageAlignment);
+			return this._iconCurrentImage;
 		}
 
 		return null;
@@ -667,9 +673,10 @@ public class NavigationTree extends NavigationList{
 	 * @param color
 	 */
 	public void setDepthColor(int depth, String color) {
-		if (_depthColor == null)
-			_depthColor = new HashMap();
-		_depthColor.put(new Integer(depth - 1), color);
+		if (this._depthColor == null) {
+			this._depthColor = new HashMap();
+		}
+		this._depthColor.put(new Integer(depth - 1), color);
 	}
 
 	/**
@@ -679,9 +686,10 @@ public class NavigationTree extends NavigationList{
 	 * @param color
 	 */
 	public void setDepthHoverColor(int depth, String color) {
-		if (_depthHoverColor == null)
-			_depthHoverColor = new HashMap();
-		_depthHoverColor.put(new Integer(depth - 1), color);
+		if (this._depthHoverColor == null) {
+			this._depthHoverColor = new HashMap();
+		}
+		this._depthHoverColor.put(new Integer(depth - 1), color);
 	}
 
 	
@@ -692,9 +700,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthImage(int depth, Image image) {
-		if (_depthImage == null)
-			_depthImage = new HashMap();
-		_depthImage.put(new Integer(depth - 1), image);
+		if (this._depthImage == null) {
+			this._depthImage = new HashMap();
+		}
+		this._depthImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -704,9 +713,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthCurrentImage(int depth, Image image) {
-		if (_depthCurrentImage == null)
-			_depthCurrentImage = new HashMap();
-		_depthCurrentImage.put(new Integer(depth - 1), image);
+		if (this._depthCurrentImage == null) {
+			this._depthCurrentImage = new HashMap();
+		}
+		this._depthCurrentImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -716,9 +726,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthSelectedImage(int depth, Image image) {
-		if (_depthSelectedImage == null)
-			_depthSelectedImage = new HashMap();
-		_depthSelectedImage.put(new Integer(depth - 1), image);
+		if (this._depthSelectedImage == null) {
+			this._depthSelectedImage = new HashMap();
+		}
+		this._depthSelectedImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -728,9 +739,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthHoverImage(int depth, Image image) {
-		if (_depthHoverImage == null)
-			_depthHoverImage = new HashMap();
-		_depthHoverImage.put(new Integer(depth - 1), image);
+		if (this._depthHoverImage == null) {
+			this._depthHoverImage = new HashMap();
+		}
+		this._depthHoverImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -740,9 +752,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthHeight(int depth, String height) {
-		if (_depthHeight == null)
-			_depthHeight = new HashMap();
-		_depthHeight.put(new Integer(depth - 1), height);
+		if (this._depthHeight == null) {
+			this._depthHeight = new HashMap();
+		}
+		this._depthHeight.put(new Integer(depth - 1), height);
 	}
 
 	/**
@@ -752,9 +765,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthSpacingColor(int depth, String color) {
-		if (_depthSpacingColor == null)
-			_depthSpacingColor = new HashMap();
-		_depthSpacingColor.put(new Integer(depth - 1), color);
+		if (this._depthSpacingColor == null) {
+			this._depthSpacingColor = new HashMap();
+		}
+		this._depthSpacingColor.put(new Integer(depth - 1), color);
 	}
 
 	/**
@@ -764,9 +778,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthSpacingImage(int depth, Image image) {
-		if (_depthSpacingImage == null)
-			_depthSpacingImage = new HashMap();
-		_depthSpacingImage.put(new Integer(depth - 1), image);
+		if (this._depthSpacingImage == null) {
+			this._depthSpacingImage = new HashMap();
+		}
+		this._depthSpacingImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -776,9 +791,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthPaddingTop(int depth, int padding) {
-		if (_depthPaddingTop == null)
-			_depthPaddingTop = new HashMap();
-		_depthPaddingTop.put(new Integer(depth - 1), new Integer(padding));
+		if (this._depthPaddingTop == null) {
+			this._depthPaddingTop = new HashMap();
+		}
+		this._depthPaddingTop.put(new Integer(depth - 1), new Integer(padding));
 	}
 
 
@@ -788,7 +804,7 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setIconImage(Image image) {
-		_iconImage = image;
+		this._iconImage = image;
 	}
 
 	/**
@@ -797,7 +813,7 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setIconHoverImage(Image image) {
-		_iconHoverImage = image;
+		this._iconHoverImage = image;
 	}
 
 	/**
@@ -806,7 +822,7 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setIconCurrentImage(Image image) {
-		_iconCurrentImage = image;
+		this._iconCurrentImage = image;
 	}
 
 	/**
@@ -815,7 +831,7 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setIconSelectedImage(Image image) {
-		_iconSelectedImage = image;
+		this._iconSelectedImage = image;
 	}
 
 	/**
@@ -826,7 +842,7 @@ public class NavigationTree extends NavigationList{
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setDepthImage(int,com.idega.block.presentation.Image)
 	 */
 	public void setImageAlignment(String imageAlignment) {
-		_imageAlignment = imageAlignment;
+		this._imageAlignment = imageAlignment;
 	}
 
 	/**
@@ -837,7 +853,7 @@ public class NavigationTree extends NavigationList{
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setDepthImage(int,com.idega.block.presentation.Image)
 	 */
 	public void setImagePadding(int imagePadding) {
-		_imagePadding = imagePadding;
+		this._imagePadding = imagePadding;
 	}
 	/**
 	 * Sets the closed <code>Image</code> to display in the tree.
@@ -845,7 +861,7 @@ public class NavigationTree extends NavigationList{
 	 * @param closedImage
 	 */
 	public void setClosedImage(Image closedImage) {
-		_closedImage = closedImage;
+		this._closedImage = closedImage;
 	}
 
 	/**
@@ -855,9 +871,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthClosedImage(int depth, Image image) {
-		if (_depthClosedImage == null)
-			_depthClosedImage = new HashMap();
-		_depthClosedImage.put(new Integer(depth - 1), image);
+		if (this._depthClosedImage == null) {
+			this._depthClosedImage = new HashMap();
+		}
+		this._depthClosedImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -866,7 +883,7 @@ public class NavigationTree extends NavigationList{
 	 * @param openImage
 	 */
 	public void setOpenImage(Image openImage) {
-		_openImage = openImage;
+		this._openImage = openImage;
 	}
 
 	/**
@@ -876,9 +893,10 @@ public class NavigationTree extends NavigationList{
 	 * @param image
 	 */
 	public void setDepthOpenImage(int depth, Image image) {
-		if (_depthOpenImage == null)
-			_depthOpenImage = new HashMap();
-		_depthOpenImage.put(new Integer(depth - 1), image);
+		if (this._depthOpenImage == null) {
+			this._depthOpenImage = new HashMap();
+		}
+		this._depthOpenImage.put(new Integer(depth - 1), image);
 	}
 
 	/**
@@ -888,7 +906,7 @@ public class NavigationTree extends NavigationList{
 	 * @param blankImage
 	 */
 	public void setBlankImage(Image blankImage) {
-		_blankImage = blankImage;
+		this._blankImage = blankImage;
 	}
 
 	/**
@@ -898,9 +916,10 @@ public class NavigationTree extends NavigationList{
 	 * @param color
 	 */
 	public void setDepthCurrentColor(int depth, String color) {
-		if (_depthCurrentColor == null)
-			_depthCurrentColor = new HashMap();
-		_depthCurrentColor.put(new Integer(depth - 1), color);
+		if (this._depthCurrentColor == null) {
+			this._depthCurrentColor = new HashMap();
+		}
+		this._depthCurrentColor.put(new Integer(depth - 1), color);
 	}
 	/**
 	 * Sets the background color for a specific depth level.
@@ -909,9 +928,10 @@ public class NavigationTree extends NavigationList{
 	 * @param color
 	 */
 	public void setDepthSelectedColor(int depth, String color) {
-		if (_depthSelectedColor == null)
-			_depthSelectedColor = new HashMap();
-		_depthSelectedColor.put(new Integer(depth - 1), color);
+		if (this._depthSelectedColor == null) {
+			this._depthSelectedColor = new HashMap();
+		}
+		this._depthSelectedColor.put(new Integer(depth - 1), color);
 	}
 	
 	/**
@@ -921,14 +941,15 @@ public class NavigationTree extends NavigationList{
 	 * @param alignment
 	 */
 	public void setDepthAlignment(int depth, String alignment) {
-		if (_depthAlignment == null)
-			_depthAlignment = new HashMap();
-		_depthAlignment.put(new Integer(depth - 1), alignment);
+		if (this._depthAlignment == null) {
+			this._depthAlignment = new HashMap();
+		}
+		this._depthAlignment.put(new Integer(depth - 1), alignment);
 	}
 	
 	
 	public void setPaddingImage(Image image) {
-		_paddingImage = image;
+		this._paddingImage = image;
 	}
 	
 	/**
@@ -948,8 +969,8 @@ public class NavigationTree extends NavigationList{
 			return null;
 		}
 		else {
-			if (_depthHoverColor != null) {
-				String color = (String) _depthHoverColor.get(new Integer(depth));
+			if (this._depthHoverColor != null) {
+				String color = (String) this._depthHoverColor.get(new Integer(depth));
 				if (color != null) {
 					return color;
 				}
@@ -967,7 +988,7 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	private int getIndent(int depth) {
-		return (depth * _indent) + _initialIndent + _padding;
+		return (depth * this._indent) + this._initialIndent + this._padding;
 	}
 
 	
@@ -1000,7 +1021,7 @@ public class NavigationTree extends NavigationList{
 	 * @param spaceBetween
 	 */
 	public void setSpaceBetween(int spaceBetween) {
-		_spaceBetween = spaceBetween;
+		this._spaceBetween = spaceBetween;
 	}
 	
 	/**
@@ -1009,7 +1030,7 @@ public class NavigationTree extends NavigationList{
 	 * @param initialIndent
 	 */
 	public void setInitialIndent(int initialIndent) {
-		_initialIndent = initialIndent;
+		this._initialIndent = initialIndent;
 	}
 	
 	/**
@@ -1019,7 +1040,7 @@ public class NavigationTree extends NavigationList{
 	 * @param padding
 	 */
 	public void setPadding(int padding) {
-		_padding = padding;
+		this._padding = padding;
 	}
 	
 	/**
@@ -1034,7 +1055,7 @@ public class NavigationTree extends NavigationList{
 	
 
 	public void setAlignment(String alignment) {
-		_textAlignment = alignment;
+		this._textAlignment = alignment;
 	}
 
 	/**
@@ -1043,7 +1064,7 @@ public class NavigationTree extends NavigationList{
 	 * @param color
 	 */
 	public void setBackgroundColor(String color) {
-		_backgroundColor = color;
+		this._backgroundColor = color;
 	}
 	
 
@@ -1053,7 +1074,7 @@ public class NavigationTree extends NavigationList{
 	 * @param indent
 	 */
 	public void setIndent(int indent) {
-		_indent = indent;
+		this._indent = indent;
 	}
 	
 
@@ -1064,7 +1085,7 @@ public class NavigationTree extends NavigationList{
 	 * @see com.idega.block.navigation.presentation.NavigationTree#setShowBorder(boolean)
 	 */
 	public void setBorderColor(String borderColor) {
-		_borderColor = borderColor;
+		this._borderColor = borderColor;
 	}
 
 	/**
@@ -1073,7 +1094,7 @@ public class NavigationTree extends NavigationList{
 	 * @param showBorder
 	 */
 	public void setShowBorder(boolean showBorder) {
-		_showBorder = showBorder;
+		this._showBorder = showBorder;
 	}
 	
 
@@ -1083,7 +1104,7 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	protected int getPadding() {
-		return _padding;
+		return this._padding;
 	}
 
 	/**
@@ -1093,7 +1114,7 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	protected String getBackgroundColor() {
-		return _backgroundColor;
+		return this._backgroundColor;
 	}
 	
 	/**
@@ -1101,7 +1122,7 @@ public class NavigationTree extends NavigationList{
 	 * @return
 	 */
 	protected boolean isUseStyleBasedLayout() {
-		return useStyleBasedLayout;
+		return this.useStyleBasedLayout;
 	}
 	/**
 	 * Set to use the style-class based layout. By default this is set to false but if set to true it uses the

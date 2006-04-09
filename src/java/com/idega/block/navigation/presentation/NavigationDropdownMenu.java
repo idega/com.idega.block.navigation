@@ -48,23 +48,23 @@ public class NavigationDropdownMenu extends Block {
 	}
 
 	public String getDropdownParameter() {
-		return prmDropdown + getICObjectInstanceID();
+		return this.prmDropdown + getICObjectInstanceID();
 	}
 
 	public void main(IWContext iwc) throws Exception {
 		BuilderService bs = getBuilderService(iwc);
-		iwrb = getResourceBundle(iwc);
-		if (rootNode == -1) {
-			rootNode = bs.getRootPageId();
+		this.iwrb = getResourceBundle(iwc);
+		if (this.rootNode == -1) {
+			this.rootNode = bs.getRootPageId();
 		}
 
 		String name = getDropdownParameter();
 		DropdownMenu dropDown = new DropdownMenu(name);
-		if (iInputStyleClass != null) {
-			dropDown.setStyleClass(iInputStyleClass);
+		if (this.iInputStyleClass != null) {
+			dropDown.setStyleClass(this.iInputStyleClass);
 		}
 
-		PageTreeNode node = new PageTreeNode(rootNode, iwc);
+		PageTreeNode node = new PageTreeNode(this.rootNode, iwc);
 		Iterator iter = node.getChildrenIterator();
 		while (iter.hasNext()) {
 			PageTreeNode n = (PageTreeNode) iter.next();
@@ -88,37 +88,37 @@ public class NavigationDropdownMenu extends Block {
 		f.getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
 		table.add(dropDown, column++, 1);
 		
-		if (spaceBetween > 0) {
-			table.setWidth(column++, spaceBetween);
+		if (this.spaceBetween > 0) {
+			table.setWidth(column++, this.spaceBetween);
 		}
 		
-		if (useSubmitButton) {
-			if (useImageLink) {
-				Link btn = new Link(buttonImage);
+		if (this.useSubmitButton) {
+			if (this.useImageLink) {
+				Link btn = new Link(this.buttonImage);
 				btn.setURL("javascript:" + getScriptCaller(name));
 				btn.setOnClick("javascript:" + getScriptCaller(name));
 				table.add(btn, column, 1);
 			}
-			else if (useGeneratedButton) {
-				Link btn = new Link(iwrb.getLocalizedImageButton("go", "Go!"));
+			else if (this.useGeneratedButton) {
+				Link btn = new Link(this.iwrb.getLocalizedImageButton("go", "Go!"));
 				btn.setURL("javascript:" + getScriptCaller(name));
 				btn.setOnClick("javascript:" + getScriptCaller(name));
 				table.add(btn, column, 1);
 			}
-			else if (setButtonAsLink) {
-				Link btn = new Link(iwrb.getLocalizedString("go", "Go!"));
+			else if (this.setButtonAsLink) {
+				Link btn = new Link(this.iwrb.getLocalizedString("go", "Go!"));
 				btn.setURL("javascript:" + getScriptCaller(name));
 				btn.setOnClick("javascript:" + getScriptCaller(name));
-				if (iLinkStyleClass != null) {
-					btn.setStyleClass(iLinkStyleClass);
+				if (this.iLinkStyleClass != null) {
+					btn.setStyleClass(this.iLinkStyleClass);
 				}
 				table.add(btn, column, 1);
 			}
 			else {
-				GenericButton btn = new GenericButton("go", iwrb.getLocalizedString("go", "Go!"));
+				GenericButton btn = new GenericButton("go", this.iwrb.getLocalizedString("go", "Go!"));
 				btn.setOnClick("javascript:" + getScriptCaller(name));
-				if (iButtonStyleClass != null) {
-					btn.setStyleClass(iButtonStyleClass);
+				if (this.iButtonStyleClass != null) {
+					btn.setStyleClass(this.iButtonStyleClass);
 				}
 				table.add(btn, column, 1);
 			}
@@ -148,25 +148,25 @@ public class NavigationDropdownMenu extends Block {
 	}
 
 	public void setRootNode(int rootId) {
-		rootNode = rootId;
+		this.rootNode = rootId;
 	}
 	/**
 	 * @param buttonStyleClass The buttonStyleClass to set.
 	 */
 	public void setButtonStyleClass(String buttonStyleClass) {
-		iButtonStyleClass = buttonStyleClass;
+		this.iButtonStyleClass = buttonStyleClass;
 	}
 	/**
 	 * @param inputStyleClass The inputStyleClass to set.
 	 */
 	public void setInputStyleClass(String inputStyleClass) {
-		iInputStyleClass = inputStyleClass;
+		this.iInputStyleClass = inputStyleClass;
 	}
 	/**
 	 * @param linkStyleClass The linkStyleClass to set.
 	 */
 	public void setLinkStyleClass(String linkStyleClass) {
-		iLinkStyleClass = linkStyleClass;
+		this.iLinkStyleClass = linkStyleClass;
 	}
 	/**
 	 * @param spaceBetween The spaceBetween to set.

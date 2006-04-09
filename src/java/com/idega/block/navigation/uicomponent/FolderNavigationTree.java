@@ -30,8 +30,8 @@ public class FolderNavigationTree extends NavigationTree {
 		if (iwc.isParameterSet(PARAMETER_FOLDER_PATH)) {
 			System.out.println("Selected page parameter is set.");
 			try {
-				_currentPages = new ArrayList();
-				_selectedPages = new ArrayList();
+				this._currentPages = new ArrayList();
+				this._selectedPages = new ArrayList();
 				String url = iwc.getParameter(PARAMETER_FOLDER_PATH);
 				
 				IWSlideSession ss = (IWSlideSession) IBOLookup.getSessionInstance(iwc, IWSlideSession.class);
@@ -41,8 +41,8 @@ public class FolderNavigationTree extends NavigationTree {
 				WebdavExtendedResource selectedNode = ss.getWebdavResource(url);
 				WebDAVBean selectedParent = new WebDAVBean(selectedNode);
 				while (selectedParent != null && !selectedParent.getWebDavUrl().equals( getRootNodeId() )) {
-					_currentPages.add(selectedParent.getWebDavUrl());
-					_selectedPages.add(selectedParent.getWebDavUrl());
+					this._currentPages.add(selectedParent.getWebDavUrl());
+					this._selectedPages.add(selectedParent.getWebDavUrl());
 					selectedParent = (WebDAVBean) selectedParent.getParentNode();
 				}
 			} catch (HttpException e) {
@@ -53,31 +53,32 @@ public class FolderNavigationTree extends NavigationTree {
 				e.printStackTrace();
 			}
 		}
-		else
+		else {
 			System.out.println("No selected page parameter in request.");
+		}
 	}
 	
 	protected void addParameterToLink(Link link, ICTreeNode node) {
 		link.addParameter(PARAMETER_FOLDER_PATH, ((WebDAVBean)node).getWebDavUrl());
-		if (thePageId > 0) {
-			link.setPage(thePageId);
+		if (this.thePageId > 0) {
+			link.setPage(this.thePageId);
 		}
 	}
 	
 	
 	protected ICTreeNode getRootNode() {
-		return rootNode;
+		return this.rootNode;
 	}
 	
 	protected Object getRootNodeId() {
-		return rootNode.getWebDavUrl();
+		return this.rootNode.getWebDavUrl();
 	}
 	
 	protected void setRootNode(IWContext iwc) throws RemoteException {
 		IWSlideSession ss = (IWSlideSession) IBOLookup.getSessionInstance(iwc, IWSlideSession.class);
 		try {
-			WebdavExtendedResource root = ss.getWebdavResource(rootFolder);
-			rootNode = new WebDAVBean(root);
+			WebdavExtendedResource root = ss.getWebdavResource(this.rootFolder);
+			this.rootNode = new WebDAVBean(root);
 		} catch (HttpException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -124,15 +125,17 @@ public class FolderNavigationTree extends NavigationTree {
 
 	protected boolean isSelected(ICTreeNode page) {
 		boolean returner = false;
-		if (_selectedPages != null && _selectedPages.contains(((WebDAVBean) page).getWebDavUrl()))
+		if (this._selectedPages != null && this._selectedPages.contains(((WebDAVBean) page).getWebDavUrl())) {
 			returner =  true;
+		}
 		return returner;
 	}
 	
 	protected boolean isCurrent(ICTreeNode page) {
 		boolean returner = false;
-		if (_currentPages != null && _currentPages.contains(((WebDAVBean) page).getWebDavUrl()))
+		if (this._currentPages != null && this._currentPages.contains(((WebDAVBean) page).getWebDavUrl())) {
 			returner = true;
+		}
 		return returner;
 	}
 
