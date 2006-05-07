@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.21 2006/04/09 11:38:11 laddi Exp $
+ * $Id: NavigationList.java,v 1.22 2006/05/07 10:23:38 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -18,8 +18,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
 import com.idega.builder.business.PageTreeNode;
 import com.idega.business.IBOLookup;
 import com.idega.core.builder.business.BuilderService;
@@ -29,6 +31,7 @@ import com.idega.core.data.ICTreeNode;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
+import com.idega.presentation.Span;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
@@ -45,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2006/04/09 11:38:11 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/05/07 10:23:38 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  */
 public class NavigationList extends Block {
 
@@ -346,7 +349,8 @@ public class NavigationList extends Block {
 		if (this.iUseStyleLinks) {
 			if (page.getNodeID() != getCurrentPageId()) {
 				String linkStyleClass=this.linkStyleName;
-				Link link = getStyleLink(name, getStyleName(linkStyleClass, depth));
+				Link link = new Link(new Span(new Text(name)));
+				link.setStyleClass(getStyleName(linkStyleClass, depth));
 				if(linkIsDisabled){
 					link.setURL("#");
 				}
@@ -357,18 +361,20 @@ public class NavigationList extends Block {
 			}
 			else {
 				if(this.displaySelectedPageAsLink){
-					Link link = getStyleLink(name, getStyleName(this.linkStyleName, depth));
+					Link link = new Link(new Span(new Text(name)));
+					link.setStyleClass(getStyleName(this.linkStyleName, depth));
 					addParameterToLink(link, page);
 					return link;
 				}
 				else{
-					Text text = getStyleText(name, getStyleName(this.textStyleName, depth));
+					Text text = new Text(name);
+					text.setStyleClass(getStyleName(this.textStyleName, depth));
 					return text;
 				}
 			}
 		}
 		else {
-			Link link = new Link(name);
+			Link link = new Link(new Span(new Text(name)));
 			if(linkIsDisabled){
 				link.setURL("#");
 			}
