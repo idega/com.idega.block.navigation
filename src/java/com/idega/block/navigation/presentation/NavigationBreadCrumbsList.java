@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.5 2006/04/09 11:38:11 laddi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.6 2006/05/10 15:20:43 tryggvil Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -122,6 +122,7 @@ public class NavigationBreadCrumbsList extends Block {
 	}
 	
 	public void setId(String Id) {
+		super.setId(Id);
 		this.ID = Id;
 	}
 	
