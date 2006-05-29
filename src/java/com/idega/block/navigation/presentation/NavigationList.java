@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.22 2006/05/07 10:23:38 laddi Exp $
+ * $Id: NavigationList.java,v 1.23 2006/05/29 08:32:29 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2006/05/07 10:23:38 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/05/29 08:32:29 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  */
 public class NavigationList extends Block {
 
@@ -266,25 +266,34 @@ public class NavigationList extends Block {
 		
 		if (pages != null) {
 			int size = pages.size() - 1;
+			
 			if (index < size) {
 				if (isSelectedPage((ICTreeNode) pages.get(index + 1))) {
 					item.setStyleClass(getBeforeSelectedStyleClass());
 				}
 			}
+			
 			if (index == size && isSelectedPage(page) && !this.rootSelected) {
 				item.setStyleClass(getLastSelectedStyleClass());
 			}
+			
 			if (index > 0) {
 				if (isSelectedPage((ICTreeNode) pages.get(index - 1))) {
 					item.setStyleClass(getAfterSelectedStyleClass());
 				}
 			}
+			
 			if (index == 0 && isSelectedPage(page) && !getShowRoot()) {
 				item.setStyleClass(getFirstSelectedStyleClass());
 			}
+			else if (getShowRoot() && this.rootSelected) {
+				item.setStyleClass(getFirstSelectedStyleClass());
+			}
+			
 			if (index == 0 && getShowRoot() && this.rootSelected && !page.equals(getRootNode())) {
 				item.setStyleClass(getAfterSelectedStyleClass());
 			}
+			
 			if(isdisabled){
 				item.setStyleClass(getDisabledStyleClass());
 			}
