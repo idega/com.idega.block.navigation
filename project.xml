@@ -5,9 +5,7 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Navigation Block</name>
   <artifactId>com.idega.block.navigation</artifactId>
-  <!--currentVersion>1.0.1</currentVersion-->
-
-  <currentVersion>1.1-SNAPSHOT</currentVersion>
+  <currentVersion>3.1.0</currentVersion>
   <inceptionYear>2000</inceptionYear>
   <shortDescription>Navigation</shortDescription>
   <versions>
@@ -57,9 +55,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <!--version>3.0.5</version-->
-      <version>SNAPSHOT</version>
-
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -69,9 +65,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.builder</artifactId>
-      <!--version>1.4.2</version-->
-      <version>SNAPSHOT</version>
-
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -81,9 +75,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.slide</artifactId>
-      <!--version>0.4.2</version-->
-      <version>SNAPSHOT</version>
-
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
@@ -93,9 +85,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.content</artifactId>
-      <!--version>0.6.2</version-->
-      <version>SNAPSHOT</version>
-
+      <version>3.1.0</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
