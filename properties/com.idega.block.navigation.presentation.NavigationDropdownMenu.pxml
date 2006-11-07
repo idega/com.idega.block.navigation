@@ -35,7 +35,7 @@
                             <key>
                               <name>iw_method_param_desc</name>
                               <type>java.lang.String</type>
-                              <value>use Button</value>
+                              <value>Use Button</value>
                             </key>
                           </map>
                         </value>
@@ -84,7 +84,7 @@
                             <key>
                               <name>iw_method_param_desc</name>
                               <type>java.lang.String</type>
-                              <value>set Root page</value>
+                              <value>Root Page</value>
                             </key>
                           </map>
                         </value>
@@ -192,7 +192,7 @@
                             <key>
                               <name>iw_method_param_desc</name>
                               <type>java.lang.String</type>
-                              <value>First Menu Element Text</value>
+                              <value>First Element Text</value>
                             </key>
                           </map>
                         </value>
@@ -210,7 +210,7 @@
                 <key>
                   <name>iw_method_description</name>
                   <type>java.lang.String</type>
-                  <value>First Menu Element Name</value>
+                  <value>First Element Text</value>
                 </key>
                 <key>
                   <name>iw_method_identifier</name>
