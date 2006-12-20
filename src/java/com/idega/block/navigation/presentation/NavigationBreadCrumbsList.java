@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.6 2006/05/10 15:20:43 tryggvil Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.7 2006/12/20 16:06:48 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -85,7 +85,7 @@ public class NavigationBreadCrumbsList extends Block {
 		
 		Lists list = new Lists();
 		if (this.ID != null) {
-			list.setId(this.ID);
+			list.setId(this.ID + "_list");
 		}
 		Iterator iter = pages.iterator();
 		boolean first = true;
