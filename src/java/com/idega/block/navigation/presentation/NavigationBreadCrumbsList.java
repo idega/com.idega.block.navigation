@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.7 2006/12/20 16:06:48 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.8 2006/12/28 18:08:15 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -28,6 +28,8 @@ import com.idega.presentation.text.Text;
 public class NavigationBreadCrumbsList extends Block {
 	
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
+	
+	private static final String SPACE = "&nbsp;>&nbsp;";
 
 	private String ID = null;
 	private ICPage rootPage = null;
@@ -70,6 +72,7 @@ public class NavigationBreadCrumbsList extends Block {
 				}
 				else {
 					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
+					pageLink.setText(pageLink.getText() + SPACE);
 					pageLink.setPage(page.getNodeID());
 					pages.add(pageLink);
 				}

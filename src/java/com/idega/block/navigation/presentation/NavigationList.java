@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.24 2006/05/29 09:21:07 laddi Exp $
+ * $Id: NavigationList.java,v 1.25 2006/12/28 18:08:15 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2006/05/29 09:21:07 $ by $Author: laddi $
+ *  Last modified: $Date: 2006/12/28 18:08:15 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  */
 public class NavigationList extends Block {
 
@@ -78,6 +78,7 @@ public class NavigationList extends Block {
 	private boolean iHideSubPages = false;
 	private boolean iUseStyleLinks = true;
 	private boolean rootSelected = false;
+	private boolean addStyleClassOnSelectedItem = true;
 
 	private int _rootPageID = -1;
 	private String iSelectedID = null;
@@ -250,9 +251,16 @@ public class NavigationList extends Block {
 	protected UIComponent getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth,int index, boolean isdisabled){
 		ListItem item = new ListItem();
 		if (isSelectedPage(page)) {
-			item.setStyleClass(getSelectedStyleClass());
+			if (isAddStyleClassOnSelectedItem()) {
+				item.setStyleClass(getSelectedStyleClass());
+			}
 			if (this.iSelectedID != null) {
 				item.setID(this.iSelectedID);
+			}
+			else {
+				if (page.getNodeID() == getCurrentPageId()) {
+					item.setID("current");
+				}
 			}
 		}
 		
@@ -268,22 +276,22 @@ public class NavigationList extends Block {
 			int size = pages.size() - 1;
 			
 			if (index < size) {
-				if (isSelectedPage((ICTreeNode) pages.get(index + 1))) {
+				if (isSelectedPage((ICTreeNode) pages.get(index + 1)) && isAddStyleClassOnSelectedItem()) {
 					item.setStyleClass(getBeforeSelectedStyleClass());
 				}
 			}
 			
-			if (index == size && isSelectedPage(page) && !this.rootSelected) {
+			if (index == size && isSelectedPage(page) && !this.rootSelected && isAddStyleClassOnSelectedItem()) {
 				item.setStyleClass(getLastSelectedStyleClass());
 			}
 			
 			if (index > 0) {
-				if (isSelectedPage((ICTreeNode) pages.get(index - 1))) {
+				if (isSelectedPage((ICTreeNode) pages.get(index - 1)) && isAddStyleClassOnSelectedItem()) {
 					item.setStyleClass(getAfterSelectedStyleClass());
 				}
 			}
 			
-			if (index == 0 && isSelectedPage(page) && !getShowRoot()) {
+			if (index == 0 && isSelectedPage(page) && !getShowRoot() && isAddStyleClassOnSelectedItem()) {
 				item.setStyleClass(getFirstSelectedStyleClass());
 			}
 			else if (getShowRoot() && this.rootSelected && page.equals(getRootNode())) {
@@ -311,10 +319,14 @@ public class NavigationList extends Block {
 	
 	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
 		if (isFirstChild && !getShowRoot()) {
-			((PresentationObject) listComponent).setStyleClass(getFirstChildStyleClass());
+			if (isAddStyleClassOnSelectedItem()) {
+				((PresentationObject) listComponent).setStyleClass(getFirstChildStyleClass());
+			}
 		}
 		if (isLastChild) {
-			((PresentationObject) listComponent).setStyleClass(getLastChildStyleClass());
+			if (isAddStyleClassOnSelectedItem()) {
+				((PresentationObject) listComponent).setStyleClass(getLastChildStyleClass());
+			}
 		}
 		return row;
 	}
@@ -825,7 +837,7 @@ public class NavigationList extends Block {
 	 * @see javax.faces.component.StateHolder#saveState(javax.faces.context.FacesContext)
 	 */
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[34];
+		Object values[] = new Object[35];
 		values[0] = super.saveState(ctx);
 		values[1] = this.textStyleName;
 		values[2] = this.linkStyleName;
@@ -861,6 +873,7 @@ public class NavigationList extends Block {
 		values[31] = this.lastChildStyleClass;
 		values[32] = this.extraLastItemStyleClass;
 		values[33] = new Boolean(this.addExtraLastItem);
+		values[34] = new Boolean(this.addStyleClassOnSelectedItem);
 		return values;
 	}
 	
@@ -904,6 +917,7 @@ public class NavigationList extends Block {
 		this.lastChildStyleClass=(String)values[31];
 		this.extraLastItemStyleClass=(String)values[32];
 		this.addExtraLastItem=((Boolean)values[33]).booleanValue();
+		this.addStyleClassOnSelectedItem=((Boolean)values[34]).booleanValue();
 	}
 
 	
@@ -1096,6 +1110,14 @@ public class NavigationList extends Block {
 	 */
 	public void setExtraLastItemStyleClass(String extraAfterLastChildStyleClass) {
 		this.extraLastItemStyleClass = extraAfterLastChildStyleClass;
+	}
+
+	public boolean isAddStyleClassOnSelectedItem() {
+		return addStyleClassOnSelectedItem;
+	}
+
+	public void setAddStyleClassOnSelectedItem(boolean addStyleClassOnSelectedItem) {
+		this.addStyleClassOnSelectedItem = addStyleClassOnSelectedItem;
 	}
 	
 }
