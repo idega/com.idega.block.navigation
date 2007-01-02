@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.25 2006/12/28 18:08:15 valdas Exp $
+ * $Id: NavigationList.java,v 1.26 2007/01/02 12:05:31 gimmi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2006/12/28 18:08:15 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/01/02 12:05:31 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.25 $
+ * @version $Revision: 1.26 $
  */
 public class NavigationList extends Block {
 
@@ -79,6 +79,7 @@ public class NavigationList extends Block {
 	private boolean iUseStyleLinks = true;
 	private boolean rootSelected = false;
 	private boolean addStyleClassOnSelectedItem = true;
+	private boolean openAllNodes = false;
 
 	private int _rootPageID = -1;
 	private String iSelectedID = null;
@@ -477,11 +478,15 @@ public class NavigationList extends Block {
 	 * @return
 	 */
 	protected boolean isOpen(ICTreeNode page) {
-		boolean isOpen = isCurrent(page);
-		if (!isOpen) {
-			isOpen = isSelected(page);
+		if (!openAllNodes) {
+			boolean isOpen = isCurrent(page);
+			if (!isOpen) {
+				isOpen = isSelected(page);
+			}
+			return isOpen;
+		} else {
+			return true;
 		}
-		return isOpen;
 	}
 
 	/**
@@ -837,7 +842,7 @@ public class NavigationList extends Block {
 	 * @see javax.faces.component.StateHolder#saveState(javax.faces.context.FacesContext)
 	 */
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[35];
+		Object values[] = new Object[36];
 		values[0] = super.saveState(ctx);
 		values[1] = this.textStyleName;
 		values[2] = this.linkStyleName;
@@ -874,6 +879,7 @@ public class NavigationList extends Block {
 		values[32] = this.extraLastItemStyleClass;
 		values[33] = new Boolean(this.addExtraLastItem);
 		values[34] = new Boolean(this.addStyleClassOnSelectedItem);
+		values[35] = new Boolean(openAllNodes);
 		return values;
 	}
 	
@@ -918,6 +924,7 @@ public class NavigationList extends Block {
 		this.extraLastItemStyleClass=(String)values[32];
 		this.addExtraLastItem=((Boolean)values[33]).booleanValue();
 		this.addStyleClassOnSelectedItem=((Boolean)values[34]).booleanValue();
+		this.openAllNodes= ((Boolean) values[35]).booleanValue();
 	}
 
 	
@@ -1120,4 +1127,7 @@ public class NavigationList extends Block {
 		this.addStyleClassOnSelectedItem = addStyleClassOnSelectedItem;
 	}
 	
+	public void setOpenAllNodes(boolean openAllNodes) {
+		this.openAllNodes = openAllNodes;
+	}
 }
