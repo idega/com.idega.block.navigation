@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.26 2007/01/02 12:05:31 gimmi Exp $
+ * $Id: NavigationList.java,v 1.27 2007/01/05 10:11:02 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2007/01/02 12:05:31 $ by $Author: gimmi $
+ *  Last modified: $Date: 2007/01/05 10:11:02 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  */
 public class NavigationList extends Block {
 
@@ -258,11 +258,6 @@ public class NavigationList extends Block {
 			if (this.iSelectedID != null) {
 				item.setID(this.iSelectedID);
 			}
-			else {
-				if (page.getNodeID() == getCurrentPageId()) {
-					item.setID("current");
-				}
-			}
 		}
 		
 		int pageIndex = (getShowRoot() && !page.equals(getRootNode())) ? (index + 2) : (index + 1);
@@ -369,10 +364,20 @@ public class NavigationList extends Block {
 		String name = getLocalizedName(page, iwc);
 
 		if (this.iUseStyleLinks) {
+			Link link = null;
 			if (page.getNodeID() != getCurrentPageId()) {
-				String linkStyleClass=this.linkStyleName;
-				Link link = new Link(new Span(new Text(name)));
-				link.setStyleClass(getStyleName(linkStyleClass, depth));
+				if (isOpen(page)) {
+					if (isAddStyleClassOnSelectedItem()) {
+						link = getDefaultLink(name, this.linkStyleName, depth);
+					}
+					else {
+						link = new Link(new Text(name));
+						link.setStyleClass("currentAncestor");
+					}
+				}
+				else {
+					link = getDefaultLink(name, this.linkStyleName, depth);
+				}
 				if(linkIsDisabled){
 					link.setURL("#");
 				}
@@ -383,14 +388,21 @@ public class NavigationList extends Block {
 			}
 			else {
 				if(this.displaySelectedPageAsLink){
-					Link link = new Link(new Span(new Text(name)));
-					link.setStyleClass(getStyleName(this.linkStyleName, depth));
+					if (isAddStyleClassOnSelectedItem()) {
+						link = getDefaultLink(name, this.linkStyleName, depth);
+					}
+					else {
+						link = new Link(new Text(name));
+						link.setID("current");
+					}
 					addParameterToLink(link, page);
 					return link;
 				}
 				else{
 					Text text = new Text(name);
-					text.setStyleClass(getStyleName(this.textStyleName, depth));
+					if (isAddStyleClassOnSelectedItem()) {
+						text.setStyleClass(getStyleName(this.textStyleName, depth));
+					}
 					return text;
 				}
 			}
@@ -405,6 +417,12 @@ public class NavigationList extends Block {
 			}
 			return link;
 		}
+	}
+	
+	private Link getDefaultLink(String name, String styleClass, int depth) {
+		Link link = new Link(new Span(new Text(name)));
+		link.setStyleClass(getStyleName(styleClass, depth));
+		return link;
 	}
 	
 	protected int getCurrentPageId(){
