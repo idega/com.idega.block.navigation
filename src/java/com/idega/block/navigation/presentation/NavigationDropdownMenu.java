@@ -42,6 +42,8 @@ public class NavigationDropdownMenu extends Block {
 	private String iLinkStyleClass;
 	private String iInputStyleClass;
 	private String iButtonStyleClass;
+	private String iDropDownMenuWidth;
+	private String iFirstMenuElementText;
 	
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
@@ -62,6 +64,9 @@ public class NavigationDropdownMenu extends Block {
 		DropdownMenu dropDown = new DropdownMenu(name);
 		if (this.iInputStyleClass != null) {
 			dropDown.setStyleClass(this.iInputStyleClass);
+		}
+		if (this.iDropDownMenuWidth != null) {
+			dropDown.setWidth(this.iDropDownMenuWidth);
 		}
 
 		PageTreeNode node = new PageTreeNode(this.rootNode, iwc);
@@ -124,7 +129,11 @@ public class NavigationDropdownMenu extends Block {
 			}
 		}
 		else {
-			dropDown.addMenuElementFirst("", "");
+			if (this.iFirstMenuElementText != null) {
+				dropDown.addMenuElementFirst("", this.iFirstMenuElementText);
+			} else {
+				dropDown.addMenuElementFirst("", "");
+			}
 			dropDown.setOnChange(getScriptCaller(name));
 		}
 
@@ -167,6 +176,19 @@ public class NavigationDropdownMenu extends Block {
 	 */
 	public void setLinkStyleClass(String linkStyleClass) {
 		this.iLinkStyleClass = linkStyleClass;
+	}
+	/**
+	 * @param dropDownMenuWidth The dropDownMenuWidth to set.
+	 */
+	public void setDropDownMenuWidth(String dropDownMenuWidth) {
+		this.iDropDownMenuWidth = dropDownMenuWidth;
+	}
+	/**
+	/**
+	 * @param firstMenuElementText The firstMenuElementText to set.
+	 */
+	public void setFirstMenuElementText(String firstMenuElementText) {
+		this.iFirstMenuElementText = firstMenuElementText;
 	}
 	/**
 	 * @param spaceBetween The spaceBetween to set.
