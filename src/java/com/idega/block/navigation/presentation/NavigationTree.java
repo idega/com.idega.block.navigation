@@ -21,10 +21,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2006/04/09 11:38:11 $ by $Author: laddi $
+ *  Last modified: $Date: 2007/05/20 22:06:54 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.44 $
+ * @version $Revision: 1.45 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -347,7 +347,7 @@ public class NavigationTree extends NavigationList{
 		Image curtainImage = getCurtainImage(depth, isOpen(page));
 		if (curtainImage != null && page.getChildCount() > 0) {
 			Link imageLink = new Link(curtainImage);
-			addParameterToLink(imageLink, page);
+			addParameterToLink(imageLink, page, false);
 			table.add(imageLink, 2, row);
 		}
 		else if (this._blankImage != null) {

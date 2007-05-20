@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.27 2007/01/05 10:11:02 valdas Exp $
+ * $Id: NavigationList.java,v 1.28 2007/05/20 22:06:54 gimmi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2007/01/05 10:11:02 $ by $Author: valdas $
+ *  Last modified: $Date: 2007/05/20 22:06:54 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.28 $
  */
 public class NavigationList extends Block {
 
@@ -371,7 +371,7 @@ public class NavigationList extends Block {
 						link = getDefaultLink(name, this.linkStyleName, depth);
 					}
 					else {
-						link = new Link(new Text(name));
+						link = constructLink(new Text(name));
 						link.setStyleClass("currentAncestor");
 					}
 				}
@@ -382,7 +382,7 @@ public class NavigationList extends Block {
 					link.setURL("#");
 				}
 				else{
-					addParameterToLink(link, page);
+					addParameterToLink(link, page, false);
 				}
 				return link;
 			}
@@ -392,10 +392,10 @@ public class NavigationList extends Block {
 						link = getDefaultLink(name, this.linkStyleName, depth);
 					}
 					else {
-						link = new Link(new Text(name));
+						link = constructLink(new Text(name));
 						link.setID("current");
 					}
-					addParameterToLink(link, page);
+					addParameterToLink(link, page, false);
 					return link;
 				}
 				else{
@@ -408,19 +408,23 @@ public class NavigationList extends Block {
 			}
 		}
 		else {
-			Link link = new Link(new Span(new Text(name)));
+			Link link = constructLink(new Span(new Text(name)));
 			if(linkIsDisabled){
 				link.setURL("#");
 			}
 			else{
-				addParameterToLink(link, page);
+				addParameterToLink(link, page, false);
 			}
 			return link;
 		}
 	}
 	
+	protected Link constructLink(PresentationObject po) {
+		return new Link(po);
+	}
+	
 	private Link getDefaultLink(String name, String styleClass, int depth) {
-		Link link = new Link(new Span(new Text(name)));
+		Link link = constructLink(new Span(new Text(name)));
 		link.setStyleClass(getStyleName(styleClass, depth));
 		return link;
 	}
@@ -429,12 +433,14 @@ public class NavigationList extends Block {
 		return this._currentPageID;
 	}
 
-	protected void addParameterToLink(Link link, ICTreeNode page) {
-		boolean isCategory = getIsCategory(page);
-		if (!isCategory) {
-			link.setPage(page.getNodeID());
-		} else {
-			link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
+	protected void addParameterToLink(Link link, ICTreeNode page, boolean parametersOnly) {
+		if (!parametersOnly) {
+			boolean isCategory = getIsCategory(page);
+			if (!isCategory) {
+				link.setPage(page.getNodeID());
+			} else {
+				link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
+			}
 		}
 		List parameters = (List) this._parameters.get(new Integer(page.getNodeID()));
 		if (parameters != null) {
