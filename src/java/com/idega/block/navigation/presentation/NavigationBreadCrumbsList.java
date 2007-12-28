@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.8 2006/12/28 18:08:15 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.9 2007/12/28 14:07:42 laddi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
@@ -36,6 +39,7 @@ public class NavigationBreadCrumbsList extends Block {
 	private boolean showRoot = true;
 	private boolean ignoreCategoryPages = false;
 	
+	@Override
 	public void main(IWContext iwc) throws Exception {
 		BuilderService iBuilderService = getBuilderService(iwc);
 
@@ -94,7 +98,7 @@ public class NavigationBreadCrumbsList extends Block {
 		boolean first = true;
 		while (iter.hasNext()) {
 			ListItem li = new ListItem();
-			li.getChildren().add(iter.next());
+			li.getChildren().add((UIComponent) iter.next());
 			if (first) {
 				first = false;
 				if (!iter.hasNext()) {
@@ -124,15 +128,18 @@ public class NavigationBreadCrumbsList extends Block {
 		this.ignoreCategoryPages = hide;
 	}
 	
+	@Override
 	public void setId(String Id) {
 		super.setId(Id);
 		this.ID = Id;
 	}
 	
+	@Override
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 	
+	@Override
 	public Object saveState(FacesContext ctx) {
 		Object values[] = new Object[5];
 		values[0] = super.saveState(ctx);
@@ -144,6 +151,7 @@ public class NavigationBreadCrumbsList extends Block {
 		return values;
 	}
 	
+	@Override
 	public void restoreState(FacesContext ctx, Object state) {
 		Object values[] = (Object[])state;
 		super.restoreState(ctx, values[0]);
