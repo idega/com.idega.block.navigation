@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.9 2007/12/28 14:07:42 laddi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.10 2007/12/29 08:39:21 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -52,7 +52,7 @@ public class NavigationBreadCrumbsList extends Block {
 		}
 		int currentPageID = iBuilderService.getCurrentPageId(iwc);
 		
-		List pages = new ArrayList();
+		List<UIComponent> pages = new ArrayList<UIComponent>();
 		PageTreeNode page = new PageTreeNode(currentPageID, iwc);
 		boolean showPage = true;
 		boolean isCategoryPage = false;
@@ -94,11 +94,11 @@ public class NavigationBreadCrumbsList extends Block {
 		if (this.ID != null) {
 			list.setId(this.ID + "_list");
 		}
-		Iterator iter = pages.iterator();
+		Iterator<UIComponent> iter = pages.iterator();
 		boolean first = true;
 		while (iter.hasNext()) {
 			ListItem li = new ListItem();
-			li.getChildren().add((UIComponent) iter.next());
+			li.getChildren().add(iter.next());
 			if (first) {
 				first = false;
 				if (!iter.hasNext()) {
