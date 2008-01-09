@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.29 2008/01/09 13:39:52 valdas Exp $
+ * $Id: NavigationList.java,v 1.30 2008/01/09 15:25:23 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/01/09 13:39:52 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/01/09 15:25:23 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.29 $
+ * @version $Revision: 1.30 $
  */
 public class NavigationList extends Block {
 
@@ -105,6 +105,7 @@ public class NavigationList extends Block {
 	 * 
 	 * @see com.idega.presentation.PresentationObject#main(com.idega.presentation.IWContext)
 	 */
+	@Override
 	public void main(IWContext iwc) throws Exception {
 		setRootNode(iwc);
 		parse(iwc);
@@ -395,7 +396,7 @@ public class NavigationList extends Block {
 						link = getDefaultLink(name, this.linkStyleName, depth);
 					}
 					else {
-						link = constructLink(new Text(name));
+						link = constructLink(new Span(new Text(name)));
 						link.setId(current);
 						link.setStyleClass(current);
 					}
@@ -640,6 +641,7 @@ public class NavigationList extends Block {
 	 * 
 	 * @see com.idega.presentation.PresentationObject#getBundleIdentifier()
 	 */
+	@Override
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
@@ -649,6 +651,7 @@ public class NavigationList extends Block {
 	 * 
 	 * @see com.idega.presentation.Block#autoCreateGlobalHoverStyles()
 	 */
+	@Override
 	protected boolean autoCreateGlobalHoverStyles() {
 		return this._autoCreateHoverStyles;
 	}
@@ -764,6 +767,7 @@ public class NavigationList extends Block {
 	 * 
 	 * @see com.idega.presentation.PresentationObject#debug(java.lang.String)
 	 */
+	@Override
 	public void debug(String outputString) {
 		if (this._debug) {
 			System.out.println("[NavigationTree]: " + outputString);
@@ -869,6 +873,7 @@ public class NavigationList extends Block {
 	/**
 	 * @see javax.faces.component.StateHolder#saveState(javax.faces.context.FacesContext)
 	 */
+	@Override
 	public Object saveState(FacesContext ctx) {
 		Object values[] = new Object[36];
 		values[0] = super.saveState(ctx);
@@ -914,6 +919,7 @@ public class NavigationList extends Block {
 	/**
 	 * @see javax.faces.component.StateHolder#restoreState(javax.faces.context.FacesContext, java.lang.Object)
 	 */
+	@Override
 	public void restoreState(FacesContext ctx, Object state) {
 		Object values[] = (Object[])state;
 		super.restoreState(ctx, values[0]);
