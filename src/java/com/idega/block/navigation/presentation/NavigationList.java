@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.31 2008/01/09 15:51:27 laddi Exp $
+ * $Id: NavigationList.java,v 1.32 2008/01/11 15:09:48 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/01/09 15:51:27 $ by $Author: laddi $
+ *  Last modified: $Date: 2008/01/11 15:09:48 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.31 $
+ * @version $Revision: 1.32 $
  */
 public class NavigationList extends Block {
 
@@ -99,6 +99,9 @@ public class NavigationList extends Block {
 	private String lastChildStyleClass="lastChild";
 	private String extraLastItemStyleClass="extraAfterLastChild";
 	private boolean addExtraLastItem=false;
+	
+	private String current = "current";
+	private String currentAncestor = "currentAncestor";
 
 	/*
 	 * (non-Javadoc)
@@ -365,8 +368,6 @@ public class NavigationList extends Block {
 		String name = getLocalizedName(page, iwc);
 
 		String disabledLink = "javascript:void(0)";
-		String current = "current";
-		String currentAncestor = "currentAncestor";
 		if (this.iUseStyleLinks) {
 			Link link = null;
 			if (page.getNodeID() != getCurrentPageId()) {
