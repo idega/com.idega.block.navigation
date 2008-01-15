@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.10 2007/12/29 08:39:21 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.11 2008/01/15 09:34:56 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -11,17 +11,18 @@ package com.idega.block.navigation.presentation;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import com.idega.block.navigation.business.NaviagationConstants;
+import com.idega.block.navigation.business.NavigationListBean;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
+import com.idega.presentation.PresentationObject;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
@@ -52,11 +53,11 @@ public class NavigationBreadCrumbsList extends Block {
 		}
 		int currentPageID = iBuilderService.getCurrentPageId(iwc);
 		
-		List<UIComponent> pages = new ArrayList<UIComponent>();
+		
 		PageTreeNode page = new PageTreeNode(currentPageID, iwc);
 		boolean showPage = true;
 		boolean isCategoryPage = false;
-
+		List<NavigationListBean> pages = new ArrayList<NavigationListBean>();
 		while (showPage) {
 			if (page.getNodeID() == rootPageID) {
 				showPage = false;
@@ -72,13 +73,13 @@ public class NavigationBreadCrumbsList extends Block {
 			if (!isCategoryPage) {
 				if (page.getNodeID() == currentPageID) {
 					Text pageText = new Text(page.getLocalizedNodeName(iwc));
-					pages.add(pageText);
+					pages.add(new NavigationListBean(page.getId(), pageText));
 				}
 				else {
 					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
 					pageLink.setText(pageLink.getText() + SPACE);
 					pageLink.setPage(page.getNodeID());
-					pages.add(pageLink);
+					pages.add(new NavigationListBean(page.getId(), pageLink));
 				}
 			}
 			
@@ -94,23 +95,30 @@ public class NavigationBreadCrumbsList extends Block {
 		if (this.ID != null) {
 			list.setId(this.ID + "_list");
 		}
-		Iterator<UIComponent> iter = pages.iterator();
 		boolean first = true;
-		while (iter.hasNext()) {
+		NavigationListBean bean = null;
+		for (int i = 0; i < pages.size(); i++) {
+			bean = pages.get(i);
+			
 			ListItem li = new ListItem();
-			li.getChildren().add(iter.next());
 			if (first) {
 				first = false;
-				if (!iter.hasNext()) {
+				if ((i + 1) < pages.size()) {
 					li.setStyleClass("firstPage lastPage");
 				} else {
 					li.setStyleClass("firstPage");
 				}
 			}
-			if (!iter.hasNext()) {
+			if ((i + 1) < pages.size()) {
 				li.setStyleClass("lastPage");
 			}
-			list.getChildren().add(li);
+			
+			if (isPageHiddenInMenu(iwc, bean.getPageKey())) {
+				li.setStyleClass(NaviagationConstants.HIDDEN_PAGE_IN_MENU_STYLE_CLASS);
+			}
+			
+			li.add(bean.getObject());
+			list.add(li);
 		}
 		
 		add(list);
