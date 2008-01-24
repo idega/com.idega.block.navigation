@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.11 2008/01/15 09:34:56 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.12 2008/01/24 07:23:56 alexis Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -77,7 +77,7 @@ public class NavigationBreadCrumbsList extends Block {
 				}
 				else {
 					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
-					pageLink.setText(pageLink.getText() + SPACE);
+					pageLink.setText(pageLink.getText());
 					pageLink.setPage(page.getNodeID());
 					pages.add(new NavigationListBean(page.getId(), pageLink));
 				}
