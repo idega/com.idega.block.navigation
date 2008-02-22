@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.33 2008/01/15 09:34:56 valdas Exp $
+ * $Id: NavigationList.java,v 1.34 2008/02/22 08:20:28 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -50,10 +50,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/01/15 09:34:56 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/02/22 08:20:28 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.33 $
+ * @version $Revision: 1.34 $
  */
 public class NavigationList extends Block {
 
@@ -311,7 +311,8 @@ public class NavigationList extends Block {
 		}
 		outerContainer.getChildren().add(item);
 		
-		if (isPageHiddenInMenu(iwac, page.getId())) {
+		ICPage currentPage = getPage(iwac, page.getId());
+		if (isPageHiddenInMenu(currentPage) || !isPagePublished(currentPage)) {
 			item.setStyleClass(NaviagationConstants.HIDDEN_PAGE_IN_MENU_STYLE_CLASS);
 		}
 		
