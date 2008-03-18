@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.13 2008/02/22 08:20:28 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.14 2008/03/18 15:02:27 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -15,7 +15,6 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
-import com.idega.block.navigation.business.NaviagationConstants;
 import com.idega.block.navigation.business.NavigationListBean;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
@@ -112,10 +111,7 @@ public class NavigationBreadCrumbsList extends Block {
 				li.setStyleClass("lastPage");
 			}
 			
-			ICPage currentPage = getPage(iwc, bean.getPageKey());
-			if (isPageHiddenInMenu(currentPage) || !isPagePublished(currentPage)) {
-				li.setStyleClass(NaviagationConstants.HIDDEN_PAGE_IN_MENU_STYLE_CLASS);
-			}
+			setPageInvisibleInNavigation(iwc, bean.getPageKey(), li);
 			
 			li.add(bean.getObject());
 			list.add(li);
