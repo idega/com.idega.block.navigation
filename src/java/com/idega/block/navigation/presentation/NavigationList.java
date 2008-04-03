@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.35 2008/03/18 15:02:26 valdas Exp $
+ * $Id: NavigationList.java,v 1.36 2008/04/03 13:03:52 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -48,10 +48,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/03/18 15:02:26 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/04/03 13:03:52 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.35 $
+ * @version $Revision: 1.36 $
  */
 public class NavigationList extends Block {
 
@@ -401,7 +401,9 @@ public class NavigationList extends Block {
 					}
 					else {
 						link = constructLink(new Span(new Text(name)));
-						link.setId(current);
+						if (findComponent(current) == null) {
+							link.setId(current);
+						}
 						link.setStyleClass(current);
 					}
 					addParameterToLink(link, page, false);
