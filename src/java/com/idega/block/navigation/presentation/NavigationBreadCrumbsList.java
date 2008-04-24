@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.14 2008/03/18 15:02:27 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.15 2008/04/24 23:33:23 laddi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -31,7 +31,7 @@ public class NavigationBreadCrumbsList extends Block {
 	
 	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 	
-	private static final String SPACE = "&nbsp;>&nbsp;";
+	//private static final String SPACE = "&nbsp;>&nbsp;";
 
 	private String ID = null;
 	private ICPage rootPage = null;
