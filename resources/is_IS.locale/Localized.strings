@@ -13,3 +13,5 @@ welcome_message.afternoon=
 welcome_message.evening=
 welcome_message.morning=
 wrong_confirm=
+change_user_role=Change role
+saving=Saving...
