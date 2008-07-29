@@ -20,15 +20,16 @@ import com.idega.presentation.ui.SelectOption;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
 import com.idega.util.CoreConstants;
+import com.idega.util.ListUtil;
 import com.idega.util.PresentationUtil;
 
 /**
  * @author <a href="mailto:valdas@idega.com">Valdas Žemaitis</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  *
- * Changes preferred role for user
+ * Changes preferred role for user AND navigates to user's home page
  *
- * Last modified: $Date: 2008/07/29 11:19:34 $ by $Author: valdas $
+ * Last modified: $Date: 2008/07/29 11:28:54 $ by $Author: valdas $
  */
 public class UserRoleChanger extends Block {
 	
@@ -86,16 +87,22 @@ public class UserRoleChanger extends Block {
 		
 		IWResourceBundle coreIWRB = iwc.getIWMainApplication().getBundle(CoreConstants.CORE_IW_BUNDLE_IDENTIFIER).getResourceBundle(iwc);
 		List<ICRole> rolesForUser = userBusiness.getAvailableRolesForUserAsPreferredRoles(currentUser);
-		for (ICRole role: rolesForUser) {
-			rolesChooser.addOption(new SelectOption(coreIWRB.getLocalizedString(role.getRoleNameLocalizableKey(), role.getRoleKey()), role.getRoleKey()));
+		if (ListUtil.isEmpty(rolesForUser)) {
+			rolesChooser.addFirstOption(new SelectOption(iwrb.getLocalizedString("no_role_to_choose", "There are no roles available"), -1));
+			rolesChooser.setDisabled(true);
 		}
-
-		ICRole preferredRole = currentUser.getPreferredRole();
-		if (preferredRole != null) {
-			rolesChooser.setSelectedElement(preferredRole.getRoleKey());
+		else {
+			for (ICRole role: rolesForUser) {
+				rolesChooser.addOption(new SelectOption(coreIWRB.getLocalizedString(role.getRoleNameLocalizableKey(), role.getRoleKey()), role.getRoleKey()));
+			}
+	
+			ICRole preferredRole = currentUser.getPreferredRole();
+			if (preferredRole != null) {
+				rolesChooser.setSelectedElement(preferredRole.getRoleKey());
+			}
+			
+			rolesChooser.setToolTip(iwrb.getLocalizedString("select_user_preferred_role", "Select preferred role"));
 		}
-		
-		rolesChooser.setToolTip(iwrb.getLocalizedString("select_user_preferred_role", "Select preferred role"));
 		return rolesChooser;
 	}
 	

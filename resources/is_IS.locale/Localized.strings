@@ -15,3 +15,4 @@ welcome_message.morning=
 wrong_confirm=
 change_user_role=Change role
 saving=Saving...
+no_role_to_choose=There are no roles available
