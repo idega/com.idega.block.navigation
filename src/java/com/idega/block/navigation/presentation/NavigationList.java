@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.36 2008/04/03 13:03:52 valdas Exp $
+ * $Id: NavigationList.java,v 1.37 2008/07/29 11:18:11 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -22,6 +22,7 @@ import java.util.Vector;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.business.IBOLookup;
 import com.idega.core.builder.business.BuilderService;
@@ -48,16 +49,15 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/04/03 13:03:52 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/07/29 11:18:11 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.36 $
+ * @version $Revision: 1.37 $
  */
 public class NavigationList extends Block {
 
 	private final static String PARAMETER_SELECTED_PAGE = "nt_selected_page";
 	private final static String SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE = "nt_open_on_user_homepage";
-	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 
 	private String textStyleName = "text";
 	private String linkStyleName = "link";
@@ -649,7 +649,7 @@ public class NavigationList extends Block {
 	 */
 	@Override
 	public String getBundleIdentifier() {
-		return IW_BUNDLE_IDENTIFIER;
+		return NavigationConstants.IW_BUNDLE_IDENTIFIER;
 	}
 
 	/*

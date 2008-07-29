@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.15 2008/04/24 23:33:23 laddi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.16 2008/07/29 11:18:13 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -16,6 +16,7 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 
 import com.idega.block.navigation.business.NavigationListBean;
+import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
@@ -28,9 +29,7 @@ import com.idega.presentation.text.Text;
 
 
 public class NavigationBreadCrumbsList extends Block {
-	
-	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
-	
+
 	//private static final String SPACE = "&nbsp;>&nbsp;";
 
 	private String ID = null;
@@ -140,7 +139,7 @@ public class NavigationBreadCrumbsList extends Block {
 	
 	@Override
 	public String getBundleIdentifier() {
-		return IW_BUNDLE_IDENTIFIER;
+		return NavigationConstants.IW_BUNDLE_IDENTIFIER;
 	}
 	
 	@Override

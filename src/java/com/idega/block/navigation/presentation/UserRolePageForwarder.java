@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.core.accesscontrol.data.ICPermission;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
@@ -34,7 +35,7 @@ public class UserRolePageForwarder extends Block {
 
 	public void main(IWContext iwc) throws RemoteException {
 		if (iwc.isLoggedOn()) {
-			String bundleIdentifier = iwc.getApplicationSettings().getProperty("user.role.forwarder.bundle", "com.idega.block.navigation");
+			String bundleIdentifier = iwc.getApplicationSettings().getProperty("user.role.forwarder.bundle", NavigationConstants.IW_BUNDLE_IDENTIFIER);
 			IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
 			Map rolePageMap = new HashMap();
 
