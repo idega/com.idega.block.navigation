@@ -1,4 +1,5 @@
 body=
+change_user_role=Change role
 go=Forts\u00E4tt
 iw.component.com.idega.block.login.presentation.WelcomeMessage.name=
 iw.component.com.idega.block.navigation.presentation.NavigationBreadCrumbsList.name=NavigationBreadCrumbsList
@@ -8,12 +9,12 @@ iw.component.com.idega.block.navigation.presentation.NavigationListDPTCrawlableC
 iw.component.com.idega.block.navigation.presentation.NavigationMenu.name=NavigationMenu
 iw.component.com.idega.block.navigation.presentation.NavigationTree.name=
 iw.component.com.idega.block.navigation.presentation.UserHomeLink.name=
+no_role_to_choose=There are no roles available
+saving=Saving...
+select_user_role=Select role
 use_image=
 user_home_link.text=
 welcome_message.afternoon=
 welcome_message.evening=
 welcome_message.morning=
 wrong_confirm=
-change_user_role=Change role
-saving=Saving...
-no_role_to_choose=There are no roles available
