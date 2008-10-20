@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.37 2008/07/29 11:18:11 valdas Exp $
+ * $Id: NavigationList.java,v 1.38 2008/10/20 13:51:54 laddi Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -49,10 +49,10 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/07/29 11:18:11 $ by $Author: valdas $
+ *  Last modified: $Date: 2008/10/20 13:51:54 $ by $Author: laddi $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.38 $
  */
 public class NavigationList extends Block {
 
@@ -346,7 +346,7 @@ public class NavigationList extends Block {
 	 * @param table
 	 */
 	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth, boolean linkIsDisabled) {
-		UIComponent link = getLink(page, iwc, depth, linkIsDisabled);
+		UIComponent link = getLink(page, list, iwc, depth, linkIsDisabled);
 		list.getChildren().add(link);
 	}
 	
@@ -367,7 +367,7 @@ public class NavigationList extends Block {
 		return ((PageTreeNode) node).isCategory();
 	}
 
-	protected UIComponent getLink(ICTreeNode page, IWContext iwc, int depth, boolean linkIsDisabled) {
+	protected UIComponent getLink(ICTreeNode page, UIComponent parent, IWContext iwc, int depth, boolean linkIsDisabled) {
 		String name = getLocalizedName(page, iwc);
 
 		String disabledLink = "javascript:void(0)";
@@ -381,6 +381,9 @@ public class NavigationList extends Block {
 					else {
 						link = constructLink(new Span(new Text(name)));
 						link.setStyleClass(currentAncestor);
+						if (parent != null && parent instanceof ListItem) {
+							((ListItem) parent).setStyleClass(currentAncestor);
+						}
 					}
 				}
 				else {
@@ -405,6 +408,9 @@ public class NavigationList extends Block {
 							link.setId(current);
 						}
 						link.setStyleClass(current);
+						if (parent != null && parent instanceof ListItem) {
+							((ListItem) parent).setStyleClass(current);
+						}
 					}
 					addParameterToLink(link, page, false);
 					return link;

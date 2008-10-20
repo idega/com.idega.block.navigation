@@ -21,10 +21,10 @@ import com.idega.presentation.text.Link;
  * NavigationList which is based on a CSS based layout. 
  * @see NavigationList
  * </p>
- *  Last modified: $Date: 2007/05/20 22:06:54 $ by $Author: gimmi $
+ *  Last modified: $Date: 2008/10/20 13:51:54 $ by $Author: laddi $
  * 
  * @author <a href="mailto:laddi@idega.com">laddi</a>,<a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.45 $
+ * @version $Revision: 1.46 $
  */
 public class NavigationTree extends NavigationList{
 	
@@ -87,6 +87,7 @@ public class NavigationTree extends NavigationList{
 	 * @param iwc
 	 * @return
 	 */
+	@Override
 	protected UIComponent getTree(IWContext iwc) {
 		if(isUseStyleBasedLayout()){
 			return super.getTree(iwc);
@@ -147,6 +148,7 @@ public class NavigationTree extends NavigationList{
 	/**
 	 * Overrided here because of legacy Table implementation
 	 */
+	@Override
 	protected UIComponent getSubTreeComponent(UIComponent outerContainer,int row,int depth){
 		if(isUseStyleBasedLayout()){
 			return super.getSubTreeComponent(outerContainer,row,depth);
@@ -171,6 +173,7 @@ public class NavigationTree extends NavigationList{
 		}
 	}
 	
+	@Override
 	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
 		if(listComponent instanceof Table){
 			Table table = (Table)listComponent;
@@ -320,6 +323,7 @@ public class NavigationTree extends NavigationList{
 	 * @param depth
 	 * @param table
 	 */
+	@Override
 	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth, boolean linkIsDisabled) {
 		if(list instanceof Table){
 			Table table = (Table)list;
@@ -342,7 +346,7 @@ public class NavigationTree extends NavigationList{
 	 * @param depth
 	 */
 	protected void addObjectToTable(IWContext iwc, ICTreeNode page, Table table, int row, int depth) {
-		PresentationObject link = (PresentationObject)getLink(page, iwc, depth, false);
+		PresentationObject link = (PresentationObject)getLink(page, null, iwc, depth, false);
 
 		Image curtainImage = getCurtainImage(depth, isOpen(page));
 		if (curtainImage != null && page.getChildCount() > 0) {
@@ -1049,6 +1053,7 @@ public class NavigationTree extends NavigationList{
 	 * 
 	 * @param width
 	 */
+	@Override
 	public void setWidth(String width) {
 		super.setWidth(width);
 	}
