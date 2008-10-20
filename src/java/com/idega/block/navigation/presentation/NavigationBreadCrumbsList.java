@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.17 2008/10/20 09:28:47 laddi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.18 2008/10/20 10:08:16 laddi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -115,6 +115,7 @@ public class NavigationBreadCrumbsList extends Block {
 				li = new ListItem();
 				li.setStyleClass("divider");
 				li.add(new Text("&gt;"));
+				list.add(li);
 			}
 		}
 		
