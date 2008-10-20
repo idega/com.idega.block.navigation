@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.16 2008/07/29 11:18:13 valdas Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.17 2008/10/20 09:28:47 laddi Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -100,13 +100,9 @@ public class NavigationBreadCrumbsList extends Block {
 			ListItem li = new ListItem();
 			if (first) {
 				first = false;
-				if ((i + 1) < pages.size()) {
-					li.setStyleClass("firstPage lastPage");
-				} else {
-					li.setStyleClass("firstPage");
-				}
+				li.setStyleClass("firstPage");
 			}
-			if ((i + 1) < pages.size()) {
+			if ((i + 1) == pages.size()) {
 				li.setStyleClass("lastPage");
 			}
 			
@@ -114,6 +110,12 @@ public class NavigationBreadCrumbsList extends Block {
 			
 			li.add(bean.getObject());
 			list.add(li);
+			
+			if ((i + 1) < pages.size()) {
+				li = new ListItem();
+				li.setStyleClass("divider");
+				li.add(new Text("&gt;"));
+			}
 		}
 		
 		add(list);
