@@ -33,11 +33,11 @@ import com.idega.util.expression.ELUtil;
 
 /**
  * @author <a href="mailto:valdas@idega.com">Valdas Žemaitis</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * 
  *          Changes preferred role for user AND navigates to user's home page
  * 
- *          Last modified: $Date: 2008/09/10 11:59:10 $ by $Author: juozas $
+ *          Last modified: $Date: 2008/11/04 13:12:14 $ by $Author: valdas $
  */
 public class UserRoleChanger extends Block {
 
@@ -45,8 +45,7 @@ public class UserRoleChanger extends Block {
 
 	private IWResourceBundle iwrb = null;
 
-	@Autowired
-	private UserCompanyBusiness userCompanyBusiness;
+	@Autowired(required = false) private UserCompanyBusiness userCompanyBusiness;
 
 	public UserRoleChanger() {
 		try {
@@ -66,7 +65,7 @@ public class UserRoleChanger extends Block {
 		List<String> files = new ArrayList<String>();
 		files.add(CoreConstants.DWR_ENGINE_SCRIPT);
 		files.add("/dwr/interface/UserBusiness.js");
-		if(userCompanyBusiness != null){
+		if (userCompanyBusiness != null) {
 			files.add("/dwr/interface/UserCompanyBusiness.js");
 		}
 		PresentationUtil.addJavaScriptSourcesLinesToHeader(iwc, files);
@@ -149,12 +148,14 @@ public class UserRoleChanger extends Block {
 		User currentUser = iwc.getCurrentUser();
 
 		Collection<Group> userCompanies = null;
-		try {
-			userCompanies = userCompanyBusiness.getUsersCompanies(iwc, currentUser);
-		} catch (RemoteException e1) {
-			logger.log(Level.SEVERE, "Error getting user companies!", e1);
+		if (userCompanyBusiness != null) {
+			try {
+				userCompanies = userCompanyBusiness.getUsersCompanies(iwc, currentUser);
+			} catch (RemoteException e1) {
+				logger.log(Level.SEVERE, "Error getting user companies!", e1);
+			}
 		}
-
+		
 		if (ListUtil.isEmpty(userCompanies)) {
 			// if user has no company nothing to show
 			return null;
@@ -167,15 +168,17 @@ public class UserRoleChanger extends Block {
 			}
 		}
 
-		try {
-			Group preferedGroup = userCompanyBusiness.getPreferedCompanyForUser(iwc, currentUser);
-			if (preferedGroup != null) {
-				companyChooser.setSelectedElement(preferedGroup.getId());
+		if (userCompanyBusiness != null) {
+			try {
+				Group preferedGroup = userCompanyBusiness.getPreferedCompanyForUser(iwc, currentUser);
+				if (preferedGroup != null) {
+					companyChooser.setSelectedElement(preferedGroup.getId());
+				}
+			} catch (RemoteException e) {
+				logger.log(Level.SEVERE, "Error getting user prefered companies!", e);
 			}
-		} catch (RemoteException e) {
-			logger.log(Level.SEVERE, "Error getting user prefered companies!", e);
 		}
-
+		
 		return companyChooser;
 	}
 
