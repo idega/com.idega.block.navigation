@@ -38,7 +38,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 			return null;
 		}
 		
-		Collection<Group> groups = iwc.getCurrentUser().getParentGroups();
+		Collection<Group> groups = user.getParentGroups();
 		if (ListUtil.isEmpty(groups)) {
 			return null;
 		}
@@ -49,10 +49,11 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		for (Group group: groups) {
 			if (canAddPageForGroup(group, currentPageId)) {
 				ICPage page = group.getHomePage();
-
-				Collection<ICPermission> roles = iwc.getIWMainApplication().getAccessController().getAllRolesForGroup(group);
-				if (!ListUtil.isEmpty(roles)) {
-					for (ICPermission permission: roles) {
+				
+				Collection<ICPermission> permissions = iwc.getAccessController().getAllRolesForGroup(group);
+				if (!ListUtil.isEmpty(permissions)) {
+					for (ICPermission permission: permissions) {
+						LOGGER.log(Level.INFO, "Adding home page '"+page.getName()+"' for role: '" + permission.getPermissionString() + "', group: " + group.getName());
 						homePages.put(permission.getPermissionString(), page);
 					}
 				}

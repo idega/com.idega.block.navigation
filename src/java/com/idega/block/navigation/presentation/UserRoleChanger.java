@@ -9,7 +9,6 @@ import com.idega.block.navigation.business.UserHomePageResolver;
 import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.business.IBOLookup;
 import com.idega.business.IBOLookupException;
-import com.idega.core.accesscontrol.data.ICRole;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
 import com.idega.idegaweb.IWResourceBundle;
@@ -22,17 +21,16 @@ import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
 import com.idega.user.business.GroupBusiness;
 import com.idega.user.data.Group;
-import com.idega.util.CoreUtil;
 import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 
 /**
  * @author <a href="mailto:valdas@idega.com">Valdas Žemaitis</a>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * 
  *          Changes preferred role for user AND navigates to user's home page
  * 
- *          Last modified: $Date: 2008/11/10 15:33:46 $ by $Author: valdas $
+ *          Last modified: $Date: 2008/11/11 08:46:19 $ by $Author: valdas $
  */
 public class UserRoleChanger extends Block {
 
@@ -48,7 +46,8 @@ public class UserRoleChanger extends Block {
 			return;
 		}
 		
-		IWResourceBundle iwrb = CoreUtil.getCoreBundle().getResourceBundle(iwc);
+		String bundleIdentifier = iwc.getApplicationSettings().getProperty("user.role.forwarder.bundle", NavigationConstants.IW_BUNDLE_IDENTIFIER);
+		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
 		BuilderService builderService = null;
 		try {
 			builderService = getBuilderService(iwc);
@@ -73,18 +72,12 @@ public class UserRoleChanger extends Block {
 			for (String roleKey: homePages.keySet()) {
 				page = homePages.get(roleKey);
 				
-				ICRole role = null;
-				try {
-					role = iwc.getAccessController().getRoleByRoleKey(roleKey);
-				} catch (FinderException e) {
-					e.printStackTrace();
-				}
-				
 				ListItem listItem = new ListItem();
 				list.add(listItem);
 				
 				try {
-					listItem.add(new Link(iwrb.getLocalizedString(role.getRoleNameLocalizableKey(), roleKey), builderService.getPageURI(page)));
+					listItem.add(new Link(iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey),
+																															builderService.getPageURI(page)));
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
