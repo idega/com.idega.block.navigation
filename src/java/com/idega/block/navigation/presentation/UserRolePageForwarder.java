@@ -10,13 +10,10 @@
 package com.idega.block.navigation.presentation;
 
 import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
+import com.idega.block.navigation.business.UserHomePageResolver;
 import com.idega.block.navigation.utils.NavigationConstants;
-import com.idega.core.accesscontrol.data.ICPermission;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
 import com.idega.idegaweb.IWResourceBundle;
@@ -29,65 +26,56 @@ import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.RadioButton;
-import com.idega.user.data.Group;
+import com.idega.util.ListUtil;
+import com.idega.util.expression.ELUtil;
 
 public class UserRolePageForwarder extends Block {
 
+	@Override
 	public void main(IWContext iwc) throws RemoteException {
-		if (iwc.isLoggedOn()) {
-			String bundleIdentifier = iwc.getApplicationSettings().getProperty("user.role.forwarder.bundle", NavigationConstants.IW_BUNDLE_IDENTIFIER);
-			IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
-			Map rolePageMap = new HashMap();
-
-			Collection groups = iwc.getCurrentUser().getParentGroups();
-			Iterator iterator = groups.iterator();
-			while (iterator.hasNext()) {
-				Group group = (Group) iterator.next();
-
-				if (group.getHomePageID() > 0) {
-					ICPage page = group.getHomePage();
-
-					Collection roles = iwc.getIWMainApplication().getAccessController().getAllRolesForGroup(group);
-					if (roles != null && !roles.isEmpty()) {
-						Iterator iterator2 = roles.iterator();
-						while (iterator2.hasNext()) {
-							ICPermission permission = (ICPermission) iterator2.next();
-							rolePageMap.put(permission.getPermissionString(), page);
-						}
-					}
-				}
-			}
-
-			if (!rolePageMap.isEmpty()) {
-				BuilderService bs = getBuilderService(iwc);
-				getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
-
-				Layer layer = new Layer();
-				layer.setStyleClass("userRolePageForwarder");
-				add(layer);
-
-				Lists list = new Lists();
-				layer.add(list);
-
-				Iterator iterator2 = rolePageMap.keySet().iterator();
-				while (iterator2.hasNext()) {
-					String role = (String) iterator2.next();
-					ICPage page = (ICPage) rolePageMap.get(role);
-
-					RadioButton button = new RadioButton("userRolePage", bs.getPageURI(page));
-
-					ListItem item = new ListItem();
-					item.setStyleClass(role);
-					item.add(button);
-					item.add(new Text(iwrb.getLocalizedString("role_name." + role, role)));
-					list.add(item);
-				}
-
-				Link btn = new Link(new Span(new Text(iwrb.getLocalizedString("go", "Go!"))));
-				btn.setURL("javascript:" + getScriptCaller("userRolePage"));
-				layer.add(btn);
-			}
+		UserHomePageResolver homePageResolver = null;
+		try {
+			homePageResolver = ELUtil.getInstance().getBean(UserHomePageResolver.SPRING_BEAN_IDENTIFIER);
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
+		if (homePageResolver == null) {
+			return;
+		}
+		
+		Map<String, ICPage> rolePageMap = homePageResolver.getUserHomePages(iwc);
+		if (rolePageMap == null || ListUtil.isEmpty(rolePageMap.values())) {
+			return;
+		}
+		
+		String bundleIdentifier = iwc.getApplicationSettings().getProperty("user.role.forwarder.bundle", NavigationConstants.IW_BUNDLE_IDENTIFIER);
+		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
+			
+		BuilderService bs = getBuilderService(iwc);
+		getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
+
+		Layer layer = new Layer();
+		layer.setStyleClass("userRolePageForwarder");
+		add(layer);
+
+		Lists list = new Lists();
+		layer.add(list);
+
+		for (String role: rolePageMap.keySet()) {
+			ICPage page = rolePageMap.get(role);
+
+			RadioButton button = new RadioButton("userRolePage", bs.getPageURI(page));
+
+			ListItem item = new ListItem();
+			item.setStyleClass(role);
+			item.add(button);
+			item.add(new Text(iwrb.getLocalizedString("role_name." + role, role)));
+			list.add(item);
+		}
+
+		Link btn = new Link(new Span(new Text(iwrb.getLocalizedString("go", "Go!"))));
+		btn.setURL("javascript:" + getScriptCaller("userRolePage"));
+		layer.add(btn);
 	}
 
 	private String getScriptCaller(String dropDownName) {
