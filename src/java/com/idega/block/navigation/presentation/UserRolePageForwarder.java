@@ -10,12 +10,11 @@
 package com.idega.block.navigation.presentation;
 
 import java.rmi.RemoteException;
-import java.util.Map;
+import java.util.List;
 
+import com.idega.block.navigation.bean.UserHomePageBean;
 import com.idega.block.navigation.business.UserHomePageResolver;
 import com.idega.block.navigation.utils.NavigationConstants;
-import com.idega.core.builder.business.BuilderService;
-import com.idega.core.builder.data.ICPage;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
@@ -43,15 +42,15 @@ public class UserRolePageForwarder extends Block {
 			return;
 		}
 		
-		Map<String, ICPage> rolePageMap = homePageResolver.getUserHomePages(iwc);
-		if (rolePageMap == null || ListUtil.isEmpty(rolePageMap.values())) {
+		List<UserHomePageBean> homePages = homePageResolver.getUserHomePages(iwc);
+		if (ListUtil.isEmpty(homePages)) {
 			return;
 		}
 		
-		String bundleIdentifier = iwc.getApplicationSettings().getProperty("user.role.forwarder.bundle", NavigationConstants.IW_BUNDLE_IDENTIFIER);
+		String bundleIdentifier = iwc.getApplicationSettings().getProperty(NavigationConstants.USER_ROLE_HOME_PAGE_RESOURCE_BUNDLE_PROPERTY,
+																														NavigationConstants.IW_BUNDLE_IDENTIFIER);
 		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
-			
-		BuilderService bs = getBuilderService(iwc);
+		
 		getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
 
 		Layer layer = new Layer();
@@ -61,15 +60,13 @@ public class UserRolePageForwarder extends Block {
 		Lists list = new Lists();
 		layer.add(list);
 
-		for (String role: rolePageMap.keySet()) {
-			ICPage page = rolePageMap.get(role);
-
-			RadioButton button = new RadioButton("userRolePage", bs.getPageURI(page));
+		for (UserHomePageBean page: homePages) {
+			RadioButton button = new RadioButton("userRolePage", page.getUri());
 
 			ListItem item = new ListItem();
-			item.setStyleClass(role);
+			item.setStyleClass(page.getId());
 			item.add(button);
-			item.add(new Text(iwrb.getLocalizedString("role_name." + role, role)));
+			item.add(new Text(page.getName()));
 			list.add(item);
 		}
 
