@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +13,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.idega.core.accesscontrol.business.NotLoggedOnException;
-import com.idega.core.accesscontrol.data.ICPermission;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.business.BuilderServiceFactory;
 import com.idega.core.builder.data.ICPage;
@@ -38,23 +38,52 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 			return null;
 		}
 		
-		Collection<Group> groups = user.getParentGroups();
-		if (ListUtil.isEmpty(groups)) {
+		Set<String> userRoles = iwc.getAccessController().getAllRolesForCurrentUser(iwc);
+		if (ListUtil.isEmpty(userRoles)) {
 			return null;
 		}
 		
+//		Collection<Group> groups = user.getParentGroups();
+//		if (ListUtil.isEmpty(groups)) {
+//			return null;
+//		}
+//		
 		Map<String, ICPage> homePages = new HashMap<String, ICPage>();
+//		
+//		int currentPageId = getCurrentPageId(iwc);
+//		for (Group group: groups) {
+//			if (canAddPageForGroup(group, currentPageId)) {
+//				ICPage page = group.getHomePage();
+//				
+//				Collection<ICPermission> permissions = iwc.getAccessController().getAllRolesForGroup(group);
+//				if (!ListUtil.isEmpty(permissions)) {
+//					for (ICPermission permission: permissions) {
+//						LOGGER.log(Level.INFO, "Adding home page '"+page.getName()+"' for role: '" + permission.getPermissionString() + "', group: " + group.getName());
+//						homePages.put(permission.getPermissionString(), page);
+//					}
+//				}
+//			}
+//		}
 		
+		Collection<Group> roleGroups = null;
 		int currentPageId = getCurrentPageId(iwc);
-		for (Group group: groups) {
-			if (canAddPageForGroup(group, currentPageId)) {
-				ICPage page = group.getHomePage();
-				
-				Collection<ICPermission> permissions = iwc.getAccessController().getAllRolesForGroup(group);
-				if (!ListUtil.isEmpty(permissions)) {
-					for (ICPermission permission: permissions) {
-						LOGGER.log(Level.INFO, "Adding home page '"+page.getName()+"' for role: '" + permission.getPermissionString() + "', group: " + group.getName());
-						homePages.put(permission.getPermissionString(), page);
+		for (String roleKey : userRoles) {
+			roleGroups = iwc.getAccessController().getAllGroupsForRoleKey(roleKey, iwc);
+			if (ListUtil.isEmpty(roleGroups)) {
+				LOGGER.log(Level.INFO, "Role: '" + roleKey + "' doesn't have any groups!");
+			}
+			else {
+				for (Group group: roleGroups) {
+					if (canAddPageForGroup(group, currentPageId)) {
+						ICPage page = group.getHomePage();
+						
+						if (homePages.values().contains(page)) {
+							LOGGER.log(Level.INFO, "Home page '"+page.getName()+"' for role: '" + roleKey + "', group: '" + group.getName() + "' already added!");
+						}
+						else {
+							LOGGER.log(Level.INFO, "Adding home page '"+page.getName()+"' for role: '" + roleKey + "', group: " + group.getName());
+							homePages.put(roleKey, page);
+						}
 					}
 				}
 			}
