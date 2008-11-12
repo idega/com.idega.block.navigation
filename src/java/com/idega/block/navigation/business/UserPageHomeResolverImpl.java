@@ -73,7 +73,11 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				StandardRoleHomePageResolver enumerator = StandardRoles.getRoleEnumerator(roleKey);
 				
 				if (enumerator != null) {
-					homePages.add(new UserHomePageBean(roleKey, enumerator.getLocalizedName(coreResourceBundle), enumerator.getUri()));
+					uri = enumerator.getUri();
+					if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
+						homePages.add(new UserHomePageBean(roleKey, enumerator.getLocalizedName(coreResourceBundle), uri));
+						addedHomePages.add(uri);
+					}
 				}
 			}
 			else {

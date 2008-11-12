@@ -28,11 +28,11 @@ import com.idega.util.expression.ELUtil;
 
 /**
  * @author <a href="mailto:valdas@idega.com">Valdas Žemaitis</a>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * 
  *          Changes preferred role for user AND navigates to user's home page
  * 
- *          Last modified: $Date: 2008/11/11 16:00:44 $ by $Author: valdas $
+ *          Last modified: $Date: 2008/11/12 08:39:50 $ by $Author: valdas $
  */
 public class UserRoleChanger extends Block {
 
@@ -72,7 +72,7 @@ public class UserRoleChanger extends Block {
 				ListItem listItem = new ListItem();
 				list.add(listItem);
 				
-				listItem.add(new Link(page.getName(), page.getName()));
+				listItem.add(new Link(page.getName(), page.getUri()));
 			}
 		}
 		
