@@ -92,7 +92,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 							try {
 								uri = builderService.getPageURI(page);
 							} catch (RemoteException e) {
-								e.printStackTrace();
+								LOGGER.log(Level.WARNING, "Error getting uri for page: " + page.getId(), e);
 							}
 							localizedRoleName = iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey);			
 							
