@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationBreadCrumbsList.java,v 1.18 2008/10/20 10:08:16 laddi Exp $
+ * $Id: NavigationBreadCrumbsList.java,v 1.19 2009/01/14 09:29:49 valdas Exp $
  * Created on Dec 28, 2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -20,7 +20,6 @@ import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
-import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.text.Link;
 import com.idega.presentation.text.ListItem;
@@ -28,7 +27,7 @@ import com.idega.presentation.text.Lists;
 import com.idega.presentation.text.Text;
 
 
-public class NavigationBreadCrumbsList extends Block {
+public class NavigationBreadCrumbsList extends NavigationBlock {
 
 	//private static final String SPACE = "&nbsp;>&nbsp;";
 
@@ -53,21 +52,13 @@ public class NavigationBreadCrumbsList extends Block {
 		
 		PageTreeNode page = new PageTreeNode(currentPageID, iwc);
 		boolean showPage = true;
-		boolean isCategoryPage = false;
 		List<NavigationListBean> pages = new ArrayList<NavigationListBean>();
 		while (showPage) {
 			if (page.getNodeID() == rootPageID) {
 				showPage = false;
 			}
 			
-			if (this.ignoreCategoryPages && page.isCategory()) {
-				isCategoryPage = true;
-			}
-			else {
-				isCategoryPage = false;
-			}
-			
-			if (!isCategoryPage) {
+			if (!(this.ignoreCategoryPages && page.isCategory())) {
 				if (page.getNodeID() == currentPageID) {
 					Text pageText = new Text(page.getLocalizedNodeName(iwc));
 					pages.add(new NavigationListBean(page.getId(), pageText));
@@ -76,6 +67,9 @@ public class NavigationBreadCrumbsList extends Block {
 					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
 					pageLink.setText(pageLink.getText());
 					pageLink.setPage(page.getNodeID());
+					
+					setAsCategoryPage(page, pageLink);
+					
 					pages.add(new NavigationListBean(page.getId(), pageLink));
 				}
 			}

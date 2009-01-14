@@ -1,5 +1,5 @@
 /*
- * $Id: NavigationList.java,v 1.39 2008/12/18 11:18:25 valdas Exp $
+ * $Id: NavigationList.java,v 1.40 2009/01/14 09:29:49 valdas Exp $
  * Created on 16.2.2005
  *
  * Copyright (C) 2005 Idega Software hf. All Rights Reserved.
@@ -29,7 +29,6 @@ import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.data.ICPage;
 import com.idega.core.business.ICTreeNodeComparator;
 import com.idega.core.data.ICTreeNode;
-import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.PresentationObject;
 import com.idega.presentation.Span;
@@ -40,6 +39,7 @@ import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Parameter;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
+import com.idega.util.ListUtil;
 
 
 /**
@@ -49,12 +49,12 @@ import com.idega.user.data.User;
  * There is a subclass of this called "NavigationTree" that is based on a older "table" based layout which is now discouraged to use
  * because of Web standards compliance.
  * </p>
- *  Last modified: $Date: 2008/12/18 11:18:25 $ by $Author: valdas $
+ *  Last modified: $Date: 2009/01/14 09:29:49 $ by $Author: valdas $
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.40 $
  */
-public class NavigationList extends Block {
+public class NavigationList extends NavigationBlock {
 
 	private final static String PARAMETER_SELECTED_PAGE = "nt_selected_page";
 	private final static String SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE = "nt_open_on_user_homepage";
@@ -363,10 +363,6 @@ public class NavigationList extends Block {
 		return ((PageTreeNode) node).getLocalizedNodeName(iwc);
 	}
 
-	protected boolean getIsCategory(ICTreeNode node) {
-		return ((PageTreeNode) node).isCategory();
-	}
-
 	protected UIComponent getLink(ICTreeNode page, UIComponent parent, IWContext iwc, int depth, boolean linkIsDisabled) {
 		String name = getLocalizedName(page, iwc);
 
@@ -389,16 +385,19 @@ public class NavigationList extends Block {
 				else {
 					link = getDefaultLink(name, this.linkStyleName, depth);
 				}
-				if(linkIsDisabled){
+				if (linkIsDisabled) {
 					link.setURL(disabledLink);
 				}
-				else{
+				else {
 					addParameterToLink(link, page, false);
 				}
+				
+				setAsCategoryPage(page, link);
+				
 				return link;
 			}
 			else {
-				if(this.displaySelectedPageAsLink){
+				if (this.displaySelectedPageAsLink) {
 					if (isAddStyleClassOnSelectedItem()) {
 						link = getDefaultLink(name, this.linkStyleName, depth);
 					}
@@ -413,9 +412,11 @@ public class NavigationList extends Block {
 						}
 					}
 					addParameterToLink(link, page, false);
+					setAsCategoryPage(page, link);
+					
 					return link;
 				}
-				else{
+				else {
 					Text text = new Text(name);
 					if (isAddStyleClassOnSelectedItem()) {
 						text.setStyleClass(getStyleName(this.textStyleName, depth));
@@ -426,12 +427,14 @@ public class NavigationList extends Block {
 		}
 		else {
 			Link link = constructLink(new Span(new Text(name)));
-			if(linkIsDisabled){
+			if (linkIsDisabled) {
 				link.setURL(disabledLink);
 			}
-			else{
+			else {
 				addParameterToLink(link, page, false);
 			}
+			setAsCategoryPage(page, link);
+			
 			return link;
 		}
 	}
