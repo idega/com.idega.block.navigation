@@ -4,12 +4,12 @@
   <parent>
   	<groupId>com.idega.block.platform</groupId>
   	<artifactId>com.idega.block.platform</artifactId>
-  	<version>4.1.1-SNAPSHOT</version>
+  	<version>4.1.1</version>
   </parent>
   <packaging>jar</packaging>
   <groupId>com.idega.block.platform</groupId>
   <artifactId>com.idega.block.navigation</artifactId>
-  <version>4.1.1-SNAPSHOT</version>
+  <version>4.1.1</version>
   <name>idegaWeb Navigation Block</name>
   <inceptionYear>2000</inceptionYear>
   <description>Navigation Block is a module with navigation-menu style components</description>
@@ -22,7 +22,7 @@
     <connection>scm:cvs:ext:idegaweb@code.idega.com:/idega/cvs:com.idega.block.platform/com.idega.block.navigation/</connection>
     <developerConnection>scm:cvs:ext:idegaweb@code.idega.com:/idega/cvs:com.idega.block.platform/com.idega.block.navigation/</developerConnection>
     -->
-    <tag>com_idega_block_platform-4_1_2</tag>
+    <tag>com_idega_block_platform-4_1_1</tag>
   </scm>
 
   <developers>
