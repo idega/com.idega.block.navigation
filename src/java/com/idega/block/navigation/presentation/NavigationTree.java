@@ -457,7 +457,7 @@ public class NavigationTree extends NavigationList{
 	private String getDepthColor(ICTreeNode page, int depth) {
 		if (!page.equals(this.getRootNode())) {
 			if (getMarkOnlyCurrentPage()) {
-				if (getCurrentPageId() == page.getNodeID()) {
+				if (getCurrentPageId() == Integer.parseInt(page.getId())) {
 					if (this._depthCurrentColor != null) {
 						String color = (String) this._depthCurrentColor.get(new Integer(depth));
 						if (color != null) {

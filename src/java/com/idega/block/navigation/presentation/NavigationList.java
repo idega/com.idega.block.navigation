@@ -39,7 +39,6 @@ import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Parameter;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
-import com.idega.util.ListUtil;
 
 
 /**
@@ -201,7 +200,7 @@ public class NavigationList extends NavigationBlock {
 
 			boolean hasPermission = true;
 			try {
-				String pageKey = String.valueOf(page.getNodeID());
+				String pageKey = page.getId();
 				//Page populatedPage = getBuilderService(iwc).getPage(pageKey);
 				//hasPermission = iwc.hasViewPermission(populatedPage);
 				hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(pageKey,iwc);
@@ -314,7 +313,7 @@ public class NavigationList extends NavigationBlock {
 	}
 	
 	private boolean isSelectedPage(ICTreeNode page) {
-		if (isOpen(page) || page.getNodeID() == getCurrentPageId()) {
+		if (isOpen(page) || Integer.parseInt(page.getId()) == getCurrentPageId()) {
 			return true;
 		}
 		return false;
@@ -369,7 +368,7 @@ public class NavigationList extends NavigationBlock {
 		String disabledLink = "javascript:void(0)";
 		if (this.iUseStyleLinks) {
 			Link link = null;
-			if (page.getNodeID() != getCurrentPageId()) {
+			if (Integer.parseInt(page.getId()) != getCurrentPageId()) {
 				if (isOpen(page)) {
 					if (isAddStyleClassOnSelectedItem()) {
 						link = getDefaultLink(name, this.linkStyleName, depth);
@@ -457,12 +456,12 @@ public class NavigationList extends NavigationBlock {
 		if (!parametersOnly) {
 			boolean isCategory = getIsCategory(page);
 			if (!isCategory) {
-				link.setPage(page.getNodeID());
+				link.setPage(Integer.parseInt(page.getId()));
 			} else {
-				link.addParameter(PARAMETER_SELECTED_PAGE, page.getNodeID());
+				link.addParameter(PARAMETER_SELECTED_PAGE, page.getId());
 			}
 		}
-		List parameters = (List) this._parameters.get(new Integer(page.getNodeID()));
+		List parameters = (List) this._parameters.get(new Integer(page.getId()));
 		if (parameters != null) {
 			Iterator iter = parameters.iterator();
 			while (iter.hasNext()) {
@@ -542,7 +541,7 @@ public class NavigationList extends NavigationBlock {
 	 * @return
 	 */
 	protected boolean isCurrent(ICTreeNode page) {
-		if (this._currentPages != null && this._currentPages.contains(new Integer(page.getNodeID()))) {
+		if (this._currentPages != null && this._currentPages.contains(new Integer(page.getId()))) {
 			return true;
 		}
 		return false;
@@ -557,7 +556,7 @@ public class NavigationList extends NavigationBlock {
 	 * @return
 	 */
 	protected boolean isSelected(ICTreeNode page) {
-		if (this._selectedPages != null && this._selectedPages.contains(new Integer(page.getNodeID()))) {
+		if (this._selectedPages != null && this._selectedPages.contains(new Integer(page.getId()))) {
 			return true;
 		}
 		return false;
@@ -575,7 +574,7 @@ public class NavigationList extends NavigationBlock {
 		try {
 			builderService = getBuilderService(iwc);
 			ICTreeNode currentPage = builderService.getPageTree(builderService.getCurrentPageId(iwc));
-			this._currentPageID = currentPage.getNodeID();
+			this._currentPageID = Integer.parseInt(currentPage.getId());
 			this._currentPages = new ArrayList();
 			this._currentPages.add(new Integer(this._currentPageID));
 			debug("Current page is set.");
@@ -583,9 +582,9 @@ public class NavigationList extends NavigationBlock {
 			if (this._currentPageID != ((Integer) getRootNodeId()).intValue()) {
 				ICTreeNode parent = currentPage.getParentNode();
 				if (parent != null) {
-					while (parent != null && parent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
-						debug("Adding page with ID = " + parent.getNodeID() + " to currentMap");
-						this._currentPages.add(new Integer(parent.getNodeID()));
+					while (parent != null && Integer.parseInt(parent.getId()) != ((Integer) getRootNodeId()).intValue()) {
+						debug("Adding page with ID = " + parent.getId() + " to currentMap");
+						this._currentPages.add(new Integer(parent.getId()));
 						parent = parent.getParentNode();
 						if (parent == null) {
 							break;
@@ -604,9 +603,9 @@ public class NavigationList extends NavigationBlock {
 				this._selectedPages = new ArrayList();
 				
 				ICTreeNode selectedParent = builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
-				while (selectedParent != null && selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
-					debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
-					this._selectedPages.add(new Integer(selectedParent.getNodeID()));
+				while (selectedParent != null && Integer.parseInt(selectedParent.getId()) != ((Integer) getRootNodeId()).intValue()) {
+					debug("Adding page with ID = " + selectedParent.getId() + " to selectedMap");
+					this._selectedPages.add(new Integer(selectedParent.getId()));
 					selectedParent = selectedParent.getParentNode();
 				}
 			}
@@ -633,9 +632,9 @@ public class NavigationList extends NavigationBlock {
 						this._selectedPages = new ArrayList();
 						
 						ICTreeNode selectedParent = builderService.getPageTree(homePageID);
-						while (selectedParent != null && selectedParent.getNodeID() != ((Integer) getRootNodeId()).intValue()) {
-							debug("Adding page with ID = " + selectedParent.getNodeID() + " to selectedMap");
-							this._selectedPages.add(new Integer(selectedParent.getNodeID()));
+						while (selectedParent != null && Integer.parseInt(selectedParent.getId()) != ((Integer) getRootNodeId()).intValue()) {
+							debug("Adding page with ID = " + selectedParent.getId() + " to selectedMap");
+							this._selectedPages.add(new Integer(selectedParent.getId()));
 							selectedParent = selectedParent.getParentNode();
 						}
 						iwc.setSessionAttribute(SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE, Boolean.FALSE);
