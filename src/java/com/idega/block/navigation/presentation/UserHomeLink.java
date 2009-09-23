@@ -2,7 +2,6 @@ package com.idega.block.navigation.presentation;
 
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
-import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.business.IBOLookup;
 import com.idega.presentation.Table;
 import com.idega.presentation.Image;
@@ -23,6 +22,7 @@ import com.idega.presentation.text.Text;
 
 public class UserHomeLink extends Block {
 
+	protected static final String IW_BUNDLE_IDENTIFIER="com.idega.block.navigation";
 	private static final String HOME_PAGE_KEY = "user_home_link.text";
 	private static final String HOME_PAGE_KEY_VALUE = "My page";
 
@@ -123,7 +123,7 @@ public class UserHomeLink extends Block {
 	}	
 	
 	public String getBundleIdentifier(){
-		return NavigationConstants.IW_BUNDLE_IDENTIFIER;
+		return IW_BUNDLE_IDENTIFIER;
 	}
 	
 	public void setShowWhenLoggedOff(boolean showWhenLoggedOff) {

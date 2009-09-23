@@ -2,7 +2,6 @@ package com.idega.block.navigation.presentation;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.builder.handler.HorizontalAlignmentHandler;
 import com.idega.builder.handler.HorizontalVerticalViewHandler;
@@ -30,6 +29,7 @@ public class NavigationMenu extends Block {
 	private final static int VERTICAL = HorizontalVerticalViewHandler.VERTICAL, HORIZONTAL = HorizontalVerticalViewHandler.HORIZONTAL;
 	private int viewType = 1;
 	private int rootNode = -1;
+	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 	private int fontSize = 2;
 	private String fontColor = "#000000";
 	private String highlightFontColor = "#999999";
@@ -505,7 +505,7 @@ public class NavigationMenu extends Block {
 		return obj;
 	}
 	public String getBundleIdentifier() {
-		return NavigationConstants.IW_BUNDLE_IDENTIFIER;
+		return IW_BUNDLE_IDENTIFIER;
 	}
 	/**
 	 * @param spacerText The spacerText to set.

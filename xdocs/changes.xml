@@ -1,20 +1,45 @@
-<document xmlns="http://maven.apache.org/changes/1.0.0">
-  <properties>
-    <title> changes</title>
-    <author email="tryggvi@idega.com">Tryggvi Larusson</author>
-  </properties>
-  <body>
-  
-	<release version="3.1.0" date="2006-06-19">
-      <action dev="tryggvil" type="update">
-      	New version to be included in ePlatform 3.1 Release.
-      </action>
-    </release>
-  
-	<release version="1.0.1" date="2005-05-27">
-      <action dev="tryggvil" type="update">
-        Declaration of version for use with core 3.0.5
-      </action>              
-    </release>
-  </body>
+<document>
+	<properties>
+		<title>changes</title>
+		<author email="tryggvi@idega.com">Tryggvi Larusson</author>
+	</properties>
+	<body>
+
+		<release version="3.1.4" date="2007-07-02">
+			<action dev="laddi" type="add">
+				Added new block to forward to User's role page(s).
+			</action>
+		</release>
+
+		<release version="3.1.3" date="2007-05-20">
+			<action dev="gimmi" type="add">
+				DPTCrawlableContainer
+			</action>
+		</release>
+
+		<release version="3.1.2" date="2007-03-28">
+			<action dev="eiki" type="update">
+				Updated slide to versions 3.1.3 and 2.2pre1.iwbuild5 and
+				core and content
+			</action>
+		</release>
+
+		<release version="3.1.1" date="2007-01-02">
+			<action dev="gimmi" type="add">
+				openAllNodes method added
+			</action>
+		</release>
+
+		<release version="3.1.0" date="2006-06-19">
+			<action dev="tryggvil" type="update">
+				New version to be included in ePlatform 3.1 Release.
+			</action>
+		</release>
+
+		<release version="1.0.1" date="2005-05-27">
+			<action dev="tryggvil" type="update">
+				Declaration of version for use with core 3.0.5
+			</action>
+		</release>
+	</body>
 </document>

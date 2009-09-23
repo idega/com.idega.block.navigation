@@ -2,7 +2,6 @@ package com.idega.block.navigation.presentation;
 
 import java.util.Iterator;
 
-import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.idegaweb.IWResourceBundle;
@@ -25,6 +24,8 @@ import com.idega.presentation.ui.GenericButton;
 
 public class NavigationDropdownMenu extends Block {
 
+	private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
+
 	private IWResourceBundle iwrb;
 
 	private String prmDropdown = "nav__drp__mnu_";
@@ -45,7 +46,7 @@ public class NavigationDropdownMenu extends Block {
 	private String iFirstMenuElementText;
 	
 	public String getBundleIdentifier() {
-		return NavigationConstants.IW_BUNDLE_IDENTIFIER;
+		return IW_BUNDLE_IDENTIFIER;
 	}
 
 	public String getDropdownParameter() {
@@ -131,7 +132,7 @@ public class NavigationDropdownMenu extends Block {
 			if (this.iFirstMenuElementText != null) {
 				dropDown.addMenuElementFirst("", this.iFirstMenuElementText);
 			} else {
-				dropDown.addMenuElementFirst("", "");
+			dropDown.addMenuElementFirst("", "");
 			}
 			dropDown.setOnChange(getScriptCaller(name));
 		}
