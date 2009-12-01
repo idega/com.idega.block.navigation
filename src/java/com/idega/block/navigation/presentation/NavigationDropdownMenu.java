@@ -2,18 +2,24 @@ package com.idega.block.navigation.presentation;
 
 import java.util.Iterator;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.idega.block.navigation.utils.NavigationConstants;
+import com.idega.block.web2.business.JQuery;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
+import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
-import com.idega.presentation.Table;
+import com.idega.presentation.Layer;
+import com.idega.presentation.Span;
 import com.idega.presentation.text.Link;
+import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.DropdownMenu;
-import com.idega.presentation.ui.Form;
-import com.idega.presentation.ui.GenericButton;
+import com.idega.util.PresentationUtil;
+import com.idega.util.expression.ELUtil;
 
 /**
  * Title: Description: Copyright: Copyright (c) 2000-2001 idega.is All Rights
@@ -25,23 +31,47 @@ import com.idega.presentation.ui.GenericButton;
 
 public class NavigationDropdownMenu extends Block {
 
+	@Autowired
+	private JQuery jQuery;
+
 	private IWResourceBundle iwrb;
 
 	private String prmDropdown = "nav__drp__mnu_";
 
 	private int rootNode = -1;
+
+	@SuppressWarnings("unused")
+	@Deprecated
 	private int spaceBetween = 0;
 
 	private boolean useSubmitButton = false;
+
+	@SuppressWarnings("unused")
+	@Deprecated
 	private boolean setButtonAsLink = false;
+	@SuppressWarnings("unused")
+	@Deprecated
 	private boolean useGeneratedButton = false;
+	@SuppressWarnings("unused")
+	@Deprecated
 	private boolean useImageLink = false;
+	@SuppressWarnings("unused")
+	@Deprecated
 	private Image buttonImage;
 
+	@SuppressWarnings("unused")
+	@Deprecated
 	private String iLinkStyleClass;
+	@SuppressWarnings("unused")
+	@Deprecated
 	private String iInputStyleClass;
+	@SuppressWarnings("unused")
+	@Deprecated
 	private String iButtonStyleClass;
+	@SuppressWarnings("unused")
+	@Deprecated
 	private String iDropDownMenuWidth;
+
 	private String iFirstMenuElementText;
 	
 	public String getBundleIdentifier() {
@@ -53,6 +83,11 @@ public class NavigationDropdownMenu extends Block {
 	}
 
 	public void main(IWContext iwc) throws Exception {
+		IWBundle iwb = getBundle(iwc);
+		
+		PresentationUtil.addJavaScriptSourceLineToHeader(iwc, getJQuery().getBundleURIToJQueryLib());
+		PresentationUtil.addJavaScriptSourceLineToHeader(iwc, iwb.getVirtualPathWithFileNameString("javascript/navigationDropdown.js"));
+
 		BuilderService bs = getBuilderService(iwc);
 		this.iwrb = getResourceBundle(iwc);
 		if (this.rootNode == -1) {
@@ -61,12 +96,6 @@ public class NavigationDropdownMenu extends Block {
 
 		String name = getDropdownParameter();
 		DropdownMenu dropDown = new DropdownMenu(name);
-		if (this.iInputStyleClass != null) {
-			dropDown.setStyleClass(this.iInputStyleClass);
-		}
-		if (this.iDropDownMenuWidth != null) {
-			dropDown.setWidth(this.iDropDownMenuWidth);
-		}
 
 		PageTreeNode node = new PageTreeNode(this.rootNode, iwc);
 		Iterator iter = node.getChildrenIterator();
@@ -77,71 +106,34 @@ public class NavigationDropdownMenu extends Block {
 			dropDown.addMenuElement(url, n.getLocalizedNodeName(iwc));
 		}
 
-		Form f = new Form();
-		f.setAction("");
-		String formName = name + "form";
-		f.setName(formName);
-		add(f);
+		Layer layer = new Layer();
+		layer.setStyleClass("navigationDropdownMenu");
+		add(layer);
 		
-		Table table = new Table();
-		table.setCellpadding(0);
-		table.setCellspacing(0);
-		int column = 1;
-		f.add(table);
-		
-		f.getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
-		table.add(dropDown, column++, 1);
-		
-		if (this.spaceBetween > 0) {
-			table.setWidth(column++, this.spaceBetween);
-		}
-		
+		layer.add(dropDown);
+
 		if (this.useSubmitButton) {
-			if (this.useImageLink) {
-				Link btn = new Link(this.buttonImage);
-				btn.setURL("javascript:" + getScriptCaller(name));
-				btn.setOnClick("javascript:" + getScriptCaller(name));
-				table.add(btn, column, 1);
-			}
-			else if (this.useGeneratedButton) {
-				Link btn = new Link(this.iwrb.getLocalizedImageButton("go", "Go!"));
-				btn.setURL("javascript:" + getScriptCaller(name));
-				btn.setOnClick("javascript:" + getScriptCaller(name));
-				table.add(btn, column, 1);
-			}
-			else if (this.setButtonAsLink) {
-				Link btn = new Link(this.iwrb.getLocalizedString("go", "Go!"));
-				btn.setURL("javascript:" + getScriptCaller(name));
-				btn.setOnClick("javascript:" + getScriptCaller(name));
-				if (this.iLinkStyleClass != null) {
-					btn.setStyleClass(this.iLinkStyleClass);
-				}
-				table.add(btn, column, 1);
-			}
-			else {
-				GenericButton btn = new GenericButton("go", this.iwrb.getLocalizedString("go", "Go!"));
-				btn.setOnClick("javascript:" + getScriptCaller(name));
-				if (this.iButtonStyleClass != null) {
-					btn.setStyleClass(this.iButtonStyleClass);
-				}
-				table.add(btn, column, 1);
-			}
+			Link link = new Link(new Span(new Text(this.iwrb.getLocalizedString("go", "Go!"))));
+			layer.add(link);
 		}
 		else {
 			if (this.iFirstMenuElementText != null) {
 				dropDown.addMenuElementFirst("", this.iFirstMenuElementText);
-			} else {
+			}
+			else {
 				dropDown.addMenuElementFirst("", "");
 			}
-			dropDown.setOnChange(getScriptCaller(name));
-		}
 
+			dropDown.setStyleClass("standalone");
+		}
 	}
 
+	@Deprecated
 	public String getScriptCaller(String dropDownName) {
 		return "navHandler(findObj('" + dropDownName + "'))";
 	}
 
+	@Deprecated
 	public String getScriptSource() {
 		StringBuffer s = new StringBuffer();
 		s.append("\n function navHandler(input){");
@@ -158,58 +150,59 @@ public class NavigationDropdownMenu extends Block {
 	public void setRootNode(int rootId) {
 		this.rootNode = rootId;
 	}
-	/**
-	 * @param buttonStyleClass The buttonStyleClass to set.
-	 */
+
+	@Deprecated
 	public void setButtonStyleClass(String buttonStyleClass) {
 		this.iButtonStyleClass = buttonStyleClass;
 	}
-	/**
-	 * @param inputStyleClass The inputStyleClass to set.
-	 */
+
+	@Deprecated
 	public void setInputStyleClass(String inputStyleClass) {
 		this.iInputStyleClass = inputStyleClass;
 	}
-	/**
-	 * @param linkStyleClass The linkStyleClass to set.
-	 */
+
+	@Deprecated
 	public void setLinkStyleClass(String linkStyleClass) {
 		this.iLinkStyleClass = linkStyleClass;
 	}
-	/**
-	 * @param dropDownMenuWidth The dropDownMenuWidth to set.
-	 */
+
+	@Deprecated
 	public void setDropDownMenuWidth(String dropDownMenuWidth) {
 		this.iDropDownMenuWidth = dropDownMenuWidth;
 	}
-	/**
+
 	/**
 	 * @param firstMenuElementText The firstMenuElementText to set.
 	 */
 	public void setFirstMenuElementText(String firstMenuElementText) {
 		this.iFirstMenuElementText = firstMenuElementText;
 	}
-	/**
-	 * @param spaceBetween The spaceBetween to set.
-	 */
+
+	@Deprecated
 	public void setSpaceBetween(int spaceBetween) {
 		this.spaceBetween = spaceBetween;
 	}
-	/**
-	 * @param setButtonAsLink The setButtonAsLink to set.
-	 */
+
+	@Deprecated
 	public void setSetButtonAsLink(boolean setButtonAsLink) {
 		this.setButtonAsLink = setButtonAsLink;
 	}
-	/**
-	 * @param useGeneratedButton The useGeneratedButton to set.
-	 */
+
+	@Deprecated
 	public void setUseGeneratedButton(boolean useGeneratedButton) {
 		this.useGeneratedButton = useGeneratedButton;
 	}
 	
+	@Deprecated
 	public void setButtonImage(Image buttonImage) {
 		this.buttonImage = buttonImage;
 		this.useImageLink = true;
+	}
+	
+	private JQuery getJQuery() {
+		if (this.jQuery == null) {
+			ELUtil.getInstance().autowire(this);	
+		}
+		return jQuery;
 	}
 }
