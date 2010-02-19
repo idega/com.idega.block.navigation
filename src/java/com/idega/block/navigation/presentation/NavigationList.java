@@ -52,7 +52,9 @@ import com.idega.user.data.User;
  * 
  * @author <a href="mailto:tryggvil@idega.com">tryggvil</a>
  * @version $Revision: 1.40 $
+ * @deprecated Use <code>Navigation</code> instead
  */
+@Deprecated
 public class NavigationList extends NavigationBlock {
 
 	private final static String PARAMETER_SELECTED_PAGE = "nt_selected_page";

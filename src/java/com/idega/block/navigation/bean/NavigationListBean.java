@@ -1,4 +1,4 @@
-package com.idega.block.navigation.business;
+package com.idega.block.navigation.bean;
 
 import javax.faces.component.UIComponent;
 

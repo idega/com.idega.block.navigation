@@ -1,0 +1,29 @@
+<html
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:t="http://myfaces.apache.org/tomahawk"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:c="http://java.sun.com/jstl/core"
+>
+<ui:component>
+	<ul id="#{navigationBean.id}" class="#{navigationBean.styleClass}">
+
+		<c:if test="#{navigationBean.showRoot}">
+			<li class="#{navigationBean.root.styleClass}">
+				<c:if test="#{navigationBean.root.current}">
+					<a class="current" id="current" href="#{navigationBean.root.URI}"><span><h:outputText value="#{navigationBean.root.name}" /></span></a>
+				</c:if>
+				<c:if test="#{!navigationBean.root.current}">
+					<a href="#{navigationBean.root.URI}"><span><h:outputText value="#{navigationBean.root.name}" /></span></a>
+				</c:if>
+			</li>
+		</c:if>
+
+		<c:forEach items="#{navigationBean.root.children}" var="item">
+			<ui:include src="#{navigationBean.itemPath}">
+				<ui:param name="item" value="#{item}"/>
+			</ui:include>
+		</c:forEach>
+	</ul>
+</ui:component>
+</html>

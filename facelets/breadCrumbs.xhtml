@@ -1,0 +1,27 @@
+<html
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:t="http://myfaces.apache.org/tomahawk"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:c="http://java.sun.com/jstl/core"
+>
+<ui:component>
+	<ul id="#{breadCrumbsBean.id}" class="#{breadCrumbsBean.styleClass}">
+
+		<c:forEach items="#{breadCrumbsBean.children}" var="item">
+			<li class="#{item.styleClass}">
+				<c:if test="#{item.current}">
+					<span><h:outputText value="#{item.name}" /></span>
+				</c:if>
+				<c:if test="#{!item.current}">
+					<a href="#{item.URI}"><span><h:outputText value="#{item.name}" /></span></a>
+				</c:if>
+			</li>
+			
+			<c:if test="#{!item.current and breadCrumbsBean.divider != null}">
+				<li class="divider"><h:outputText value="#{breadCrumbsBean.divider}" /></li>
+			</c:if>
+		</c:forEach>
+	</ul>
+</ui:component>
+</html>

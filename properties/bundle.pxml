@@ -6,26 +6,26 @@
       <value>
         <map>
           <key>
-            <name>com.idega.block.navigation.presentation.NavigationTree</name>
+            <name>com.idega.block.navigation.presentation.BreadCrumbs</name>
             <value>
               <map>
                 <key>
                   <name>component_property_file</name>
                   <type>java.lang.String</type>
-                  <value>com.idega.block.navigation.presentation.NavigationTree.pxml</value>
+                  <value>com.idega.block.navigation.presentation.BreadCrumbs.pxml</value>
                 </key>
               </map>
             </value>
             <type>map</type>
           </key>
           <key>
-            <name>com.idega.block.navigation.presentation.NavigationMenu</name>
+            <name>com.idega.block.navigation.presentation.Navigation</name>
             <value>
               <map>
                 <key>
                   <name>component_property_file</name>
                   <type>java.lang.String</type>
-                  <value>com.idega.block.navigation.presentation.NavigationMenu.pxml</value>
+                  <value>com.idega.block.navigation.presentation.Navigation.pxml</value>
                 </key>
               </map>
             </value>
@@ -120,4 +120,3 @@
     </key>
   </map>
 </pxml>
-

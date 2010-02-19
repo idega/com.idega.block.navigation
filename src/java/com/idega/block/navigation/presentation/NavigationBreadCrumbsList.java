@@ -15,7 +15,7 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 
-import com.idega.block.navigation.business.NavigationListBean;
+import com.idega.block.navigation.bean.NavigationListBean;
 import com.idega.block.navigation.utils.NavigationConstants;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.core.builder.business.BuilderService;
@@ -26,7 +26,8 @@ import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
 import com.idega.presentation.text.Text;
 
-
+@Deprecated
+/* @deprecated Use <code>BreadCrumbs</code> instead */
 public class NavigationBreadCrumbsList extends NavigationBlock {
 
 	//private static final String SPACE = "&nbsp;>&nbsp;";

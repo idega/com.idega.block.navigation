@@ -1,0 +1,27 @@
+<html
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:t="http://myfaces.apache.org/tomahawk"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:c="http://java.sun.com/jstl/core"
+>
+<ui:component>
+	<li class="#{item.styleClass}">
+		<c:if test="#{item.current}">
+			<a class="current" id="current" href="#{item.URI}"><span><h:outputText value="#{item.name}" /></span></a>
+		</c:if>
+		<c:if test="#{!item.current}">
+			<a href="#{item.URI}"><span><h:outputText value="#{item.name}" /></span></a>
+		</c:if>
+		<c:if test="#{item.hasChildren}">
+			<ul>
+				<c:forEach items="#{item.children}" var="childItem">
+					<ui:include src="#{navigationBean.itemPath}">
+						<ui:param name="item" value="#{childItem}"/>
+					</ui:include>
+				</c:forEach>
+			</ul>
+		</c:if>
+	</li>
+</ui:component>
+</html>

@@ -8,11 +8,12 @@ import com.idega.core.builder.data.ICPage;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.text.Text;
 
-
 /**
  * @author laddi
  */
 public class CurrentPageText extends Text {
+
+	public static final String COMPONENT_TYPE = "com.idega.CurrentPage";
 
 	public void main(IWContext iwc) throws Exception {
 		ICPage currentPage = getBuilderService(iwc).getCurrentPage(iwc);
