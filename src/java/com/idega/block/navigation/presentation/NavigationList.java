@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -39,6 +40,7 @@ import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Parameter;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
+import com.idega.util.ListUtil;
 
 
 /**
@@ -66,8 +68,8 @@ public class NavigationList extends NavigationBlock {
 	private int _currentPageID;
 	private int _maxDepthForStyles = -1;
 
-	protected Collection _currentPages;
-	protected Collection _selectedPages;
+	protected Collection<Integer> _currentPages;
+	protected Collection<Integer> _selectedPages;
 
 	private boolean _showRoot = false;
 	private boolean _useDifferentStyles = false;
@@ -85,9 +87,9 @@ public class NavigationList extends NavigationBlock {
 	private int _rootPageID = -1;
 	private String iSelectedID = null;
 	private String iListID = null;
-	private HashMap _parameters = new HashMap();
+	private Map<Integer, List<Parameter>> _parameters = new HashMap<Integer, List<Parameter>>();
 	
-	private Map _depthOrderPagesAlphabetically;
+	private Map<Integer, Boolean> _depthOrderPagesAlphabetically;
 	private boolean showForbiddenPagesAsDisabled=false;
 	private boolean displaySelectedPageAsLink=false;
 	private String disabledStyleClass="disabled";
@@ -160,7 +162,7 @@ public class NavigationList extends NavigationBlock {
 				this.rootSelected = true;
 			}
 
-			List pageList = new ArrayList();
+			List<ICTreeNode> pageList = new ArrayList<ICTreeNode>();
 			pageList.add(page);
 			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0, false, iwc);
 			((PresentationObject) nodeComponent).setStyleClass(getFirstChildStyleClass());
@@ -189,33 +191,38 @@ public class NavigationList extends NavigationBlock {
 	 * @param depth
 	 * @return
 	 */
-	protected int addToTree(IWContext iwc, Collection childrenCollection, UIComponent pageList, int row, int depth) {
-		List pagesList = new ArrayList(childrenCollection);
+	protected int addToTree(IWContext iwc, Collection<ICTreeNode> childrenCollection, UIComponent pageList, int row, int depth) {
+		List<ICTreeNode> pagesList = new ArrayList<ICTreeNode>();
+		if (!ListUtil.isEmpty(childrenCollection)) {
+			pagesList.addAll(childrenCollection);
+		}
+		
 		if (getDepthOrderPagesAlphabetically(depth)) {
 			Collections.sort(pagesList, new ICTreeNodeComparator(iwc.getCurrentLocale()));
 		}
 		
-		Iterator children = pagesList.iterator();
 		int index = 0;
-		while (children.hasNext()) {
-			ICTreeNode page = (ICTreeNode) children.next();
-
+		for (Iterator<ICTreeNode> pagesIter = pagesList.iterator(); pagesIter.hasNext();) {
+			ICTreeNode page = pagesIter.next();
+			if (page == null) {
+				getLogger().warning("There is null in collection: " + pagesList);
+				continue;
+			}
+			
 			boolean hasPermission = true;
 			try {
 				String pageKey = page.getId();
-				//Page populatedPage = getBuilderService(iwc).getPage(pageKey);
-				//hasPermission = iwc.hasViewPermission(populatedPage);
 				hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(pageKey,iwc);
 			}
 			catch (Exception re) {
-				log(re);
+				getLogger().log(Level.WARNING, "Error getting permission", re);
 			}
 
 			if (hasPermission||this.showForbiddenPagesAsDisabled) {
 				boolean linkIsDisabled = (!hasPermission)&&this.showForbiddenPagesAsDisabled;
 				UIComponent nodeComponent = getNodeComponent(pageList,pagesList,page,row,depth,index, linkIsDisabled, iwc);
 				addObject(iwc, page, nodeComponent, row, depth, linkIsDisabled);
-				row = setRowAttributes(nodeComponent, page, row, depth, (index == 0), !children.hasNext());
+				row = setRowAttributes(nodeComponent, page, row, depth, (index == 0), !pagesIter.hasNext());
 
 				//only recurse down tree if hasPermission==true
 				if(hasPermission){
@@ -254,7 +261,9 @@ public class NavigationList extends NavigationBlock {
 	 * @param isdisabled TODO
 	 * @return
 	 */
-	protected ListItem getNodeComponent(UIComponent outerContainer,List pages,ICTreeNode page,int row,int depth,int index, boolean isdisabled, IWContext iwc) {
+	protected ListItem getNodeComponent(UIComponent outerContainer, List<ICTreeNode> pages,ICTreeNode page,int row,int depth,int index, boolean isdisabled, 
+			IWContext iwc) {
+		
 		ListItem item = new ListItem();
 		if (isSelectedPage(page)) {
 			if (isAddStyleClassOnSelectedItem()) {
@@ -277,7 +286,7 @@ public class NavigationList extends NavigationBlock {
 			int size = pages.size() - 1;
 			
 			if (index < size) {
-				if (isSelectedPage((ICTreeNode) pages.get(index + 1)) && isAddStyleClassOnSelectedItem()) {
+				if (isSelectedPage(pages.get(index + 1)) && isAddStyleClassOnSelectedItem()) {
 					item.setStyleClass(getBeforeSelectedStyleClass());
 				}
 			}
@@ -287,7 +296,7 @@ public class NavigationList extends NavigationBlock {
 			}
 			
 			if (index > 0) {
-				if (isSelectedPage((ICTreeNode) pages.get(index - 1)) && isAddStyleClassOnSelectedItem()) {
+				if (isSelectedPage(pages.get(index - 1)) && isAddStyleClassOnSelectedItem()) {
 					item.setStyleClass(getAfterSelectedStyleClass());
 				}
 			}
@@ -315,6 +324,10 @@ public class NavigationList extends NavigationBlock {
 	}
 	
 	private boolean isSelectedPage(ICTreeNode page) {
+		if (page == null) {
+			return false;
+		}
+		
 		if (isOpen(page) || Integer.parseInt(page.getId()) == getCurrentPageId()) {
 			return true;
 		}
@@ -463,11 +476,10 @@ public class NavigationList extends NavigationBlock {
 				link.addParameter(PARAMETER_SELECTED_PAGE, page.getId());
 			}
 		}
-		List parameters = (List) this._parameters.get(new Integer(page.getId()));
+		List<Parameter> parameters = this._parameters.get(new Integer(page.getId()));
 		if (parameters != null) {
-			Iterator iter = parameters.iterator();
-			while (iter.hasNext()) {
-				link.addParameter((Parameter)iter.next());
+			for (Parameter parameter: parameters) {
+				link.addParameter(parameter);
 			}
 		}
 	}
@@ -485,7 +497,7 @@ public class NavigationList extends NavigationBlock {
 	 */
 	protected boolean getDepthOrderPagesAlphabetically(int depth) {
 		if (this._depthOrderPagesAlphabetically != null) {
-			Boolean order = (Boolean) this._depthOrderPagesAlphabetically.get(new Integer(depth));
+			Boolean order = this._depthOrderPagesAlphabetically.get(new Integer(depth));
 			if (order != null) {
 				return order.booleanValue();
 			}
@@ -577,7 +589,7 @@ public class NavigationList extends NavigationBlock {
 			builderService = getBuilderService(iwc);
 			ICTreeNode currentPage = builderService.getPageTree(builderService.getCurrentPageId(iwc));
 			this._currentPageID = Integer.parseInt(currentPage.getId());
-			this._currentPages = new ArrayList();
+			this._currentPages = new ArrayList<Integer>();
 			this._currentPages.add(new Integer(this._currentPageID));
 			debug("Current page is set.");
 		
@@ -602,7 +614,7 @@ public class NavigationList extends NavigationBlock {
 		if (iwc.isParameterSet(PARAMETER_SELECTED_PAGE)) {
 			debug("Selected page parameter is set.");
 			try {
-				this._selectedPages = new ArrayList();
+				this._selectedPages = new ArrayList<Integer>();
 				
 				ICTreeNode selectedParent = builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
 				while (selectedParent != null && Integer.parseInt(selectedParent.getId()) != ((Integer) getRootNodeId()).intValue()) {
@@ -631,7 +643,7 @@ public class NavigationList extends NavigationBlock {
 					User newUser = iwc.getCurrentUser();
 					int homePageID = getUserBusiness(iwc).getHomePageIDForUser(newUser);
 					if (openOnUserHomePage && homePageID != -1) {
-						this._selectedPages = new ArrayList();
+						this._selectedPages = new ArrayList<Integer>();
 						
 						ICTreeNode selectedParent = builderService.getPageTree(homePageID);
 						while (selectedParent != null && Integer.parseInt(selectedParent.getId()) != ((Integer) getRootNodeId()).intValue()) {
@@ -729,7 +741,7 @@ public class NavigationList extends NavigationBlock {
 	 */
 	public void setDepthOrderPagesAlphabetically(int depth, boolean orderAlphabetically) {
 		if (this._depthOrderPagesAlphabetically == null) {
-			this._depthOrderPagesAlphabetically = new HashMap();
+			this._depthOrderPagesAlphabetically = new HashMap<Integer, Boolean>();
 		}
 		this._depthOrderPagesAlphabetically.put(new Integer(depth - 1), new Boolean(orderAlphabetically));
 	}
@@ -851,10 +863,11 @@ public class NavigationList extends NavigationBlock {
 	
 	public void setParameterForPage(ICPage page, String parameterName, String parameterValue) {
 		if (page != null && parameterName != null && !parameterName.trim().equals("")) {
-			List list = (List) this._parameters.get(page.getPrimaryKey());
+			Integer key = Integer.valueOf(page.getPrimaryKey().toString());
+			List<Parameter> list = this._parameters.get(key);
 			if (list == null) {
-				list = new Vector();
-				this._parameters.put(page.getPrimaryKey(), list);
+				list = new Vector<Parameter>();
+				this._parameters.put(key, list);
 			}
 			Parameter p = new Parameter(parameterName, parameterValue);
 			list.add(p);
@@ -944,8 +957,8 @@ public class NavigationList extends NavigationBlock {
 		this._currentPageID=((Integer)values[3]).intValue();
 		//_rootPage=(ICTreeNode)values[4];
 		this._maxDepthForStyles=((Integer)values[4]).intValue();
-		this._currentPages=(Collection)values[5];
-		this._selectedPages=(Collection)values[6];
+		this._currentPages=(Collection<Integer>)values[5];
+		this._selectedPages=(Collection<Integer>)values[6];
 		this._showRoot=((Boolean)values[7]).booleanValue();
 		this._useDifferentStyles=((Boolean)values[8]).booleanValue();
 		this._autoCreateHoverStyles=((Boolean)values[9]).booleanValue();
@@ -959,8 +972,8 @@ public class NavigationList extends NavigationBlock {
 		this._rootPageID=((Integer)values[17]).intValue();
 		this.iSelectedID=(String)values[18];
 		this.iListID=(String)values[19];
-		this._parameters=(HashMap)values[20];
-		this._depthOrderPagesAlphabetically=(Map)values[21];
+		this._parameters=(Map<Integer, List<Parameter>>)values[20];
+		this._depthOrderPagesAlphabetically=(Map<Integer, Boolean>)values[21];
 		this.showForbiddenPagesAsDisabled=((Boolean)values[22]).booleanValue();
 		this.disabledStyleClass=(String)values[23];
 		this.displaySelectedPageAsLink=((Boolean)values[24]).booleanValue();
