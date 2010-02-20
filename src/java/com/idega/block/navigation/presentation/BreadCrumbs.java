@@ -115,7 +115,7 @@ public class BreadCrumbs extends IWBaseComponent {
 					item.setName(page.getNodeName(iwc.getCurrentLocale()));
 
 					if (page.isCategory()) {
-						Collection<ICTreeNode> nodes = page.getChildren();
+						Collection<PageTreeNode> nodes = page.getChildren();
 						if (ListUtil.isEmpty(nodes)) {
 							item.setURI("#");
 						}

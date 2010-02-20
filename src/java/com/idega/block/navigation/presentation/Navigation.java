@@ -252,7 +252,7 @@ public class Navigation extends IWBaseComponent {
 						}
 						
 						if (childNode.isCategory()) {
-							Collection<ICTreeNode> nodes = childNode.getChildren();
+							Collection<PageTreeNode> nodes = childNode.getChildren();
 							if (ListUtil.isEmpty(nodes)) {
 								childItem.setURI("#");
 							}
@@ -312,7 +312,7 @@ public class Navigation extends IWBaseComponent {
 		
 		Iterator<NavigationItem> it = childItems.iterator();
 		while (it.hasNext()) {
-			NavigationItem childItem = (NavigationItem) it.next();
+			NavigationItem childItem = it.next();
 			if (childItem.isCurrent()) {
 				childItem.setStyleClass("current");
 				if (previousItem != null) {
