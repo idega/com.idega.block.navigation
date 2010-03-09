@@ -40,6 +40,7 @@ import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.Parameter;
 import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
+import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
 
 
@@ -85,6 +86,8 @@ public class NavigationList extends NavigationBlock {
 	private boolean openAllNodes = false;
 
 	private int _rootPageID = -1;
+	private PageTreeNode rootPage;
+	
 	private String iSelectedID = null;
 	private String iListID = null;
 	private Map<Integer, List<Parameter>> _parameters = new HashMap<Integer, List<Parameter>>();
@@ -135,6 +138,10 @@ public class NavigationList extends NavigationBlock {
 				this._rootPageID = getBuilderService(iwc).getRootPageId();
 			}
 		}
+		
+		if (_rootPageID != -1) {
+			rootPage = new PageTreeNode(_rootPageID, iwc);
+		}
 	}
 
 	/**
@@ -157,12 +164,12 @@ public class NavigationList extends NavigationBlock {
 		int depth = 0;
 
 		if (getShowRoot()) {
-			ICTreeNode page = getRootNode();
+			PageTreeNode page = getRootNode();
 			if (isSelectedPage(page)) {
 				this.rootSelected = true;
 			}
 
-			List<ICTreeNode> pageList = new ArrayList<ICTreeNode>();
+			List<PageTreeNode> pageList = new ArrayList<PageTreeNode>();
 			pageList.add(page);
 			UIComponent nodeComponent = getNodeComponent(list,pageList,page,row,depth,0, false, iwc);
 			((PresentationObject) nodeComponent).setStyleClass(getFirstChildStyleClass());
@@ -191,8 +198,8 @@ public class NavigationList extends NavigationBlock {
 	 * @param depth
 	 * @return
 	 */
-	protected int addToTree(IWContext iwc, Collection<ICTreeNode> childrenCollection, UIComponent pageList, int row, int depth) {
-		List<ICTreeNode> pagesList = new ArrayList<ICTreeNode>();
+	protected int addToTree(IWContext iwc, Collection<PageTreeNode> childrenCollection, UIComponent pageList, int row, int depth) {
+		List<PageTreeNode> pagesList = new ArrayList<PageTreeNode>();
 		if (!ListUtil.isEmpty(childrenCollection)) {
 			pagesList.addAll(childrenCollection);
 		}
@@ -202,8 +209,8 @@ public class NavigationList extends NavigationBlock {
 		}
 		
 		int index = 0;
-		for (Iterator<ICTreeNode> pagesIter = pagesList.iterator(); pagesIter.hasNext();) {
-			ICTreeNode page = pagesIter.next();
+		for (Iterator<PageTreeNode> pagesIter = pagesList.iterator(); pagesIter.hasNext();) {
+			PageTreeNode page = pagesIter.next();
 			if (page == null) {
 				getLogger().warning("There is null in collection: " + pagesList);
 				continue;
@@ -261,7 +268,7 @@ public class NavigationList extends NavigationBlock {
 	 * @param isdisabled TODO
 	 * @return
 	 */
-	protected ListItem getNodeComponent(UIComponent outerContainer, List<ICTreeNode> pages,ICTreeNode page,int row,int depth,int index, boolean isdisabled, 
+	protected ListItem getNodeComponent(UIComponent outerContainer, List<PageTreeNode> pages,PageTreeNode page,int row,int depth,int index, boolean isdisabled, 
 			IWContext iwc) {
 		
 		ListItem item = new ListItem();
@@ -318,7 +325,9 @@ public class NavigationList extends NavigationBlock {
 		}
 		outerContainer.getChildren().add(item);
 		
-		setPageInvisibleInNavigation(iwc, page.getId(), item);
+		if (page.isHiddenInMenu()) {
+			item.setStyleClass(CoreConstants.HIDDEN_PAGE_IN_MENU_STYLE_CLASS);
+		}
 		
 		return item;
 	}
@@ -802,8 +811,11 @@ public class NavigationList extends NavigationBlock {
 		}
 	}
 
-	protected ICTreeNode getRootNode() {
-		//return _rootPage;
+	protected PageTreeNode getRootNode() {
+		if (rootPage != null) {
+			return rootPage;
+		}
+
 		IWContext iwc = IWContext.getInstance();
 		if (this._rootPageID == -1) {
 			try {
@@ -813,9 +825,8 @@ public class NavigationList extends NavigationBlock {
 				e.printStackTrace();
 			}
 		}
-		ICTreeNode rootPage = new PageTreeNode(this._rootPageID, iwc);
+		rootPage = new PageTreeNode(this._rootPageID, iwc);
 		return rootPage;
-		//_rootPage = new PageTreeNode(_rootPageID, iwc);
 	}
 
 	protected Object getRootNodeId() {

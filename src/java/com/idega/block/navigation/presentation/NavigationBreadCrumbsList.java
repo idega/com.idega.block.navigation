@@ -25,6 +25,7 @@ import com.idega.presentation.text.Link;
 import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
 import com.idega.presentation.text.Text;
+import com.idega.util.CoreConstants;
 
 @Deprecated
 /* @deprecated Use <code>BreadCrumbs</code> instead */
@@ -62,7 +63,7 @@ public class NavigationBreadCrumbsList extends NavigationBlock {
 			if (!(this.ignoreCategoryPages && page.isCategory())) {
 				if (page.getNodeID() == currentPageID) {
 					Text pageText = new Text(page.getLocalizedNodeName(iwc));
-					pages.add(new NavigationListBean(page.getId(), pageText));
+					pages.add(new NavigationListBean(page.getId(), pageText, page.isHiddenInMenu()));
 				}
 				else {
 					Link pageLink = new Link(page.getLocalizedNodeName(iwc));
@@ -71,7 +72,7 @@ public class NavigationBreadCrumbsList extends NavigationBlock {
 					
 					setAsCategoryPage(page, pageLink);
 					
-					pages.add(new NavigationListBean(page.getId(), pageLink));
+					pages.add(new NavigationListBean(page.getId(), pageLink, page.isHiddenInMenu()));
 				}
 			}
 			
@@ -101,7 +102,9 @@ public class NavigationBreadCrumbsList extends NavigationBlock {
 				li.setStyleClass("lastPage");
 			}
 			
-			setPageInvisibleInNavigation(iwc, bean.getPageKey(), li);
+			if (bean.isHiddenInMenu()) {
+				li.setStyleClass(CoreConstants.HIDDEN_PAGE_IN_MENU_STYLE_CLASS);
+			}
 			
 			li.add(bean.getObject());
 			list.add(li);
