@@ -31,6 +31,8 @@ import com.idega.util.expression.ELUtil;
 
 public class NavigationDropdownMenu extends Block {
 
+	public static final String CACHE_KEY = "navigation_dropdown_cache";
+
 	@Autowired
 	private JQuery jQuery;
 
@@ -74,6 +76,24 @@ public class NavigationDropdownMenu extends Block {
 
 	private String iFirstMenuElementText;
 	
+	public NavigationDropdownMenu() {
+		setCacheable(getCacheKey(), 0);
+	}
+
+	@Override
+	public String getCacheKey() {
+		return CACHE_KEY;
+	}
+	
+	@Override
+	protected String getCacheState(IWContext iwc, String cacheStatePrefix) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(cacheStatePrefix);
+		
+		return buffer.toString();
+	}
+
+	@Override
 	public String getBundleIdentifier() {
 		return NavigationConstants.IW_BUNDLE_IDENTIFIER;
 	}
@@ -82,6 +102,7 @@ public class NavigationDropdownMenu extends Block {
 		return this.prmDropdown + getICObjectInstanceID();
 	}
 
+	@Override
 	public void main(IWContext iwc) throws Exception {
 		IWBundle iwb = getBundle(iwc);
 		
