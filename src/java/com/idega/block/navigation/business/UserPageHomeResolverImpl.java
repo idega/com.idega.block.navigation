@@ -37,16 +37,17 @@ import com.idega.util.StringUtil;
 public class UserPageHomeResolverImpl implements UserHomePageResolver {
 
 	private static final Logger LOGGER = Logger.getLogger(UserPageHomeResolverImpl.class.getName());
-	
+
 	@Autowired(required = false) private UserCompanyBusiness userCompanyBusiness;
-	
-	@SuppressWarnings("unchecked")
+
+	@Override
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<UserHomePageBean> getUserHomePages(IWContext iwc) {
 		User user = getCurrentUser(iwc);
 		if (user == null) {
 			return null;
 		}
-		
+
 		Set<String> userRoles = iwc.getAccessController().getAllRolesForCurrentUser(iwc);
 		if (ListUtil.isEmpty(userRoles)) {
 			return null;
@@ -55,23 +56,23 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		if (builderService == null) {
 			return null;
 		}
-		
+
 		List<UserHomePageBean> homePages = new ArrayList<UserHomePageBean>();
-		
+
 		String uri = null;
 		Collection<Group> roleGroups = null;
 		int currentPageId = getCurrentPageId(iwc);
 		List<String> addedHomePages = new ArrayList<String>();
 		IWResourceBundle coreResourceBundle = CoreUtil.getCoreBundle().getResourceBundle(iwc);
-		
+
 		String bundleIdentifier = iwc.getApplicationSettings().getProperty(NavigationConstants.USER_ROLE_HOME_PAGE_RESOURCE_BUNDLE_PROPERTY,
 																														NavigationConstants.IW_BUNDLE_IDENTIFIER);
 		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
-		
+
 		for (String roleKey : userRoles) {
 			if (StandardRoles.ALL_STANDARD_ROLES.contains(roleKey)) {
 				StandardRoleHomePageResolver enumerator = StandardRoles.getRoleEnumerator(roleKey);
-				
+
 				if (enumerator != null) {
 					uri = enumerator.getUri();
 					if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
@@ -81,21 +82,21 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				}
 			}
 			else {
-				roleGroups = iwc.getAccessController().getAllGroupsForRoleKey(roleKey, iwc);
+				roleGroups = iwc.getAccessController().getAllGroupsForRoleKeyLegacy(roleKey, iwc);
 				if (!ListUtil.isEmpty(roleGroups)) {
 					String localizedRoleName = null;
 					for (Group group: roleGroups) {
 						if (canAddPageForGroup(group, currentPageId)) {
 							uri = null;
 							ICPage page = group.getHomePage();
-							
+
 							try {
 								uri = builderService.getPageURI(page);
 							} catch (RemoteException e) {
 								LOGGER.log(Level.WARNING, "Error getting uri for page: " + page.getId(), e);
 							}
-							localizedRoleName = iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey);			
-							
+							localizedRoleName = iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey);
+
 							if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
 								homePages.add(new UserHomePageBean(roleKey, localizedRoleName, uri));
 								addedHomePages.add(uri);
@@ -105,14 +106,15 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				}
 			}
 		}
-		
+
 		if (ListUtil.isEmpty(homePages)) {
 			return null;
 		}
-		
+
 		return homePages;
 	}
-	
+
+	@Override
 	public Map<String, ICPage> getUserCompaniesPages(IWContext iwc) {
 		User user = getCurrentUser(iwc);
 		if (user == null) {
@@ -121,7 +123,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		if (getUserCompanyBusiness() == null) {
 			return null;
 		}
-		
+
 		Collection<Group> companies = null;
 		try {
 			companies = getUserCompanyBusiness().getUsersCompanies(iwc, user);
@@ -131,52 +133,53 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		if (ListUtil.isEmpty(companies) || companies.size() == 1) {
 			return null;
 		}
-		
+
 		Map<String, ICPage> homePages = new HashMap<String, ICPage>();
-		
+
 		String currentCompanyId = null;
 		Object o = iwc.getSessionAttribute(getUserCompanyBusiness().getCurrentCompanyAttributeId());
 		if (o instanceof String) {
 			currentCompanyId = o.toString();
 		}
-		
+
 		ICPage page = null;
 		for (Group company: companies) {
 			page = getUserCompanyBusiness().getHomePageForCompany(company);
-			
+
 			if (canAddPageForCompany(company, page, currentCompanyId)) {
 				homePages.put(company.getId(), page);
 			}
 		}
-		
+
 		if (ListUtil.isEmpty(homePages.values())) {
 			return null;
 		}
-		
+
 		return homePages;
 	}
-	
+
+	@Override
 	public String getCurrentCompanyAttributeId() {
 		return getUserCompanyBusiness() == null ? null : getUserCompanyBusiness().getCurrentCompanyAttributeId();
 	}
-	
+
 	private boolean canAddPageForCompany(Group company, ICPage page, String currentCompanyId) {
 		if (company == null || page == null) {
 			return false;
 		}
-		
+
 		return page != null && (StringUtil.isEmpty(currentCompanyId) ? true : !currentCompanyId.equals(company.getId()));
 	}
-	
+
 	private boolean canAddPageForGroup(Group group, int currentPageId) {
 		if (group == null) {
 			return false;
 		}
-		
+
 		int groupHomePageId = group.getHomePageID();
 		return groupHomePageId > 0 && currentPageId != groupHomePageId;
 	}
-	
+
 	private User getCurrentUser(IWContext iwc) {
 		try {
 			return iwc.getCurrentUser();
@@ -185,13 +188,13 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		}
 		return null;
 	}
-	
+
 	private int getCurrentPageId(IWContext iwc) {
 		BuilderService builderService = getBuilderService();
 		if (builderService == null) {
 			return -1;
 		}
-		
+
 		ICPage currentPage = null;
 		try {
 			currentPage = builderService.getICPage(builderService.getPageKeyByURI(iwc.getRequestURI()));
@@ -208,16 +211,16 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		if (currentPage == null) {
 			return -1;
 		}
-		
+
 		try {
 			return Integer.valueOf(builderService.getPageKeyByURI(iwc.getRequestURI()));
 		} catch(Exception e) {
 			LOGGER.log(Level.SEVERE, "Error getting ID of current page", e);
 		}
-		
+
 		return -1;
 	}
-	
+
 	private BuilderService getBuilderService() {
 		try {
 			return BuilderServiceFactory.getBuilderService(IWMainApplication.getDefaultIWApplicationContext());
@@ -226,7 +229,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		}
 		return null;
 	}
-	
+
 
 	public UserCompanyBusiness getUserCompanyBusiness() {
 		return userCompanyBusiness;
