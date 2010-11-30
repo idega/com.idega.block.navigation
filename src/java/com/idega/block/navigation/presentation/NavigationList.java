@@ -304,7 +304,7 @@ public class NavigationList extends Block {
 	}
 
 	private boolean isSelectedPage(ICTreeNode page) {
-		if (isOpen(page) || page.getNodeID() == getCurrentPageId()) {
+		if ((!getMarkOnlyCurrentPage() && isOpen(page)) || page.getNodeID() == getCurrentPageId()) {
 			return true;
 		}
 		return false;
