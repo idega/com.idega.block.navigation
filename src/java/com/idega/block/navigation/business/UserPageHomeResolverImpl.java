@@ -81,7 +81,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				}
 			}
 			else {
-				roleGroups = iwc.getAccessController().getAllGroupsForRoleKey(roleKey, iwc);
+				roleGroups = iwc.getAccessController().getAllUserGroupsForRoleKey(roleKey, iwc, user);
 				if (!ListUtil.isEmpty(roleGroups)) {
 					String localizedRoleName = null;
 					for (Group group: roleGroups) {
