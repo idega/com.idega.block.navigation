@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ import com.idega.util.CoreUtil;
 import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
 
-@Scope("singleton")
+@Scope(BeanDefinition.SCOPE_SINGLETON)
 @Service(UserHomePageResolver.SPRING_BEAN_IDENTIFIER)
 public class UserPageHomeResolverImpl implements UserHomePageResolver {
 
@@ -41,7 +42,6 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 	@Autowired(required = false) private UserCompanyBusiness userCompanyBusiness;
 
 	@Override
-	@SuppressWarnings({ "unchecked", "deprecation" })
 	public List<UserHomePageBean> getUserHomePages(IWContext iwc) {
 		User user = getCurrentUser(iwc);
 		if (user == null) {
