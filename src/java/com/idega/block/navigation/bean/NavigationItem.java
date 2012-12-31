@@ -14,7 +14,7 @@ public class NavigationItem {
 	private String URI = null;
 	private String name = null;
 	
-	private Collection styles = null;
+	private Collection<String> styles = null;
 	private String styleClass = null;
 
 	private boolean hasChildren = false;
@@ -65,7 +65,7 @@ public class NavigationItem {
 
 	public void setStyleClass(String styleClass) {
 		if (styles == null) {
-			styles = new ArrayList();
+			styles = new ArrayList<String>();
 		}
 		
 		if (!styles.contains(styleClass)) {

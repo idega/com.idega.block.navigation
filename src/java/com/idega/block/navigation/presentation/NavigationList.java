@@ -959,6 +959,7 @@ public class NavigationList extends NavigationBlock {
 	/**
 	 * @see javax.faces.component.StateHolder#restoreState(javax.faces.context.FacesContext, java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void restoreState(FacesContext ctx, Object state) {
 		Object values[] = (Object[])state;

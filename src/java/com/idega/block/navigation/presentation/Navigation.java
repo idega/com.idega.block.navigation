@@ -44,7 +44,7 @@ public class Navigation extends IWBaseComponent {
 	
 	private int rootPageID = -1;
 	private int currentPageID;
-	protected Collection currentPages;
+	protected Collection<Integer> currentPages;
 
 	private String id = null;
 	private String styleClass = null;
@@ -175,7 +175,7 @@ public class Navigation extends IWBaseComponent {
 			
 			ICTreeNode currentPage = service.getPageTree(service.getCurrentPageId(iwc));
 			this.currentPageID = Integer.parseInt(currentPage.getId());
-			this.currentPages = new ArrayList();
+			this.currentPages = new ArrayList<Integer>();
 			this.currentPages.add(new Integer(this.currentPageID));
 		
 			if (this.currentPageID != node.getNodeID()) {
@@ -220,9 +220,8 @@ public class Navigation extends IWBaseComponent {
 			Collection<PageTreeNode> children = node.getChildren();
 			if (children != null && !children.isEmpty()) {
 				int index = 0;
-				Iterator it = children.iterator();
-				while (it.hasNext()) {
-					PageTreeNode childNode = (PageTreeNode) it.next();
+				for (Iterator<PageTreeNode> it = children.iterator(); it.hasNext();) {
+					PageTreeNode childNode = it.next();
 					
 					boolean hasPermission = true;
 					try {
@@ -310,8 +309,7 @@ public class Navigation extends IWBaseComponent {
 	private void setStyles(NavigationItem item, Collection<NavigationItem> childItems) {
 		NavigationItem previousItem = null;
 		
-		Iterator<NavigationItem> it = childItems.iterator();
-		while (it.hasNext()) {
+		for (Iterator<NavigationItem> it = childItems.iterator(); it.hasNext();) {
 			NavigationItem childItem = it.next();
 			if (childItem.isCurrent()) {
 				childItem.setStyleClass("current");

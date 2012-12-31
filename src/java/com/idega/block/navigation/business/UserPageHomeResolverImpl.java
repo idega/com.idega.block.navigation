@@ -39,7 +39,8 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 
 	private static final Logger LOGGER = Logger.getLogger(UserPageHomeResolverImpl.class.getName());
 
-	@Autowired(required = false) private UserCompanyBusiness userCompanyBusiness;
+	@Autowired(required = false)
+	private UserCompanyBusiness userCompanyBusiness;
 
 	@Override
 	public List<UserHomePageBean> getUserHomePages(IWContext iwc) {
@@ -60,7 +61,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		List<UserHomePageBean> homePages = new ArrayList<UserHomePageBean>();
 
 		String uri = null;
-		Collection<Group> roleGroups = null;
+		Collection<com.idega.user.data.bean.Group> roleGroups = null;
 		int currentPageId = getCurrentPageId(iwc);
 		List<String> addedHomePages = new ArrayList<String>();
 		IWResourceBundle coreResourceBundle = CoreUtil.getCoreBundle().getResourceBundle(iwc);
@@ -82,16 +83,16 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				}
 			}
 			else {
-				roleGroups = iwc.getAccessController().getAllGroupsForRoleKeyLegacy(roleKey, iwc);
+				roleGroups = iwc.getAccessController().getAllUserGroupsForRoleKey(roleKey, iwc, iwc.getLoggedInUser());
 				if (!ListUtil.isEmpty(roleGroups)) {
 					String localizedRoleName = null;
-					for (Group group: roleGroups) {
+					for ( com.idega.user.data.bean.Group group: roleGroups) {
 						if (canAddPageForGroup(group, currentPageId)) {
 							uri = null;
-							ICPage page = group.getHomePage();
+							com.idega.core.builder.data.bean.ICPage page = group.getHomePage();
 
 							try {
-								uri = builderService.getPageURI(page);
+								uri = builderService.getPageURI(page.getId());
 							} catch (RemoteException e) {
 								LOGGER.log(Level.WARNING, "Error getting uri for page: " + page.getId(), e);
 							}
@@ -171,13 +172,13 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		return page != null && (StringUtil.isEmpty(currentCompanyId) ? true : !currentCompanyId.equals(company.getId()));
 	}
 
-	private boolean canAddPageForGroup(Group group, int currentPageId) {
+	private boolean canAddPageForGroup(com.idega.user.data.bean.Group group, int currentPageId) {
 		if (group == null) {
 			return false;
 		}
 
-		int groupHomePageId = group.getHomePageID();
-		return groupHomePageId > 0 && currentPageId != groupHomePageId;
+		com.idega.core.builder.data.bean.ICPage homePage = group.getHomePage();
+		return homePage != null && currentPageId != Integer.valueOf(homePage.getId()).intValue();
 	}
 
 	private User getCurrentUser(IWContext iwc) {
