@@ -96,6 +96,7 @@ public class NavigationList extends NavigationBlock {
 	private boolean showForbiddenPagesAsDisabled=false;
 	private boolean displaySelectedPageAsLink=false;
 	private boolean displayRootPageAsLink = true;
+	private boolean displayParentAsText = false;
 	private String disabledStyleClass="disabled";
 	private String selectedStyleClass="selected";
 	private String beforeSelectedStyleClass="beforeSelected";
@@ -394,6 +395,10 @@ public class NavigationList extends NavigationBlock {
 		if (isDisplayRootPageAsLink()) {
 			PageTreeNode rootPage = getRootNode();
 			useTextInsteadOfLink = rootPage != null && rootPage.getId().equals(page.getId());
+		}
+		if (!useTextInsteadOfLink && isDisplayParentAsText()) {
+			ICTreeNode parentPage = page.getParentNode();
+			useTextInsteadOfLink = parentPage != null && parentPage.getId().equals(page.getId());
 		}
 
 		String disabledLink = "javascript:void(0)";
@@ -928,7 +933,7 @@ public class NavigationList extends NavigationBlock {
 	 */
 	@Override
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[37];
+		Object values[] = new Object[38];
 		values[0] = super.saveState(ctx);
 		values[1] = this.textStyleName;
 		values[2] = this.linkStyleName;
@@ -967,6 +972,7 @@ public class NavigationList extends NavigationBlock {
 		values[34] = new Boolean(this.addStyleClassOnSelectedItem);
 		values[35] = new Boolean(openAllNodes);
 		values[36] = Boolean.valueOf(displayRootPageAsLink);
+		values[37] = Boolean.valueOf(displayParentAsText);
 		return values;
 	}
 
@@ -1015,6 +1021,7 @@ public class NavigationList extends NavigationBlock {
 		this.addStyleClassOnSelectedItem=((Boolean)values[34]).booleanValue();
 		this.openAllNodes= ((Boolean) values[35]).booleanValue();
 		this.displayRootPageAsLink = ((Boolean) values[36]).booleanValue();
+		this.displayParentAsText = ((Boolean) values[37]).booleanValue();
 	}
 
 
@@ -1038,6 +1045,14 @@ public class NavigationList extends NavigationBlock {
 
 	public void setDisplayRootPageAsLink(boolean displayRootPageAsLink) {
 		this.displayRootPageAsLink = displayRootPageAsLink;
+	}
+
+	public boolean isDisplayParentAsText() {
+		return displayParentAsText;
+	}
+
+	public void setDisplayParentAsText(boolean displayParentAsText) {
+		this.displayParentAsText = displayParentAsText;
 	}
 
 	/**
