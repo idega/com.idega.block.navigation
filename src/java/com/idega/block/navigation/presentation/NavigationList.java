@@ -397,7 +397,8 @@ public class NavigationList extends NavigationBlock {
 			useTextInsteadOfLink = rootPage != null && rootPage.getId().equals(page.getId());
 		}
 		if (!useTextInsteadOfLink && isDisplayParentAsText()) {
-			ICTreeNode parentPage = page.getParentNode();
+			ICTreeNode currentPage = new PageTreeNode(getCurrentPageId(), iwc);
+			ICTreeNode parentPage = currentPage.getParentNode();
 			useTextInsteadOfLink = parentPage != null && parentPage.getId().equals(page.getId());
 		}
 
