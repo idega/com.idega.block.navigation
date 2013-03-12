@@ -392,7 +392,7 @@ public class NavigationList extends NavigationBlock {
 		String name = getLocalizedName(page, iwc);
 
 		boolean useTextInsteadOfLink = false;
-		if (isDisplayRootPageAsLink()) {
+		if (!isDisplayRootPageAsLink()) {
 			PageTreeNode rootPage = getRootNode();
 			useTextInsteadOfLink = rootPage != null && rootPage.getId().equals(page.getId());
 		}
