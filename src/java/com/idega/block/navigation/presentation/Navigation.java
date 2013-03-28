@@ -312,7 +312,7 @@ public class Navigation extends IWBaseComponent {
 		for (Iterator<NavigationItem> it = childItems.iterator(); it.hasNext();) {
 			NavigationItem childItem = it.next();
 			if (childItem.isCurrent()) {
-				childItem.setStyleClass("current");
+				childItem.setStyleClass("current active");
 				if (previousItem != null) {
 					previousItem.setStyleClass("beforeSelected");
 				}
