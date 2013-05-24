@@ -20,6 +20,7 @@ import com.idega.core.data.ICTreeNode;
 import com.idega.facelets.ui.FaceletComponent;
 import com.idega.presentation.IWBaseComponent;
 import com.idega.presentation.IWContext;
+import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
 
 public class BreadCrumbs extends IWBaseComponent {
@@ -29,24 +30,24 @@ public class BreadCrumbs extends IWBaseComponent {
 	public static final String IW_BUNDLE_IDENTIFIER = "com.idega.block.navigation";
 
 	private String faceletPath = null;
-	
+
 	private int rootPageID = -1;
 
 	private String id = null;
 	private String styleClass = null;
 	private String divider = ">";
-	
+
 	private boolean hideCategoryPages = false;
 
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
-	
+
 	@Override
 	public void restoreState(FacesContext ctx, Object state) {
 		Object values[] = (Object[]) state;
 		super.restoreState(ctx, values[0]);
-		
+
 		this.faceletPath = (String) values[1];
 		this.rootPageID = ((Integer) values[2]).intValue();
 		this.id = (String) values[3];
@@ -65,7 +66,7 @@ public class BreadCrumbs extends IWBaseComponent {
 		values[4] = this.styleClass;
 		values[5] = Boolean.valueOf(this.hideCategoryPages);
 		values[6] = this.divider;
-		
+
 		return values;
 	}
 
@@ -75,7 +76,7 @@ public class BreadCrumbs extends IWBaseComponent {
 		if (getFaceletPath() == null) {
 			setFaceletPath(getBundle(context, getBundleIdentifier()).getFaceletURI("breadCrumbs.xhtml"));
 		}
-		
+
 		BreadCrumbsBean bean = getBeanInstance("breadCrumbsBean");
 		bean.setChildren(getChildren(iwc));
 		bean.setId(getID());
@@ -88,25 +89,25 @@ public class BreadCrumbs extends IWBaseComponent {
 		facelet.setFaceletURI(getFaceletPath());
 		add(facelet);
 	}
-	
+
 	private Collection<NavigationItem> getChildren(IWContext iwc) {
 		try {
 			List<NavigationItem> pages = new ArrayList<NavigationItem>();
 
 			BuilderService service = BuilderServiceFactory.getBuilderService(iwc);
-	
+
 			if (this.rootPageID == -1) {
 				rootPageID = service.getRootPageId();
 			}
 			int currentPageID = service.getCurrentPageId(iwc);
-			
+
 			PageTreeNode page = new PageTreeNode(currentPageID, iwc);
 			boolean showPage = true;
 			while (showPage) {
 				if (page.getNodeID() == rootPageID) {
 					showPage = false;
 				}
-				
+
 				if (!(isHideCategoryPages() && page.isCategory())) {
 					NavigationItem item = new NavigationItem();
 					item.setNode(page);
@@ -117,7 +118,7 @@ public class BreadCrumbs extends IWBaseComponent {
 					if (page.isCategory()) {
 						Collection<PageTreeNode> nodes = page.getChildren();
 						if (ListUtil.isEmpty(nodes)) {
-							item.setURI("#");
+							item.setURI(CoreConstants.HASH);
 						}
 						else {
 							ICTreeNode firstChild = nodes.iterator().next();
@@ -128,16 +129,16 @@ public class BreadCrumbs extends IWBaseComponent {
 
 					pages.add(item);
 				}
-				
+
 				page = (PageTreeNode) page.getParentNode();
 				if (page == null) {
 					showPage = false;
 				}
 			}
 			Collections.reverse(pages);
-			
+
 			setStyles(pages);
-			
+
 			return pages;
 		}
 		catch (RemoteException re) {
@@ -151,7 +152,7 @@ public class BreadCrumbs extends IWBaseComponent {
 		while (it.hasNext()) {
 			NavigationItem item = it.next();
 			item.setIndex(index++);
-			
+
 			item.setStyleClass((item.getIndex() + 1) % 2 == 0 ? "even" : "odd");
 			if (item.getIndex() == 0) {
 				item.setStyleClass("firstPage");
@@ -164,11 +165,11 @@ public class BreadCrumbs extends IWBaseComponent {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets the page to use as the root for the list. If nothing is selected, the
 	 * root page of the <code>IBDomain</code> is used.
-	 * 
+	 *
 	 * @param rootPageID
 	 */
 	public void setRootPage(ICPage rootPage) {
@@ -178,7 +179,7 @@ public class BreadCrumbs extends IWBaseComponent {
 	/**
 	 * Sets the page to use as the root for the list. If nothing is selected, the
 	 * root page of the <code>IBDomain</code> is used.
-	 * 
+	 *
 	 * @param rootPageID
 	 */
 	public void setRootPage(int rootPageID) {
@@ -196,7 +197,7 @@ public class BreadCrumbs extends IWBaseComponent {
 
 	/**
 	 * Sets the ID for this <code>Navigation</code>.
-	 * 
+	 *
 	 * @param id
 	 */
 	public void setID(String id) {
@@ -214,7 +215,7 @@ public class BreadCrumbs extends IWBaseComponent {
 
 	/**
 	 * Sets the class value for this <code>Navigation</code>.
-	 * 
+	 *
 	 * @param id
 	 */
 	public void setStyleClass(String styleClass) {
@@ -227,7 +228,7 @@ public class BreadCrumbs extends IWBaseComponent {
 
 	/**
 	 * Sets to hide category pages in the list.
-	 * 
+	 *
 	 * @param hideCategoryPages
 	 */
 	public void setHideCategoryPages(boolean hideCategoryPages) {
@@ -240,7 +241,7 @@ public class BreadCrumbs extends IWBaseComponent {
 
 	/**
 	 * Sets the URI for the main facelet file.
-	 * 
+	 *
 	 * @param faceletPath	An absolute path to the facelet file
 	 */
 	public void setFaceletPath(String faceletPath) {
@@ -253,7 +254,7 @@ public class BreadCrumbs extends IWBaseComponent {
 
 	/**
 	 * Sets the divider between items in the list
-	 * 
+	 *
 	 * @param divider
 	 */
 	public void setDivider(String divider) {
