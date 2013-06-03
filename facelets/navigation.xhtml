@@ -19,11 +19,11 @@
 			</li>
 		</c:if>
 
-		<c:forEach items="#{navigationBean.root.children}" var="item">
+		<ui:repeat value="#{navigationBean.root.children}" var="item">
 			<ui:include src="#{navigationBean.itemPath}">
 				<ui:param name="item" value="#{item}"/>
 			</ui:include>
-		</c:forEach>
+		</ui:repeat>
 	</ul>
 </ui:component>
 </html>

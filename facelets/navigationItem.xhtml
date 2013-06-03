@@ -15,11 +15,11 @@
 		</c:if>
 		<c:if test="#{item.hasChildren}">
 			<ul>
-				<c:forEach items="#{item.children}" var="childItem">
+				<ui:repeat value="#{item.children}" var="childItem">
 					<ui:include src="#{navigationBean.itemPath}">
 						<ui:param name="item" value="#{childItem}"/>
 					</ui:include>
-				</c:forEach>
+				</ui:repeat>
 			</ul>
 		</c:if>
 	</li>
