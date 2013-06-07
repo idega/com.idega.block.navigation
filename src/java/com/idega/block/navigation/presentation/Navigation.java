@@ -38,30 +38,30 @@ public class Navigation extends IWBaseComponent {
 	public static final String SHOW_ROOT_PROPERTY = "showRoot";
 	public static final String OPEN_ALL_NODES_PROPERTY = "openAllNodes";
 	public static final String HIDE_SUB_PAGES_PROPERTY = "hideSubPages";
-	
+
 	private String faceletPath = null;
 	private String faceletItemPath = null;
-	
+
 	private int rootPageID = -1;
 	private int currentPageID;
 	protected Collection<Integer> currentPages;
 
 	private String id = null;
 	private String styleClass = null;
-	
+
 	private boolean showRoot = true;
 	private boolean openAllNodes = false;
 	private boolean hideSubPages = false;
-	
+
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
-	
+
 	@Override
 	public void restoreState(FacesContext ctx, Object state) {
 		Object values[] = (Object[]) state;
 		super.restoreState(ctx, values[0]);
-		
+
 		this.faceletPath = (String) values[1];
 		this.faceletItemPath = (String) values[2];
 		this.rootPageID = ((Integer) values[3]).intValue();
@@ -84,14 +84,14 @@ public class Navigation extends IWBaseComponent {
 		values[6] = Boolean.valueOf(this.showRoot);
 		values[7] = Boolean.valueOf(this.openAllNodes);
 		values[8] = Boolean.valueOf(this.hideSubPages);
-		
+
 		return values;
 	}
 
 	@Override
 	public void initializeComponent(FacesContext context) {
 		handleExpressions(context);
-		
+
 		IWContext iwc = IWContext.getIWContext(context);
 		if (getFaceletPath() == null) {
 			setFaceletPath(getBundle(context, getBundleIdentifier()).getFaceletURI("navigation.xhtml"));
@@ -99,7 +99,7 @@ public class Navigation extends IWBaseComponent {
 		if (getFaceletItemPath() == null) {
 			setFaceletItemPath(getBundle(context, getBundleIdentifier()).getFaceletURI("navigationItem.xhtml"));
 		}
-		
+
 		NavigationBean bean = getBeanInstance("navigationBean");
 		bean.setRoot(getRoot(iwc));
 		bean.setShowRoot(isShowRoot());
@@ -112,49 +112,49 @@ public class Navigation extends IWBaseComponent {
 		facelet.setFaceletURI(getFaceletPath());
 		add(facelet);
 	}
-	
+
 	private void handleExpressions(FacesContext context) {
 		ValueExpression ve = getValueExpression(FACELET_PATH_PROPERTY);
     	if (ve != null) {
 	    	String path = (String) ve.getValue(context.getELContext());
 	    	setFaceletPath(path);
-    	}    	
+    	}
 
 		ve = getValueExpression(FACELET_ITEM_PATH_PROPERTY);
     	if (ve != null) {
 	    	String path = (String) ve.getValue(context.getELContext());
 	    	setFaceletItemPath(path);
-    	}    	
+    	}
 
 		ve = getValueExpression(ROOT_PAGE_PROPERTY);
     	if (ve != null) {
 	    	int rootPageID = ((Integer) ve.getValue(context.getELContext())).intValue();
 	    	setRootPage(rootPageID);
-    	}    	
+    	}
 
 		ve = getValueExpression(ID_PROPERTY);
     	if (ve != null) {
 	    	String id = (String) ve.getValue(context.getELContext());
 	    	setID(id);
-    	}    	
+    	}
 
 		ve = getValueExpression(STYLE_CLASS_PROPERTY);
     	if (ve != null) {
 	    	String styleClass = (String) ve.getValue(context.getELContext());
 	    	setStyleClass(styleClass);
-    	}    	
+    	}
 
 		ve = getValueExpression(SHOW_ROOT_PROPERTY);
     	if (ve != null) {
 	    	boolean showRoot = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
 	    	setShowRoot(showRoot);
-    	}    	
+    	}
 
 		ve = getValueExpression(OPEN_ALL_NODES_PROPERTY);
     	if (ve != null) {
 	    	boolean openAllNodes = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
 	    	setOpenAllNodes(openAllNodes);
-    	}    	
+    	}
 
 		ve = getValueExpression(HIDE_SUB_PAGES_PROPERTY);
     	if (ve != null) {
@@ -162,7 +162,7 @@ public class Navigation extends IWBaseComponent {
 	    	setHideSubPages(hideSubPages);
     	}
 	}
-	
+
 	private NavigationItem getRoot(IWContext iwc) {
 		try {
 			BuilderService service = BuilderServiceFactory.getBuilderService(iwc);
@@ -172,12 +172,12 @@ public class Navigation extends IWBaseComponent {
 				this.rootPageID = service.getRootPageId();
 			}
 			node = new PageTreeNode(this.rootPageID, iwc);
-			
+
 			ICTreeNode currentPage = service.getPageTree(service.getCurrentPageId(iwc));
 			this.currentPageID = Integer.parseInt(currentPage.getId());
 			this.currentPages = new ArrayList<Integer>();
 			this.currentPages.add(new Integer(this.currentPageID));
-		
+
 			if (this.currentPageID != node.getNodeID()) {
 				ICTreeNode parent = currentPage.getParentNode();
 				if (parent != null) {
@@ -190,7 +190,7 @@ public class Navigation extends IWBaseComponent {
 					}
 				}
 			}
-			
+
 			NavigationItem item = new NavigationItem();
 			item.setName(node.getNodeName(iwc.getCurrentLocale()));
 			item.setNode(node);
@@ -201,28 +201,28 @@ public class Navigation extends IWBaseComponent {
 			item.setHidden(false);
 			item.setCurrent(isCurrent(node));
 			item.setCurrentAncestor(false);
-			
+
 			getTree(iwc, item);
-			
+
 			return item;
 		}
 		catch (RemoteException re) {
 			throw new IBORuntimeException(re);
 		}
 	}
-	
+
 	private void getTree(IWContext iwc, NavigationItem item) {
 		try {
 			BuilderService service = BuilderServiceFactory.getBuilderService(iwc);
 			PageTreeNode node = item.getNode();
 			Collection<NavigationItem> childItems = new ArrayList<NavigationItem>();
-			
+
 			Collection<PageTreeNode> children = node.getChildren();
 			if (children != null && !children.isEmpty()) {
 				int index = 0;
 				for (Iterator<PageTreeNode> it = children.iterator(); it.hasNext();) {
 					PageTreeNode childNode = it.next();
-					
+
 					boolean hasPermission = true;
 					try {
 						hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(childNode.getId(),iwc);
@@ -231,7 +231,7 @@ public class Navigation extends IWBaseComponent {
 						Logger logger = Logger.getLogger(this.getClass().getName());
 						logger.log(Level.SEVERE, "Error while getting permissions", re);
 					}
-	
+
 					if (hasPermission) {
 						NavigationItem childItem = new NavigationItem();
 						childItem.setName(childNode.getNodeName(iwc.getCurrentLocale()));
@@ -242,18 +242,18 @@ public class Navigation extends IWBaseComponent {
 						childItem.setHidden(false);
 						childItem.setCurrent(isCurrent(childNode));
 						childItem.setCurrentAncestor(isCurrentAncestor(childNode));
-						
+
 						if (!childNode.isLeaf() && isOpen(childNode)) {
 							childItem.setOpen(true);
 						}
 						else {
 							childItem.setOpen(false);
 						}
-						
+
 						if (childNode.isCategory()) {
 							Collection<PageTreeNode> nodes = childNode.getChildren();
 							if (ListUtil.isEmpty(nodes)) {
-								childItem.setURI("#");
+								childItem.setURI(CoreConstants.HASH);
 							}
 							else {
 								ICTreeNode firstChild = nodes.iterator().next();
@@ -261,19 +261,19 @@ public class Navigation extends IWBaseComponent {
 							}
 							childItem.setCategory(true);
 						}
-						
+
 						if (childNode.isHiddenInMenu()) {
 							childItem.setHidden(true);
 						}
-						
-		
+
+
 						childItems.add(childItem);
 						if (!isHideSubPages()) {
 							getTree(iwc, childItem);
 						}
 					}
 				}
-				
+
 				setStyles(item, childItems);
 				item.setChildren(childItems);
 			}
@@ -282,7 +282,7 @@ public class Navigation extends IWBaseComponent {
 			throw new IBORuntimeException(re);
 		}
 	}
-	
+
 	private boolean isOpen(PageTreeNode node) {
 		if (!isOpenAllNodes()) {
 			return isCurrentAncestor(node) || isCurrent(node);
@@ -291,24 +291,24 @@ public class Navigation extends IWBaseComponent {
 			return true;
 		}
 	}
-	
+
 	private boolean isCurrentAncestor(PageTreeNode node) {
 		if (this.currentPages != null && this.currentPages.contains(new Integer(node.getId())) && !isCurrent(node)) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private boolean isCurrent(PageTreeNode node) {
 		if (this.currentPageID == node.getNodeID()) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private void setStyles(NavigationItem item, Collection<NavigationItem> childItems) {
 		NavigationItem previousItem = null;
-		
+
 		for (Iterator<NavigationItem> it = childItems.iterator(); it.hasNext();) {
 			NavigationItem childItem = it.next();
 			if (childItem.isCurrent()) {
@@ -326,7 +326,7 @@ public class Navigation extends IWBaseComponent {
 			if (previousItem != null && previousItem.isCurrent()) {
 				childItem.setStyleClass("afterSelected");
 			}
-			
+
 			if (isShowRoot() && item.getDepth() == 0 && item.isCurrent() && childItem.getIndex() == 0) {
 				childItem.setStyleClass("afterSelected");
 			}
@@ -336,7 +336,7 @@ public class Navigation extends IWBaseComponent {
 			if (isShowRoot() && item.isCurrent() && item.getDepth() == 0) {
 				item.setStyleClass("current");
 			}
-			
+
 			if (isShowRoot() && item.getDepth() == 0) {
 				item.setStyleClass("odd");
 				childItem.setStyleClass((childItem.getIndex() + 1) % 2 == 0 ? "odd" : "even");
@@ -359,19 +359,19 @@ public class Navigation extends IWBaseComponent {
 			if (!it.hasNext()) {
 				childItem.setStyleClass("last");
 			}
-			
+
 			if (childItem.isHidden()) {
 				childItem.setStyleClass(CoreConstants.HIDDEN_PAGE_IN_MENU_STYLE_CLASS);
 			}
-			
+
 			previousItem = childItem;
 		}
 	}
-	
+
 	/**
 	 * Sets the page to use as the root for the tree. If nothing is selected, the
 	 * root page of the <code>IBDomain</code> is used.
-	 * 
+	 *
 	 * @param rootPageID
 	 */
 	public void setRootPage(ICPage rootPage) {
@@ -381,7 +381,7 @@ public class Navigation extends IWBaseComponent {
 	/**
 	 * Sets the page to use as the root for the tree. If nothing is selected, the
 	 * root page of the <code>IBDomain</code> is used.
-	 * 
+	 *
 	 * @param rootPageID
 	 */
 	public void setRootPage(int rootPageID) {
@@ -399,7 +399,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets the ID for this <code>Navigation</code>.
-	 * 
+	 *
 	 * @param id
 	 */
 	public void setID(String id) {
@@ -417,7 +417,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets the class value for this <code>Navigation</code>.
-	 * 
+	 *
 	 * @param id
 	 */
 	public void setStyleClass(String styleClass) {
@@ -430,7 +430,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets to show the root page in the list.
-	 * 
+	 *
 	 * @param showRoot
 	 */
 	public void setShowRoot(boolean showRoot) {
@@ -443,7 +443,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets to show all pages in the navigation list.
-	 * 
+	 *
 	 * @param showRoot
 	 */
 	public void setOpenAllNodes(boolean openAllNodes) {
@@ -456,7 +456,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets to hide all sub pages below the first level.
-	 * 
+	 *
 	 * @param hideSubpages
 	 */
 	public void setHideSubPages(boolean hideSubPages) {
@@ -469,7 +469,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets the URI for the main facelet file.
-	 * 
+	 *
 	 * @param faceletPath	An absolute path to the facelet file
 	 */
 	public void setFaceletPath(String faceletPath) {
@@ -482,7 +482,7 @@ public class Navigation extends IWBaseComponent {
 
 	/**
 	 * Sets the URI for the item facelet file.
-	 * 
+	 *
 	 * @param faceletItemPath	An absolute path to the facelet file for each item in the list
 	 */
 	public void setFaceletItemPath(String faceletItemPath) {
