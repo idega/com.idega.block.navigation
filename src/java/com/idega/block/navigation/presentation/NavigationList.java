@@ -214,7 +214,7 @@ public class NavigationList extends NavigationBlock {
 		for (Iterator<PageTreeNode> pagesIter = pagesList.iterator(); pagesIter.hasNext();) {
 			PageTreeNode page = pagesIter.next();
 			if (page == null) {
-				getLogger().warning("There is null in collection: " + pagesList);
+				getLogger().warning("Page is null in collection: " + pagesList);
 				continue;
 			}
 
@@ -689,7 +689,7 @@ public class NavigationList extends NavigationBlock {
 		}
 	}
 	protected UserBusiness getUserBusiness(IWContext iwc) throws java.rmi.RemoteException {
-		return (UserBusiness) IBOLookup.getServiceInstance(iwc, UserBusiness.class);
+		return IBOLookup.getServiceInstance(iwc, UserBusiness.class);
 	}
 
 	/*
