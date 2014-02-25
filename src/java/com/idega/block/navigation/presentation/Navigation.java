@@ -173,17 +173,17 @@ public class Navigation extends IWBaseComponent {
 			}
 			node = new PageTreeNode(this.rootPageID, iwc);
 
-			ICTreeNode currentPage = service.getPageTree(service.getCurrentPageId(iwc));
+			ICTreeNode<?> currentPage = service.getPageTree(service.getCurrentPageId(iwc));
 			this.currentPageID = Integer.parseInt(currentPage.getId());
 			this.currentPages = new ArrayList<Integer>();
 			this.currentPages.add(new Integer(this.currentPageID));
 
 			if (this.currentPageID != node.getNodeID()) {
-				ICTreeNode parent = currentPage.getParentNode();
+				ICTreeNode<?> parent = (ICTreeNode<?>) currentPage.getParentNode();
 				if (parent != null) {
 					while (parent != null && Integer.parseInt(parent.getId()) != node.getNodeID()) {
 						this.currentPages.add(new Integer(parent.getId()));
-						parent = parent.getParentNode();
+						parent = (ICTreeNode<?>) parent.getParentNode();
 						if (parent == null) {
 							break;
 						}
@@ -256,7 +256,7 @@ public class Navigation extends IWBaseComponent {
 								childItem.setURI(CoreConstants.HASH);
 							}
 							else {
-								ICTreeNode firstChild = nodes.iterator().next();
+								ICTreeNode<?> firstChild = nodes.iterator().next();
 								childItem.setURI(service.getPageURI(firstChild.getId()));
 							}
 							childItem.setCategory(true);

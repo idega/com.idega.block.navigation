@@ -131,7 +131,7 @@ public class NavigationList extends NavigationBlock {
 			}
 			else if(getIsRootCurrentPageParent()){
 				ICPage currentPage = getBuilderService(iwc).getCurrentPage(iwc);
-				ICTreeNode currentParent = currentPage.getParentNode();
+				ICPage currentParent = currentPage.getParentNode();
 				if(currentParent!=null){
 					this._rootPageID = currentParent.getIndex(currentParent);
 				}
@@ -334,7 +334,7 @@ public class NavigationList extends NavigationBlock {
 		return item;
 	}
 
-	private boolean isSelectedPage(ICTreeNode page) {
+	private boolean isSelectedPage(ICTreeNode<?> page) {
 		if (page == null) {
 			return false;
 		}
@@ -345,7 +345,7 @@ public class NavigationList extends NavigationBlock {
 		return false;
 	}
 
-	protected int setRowAttributes(UIComponent listComponent, ICTreeNode page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
+	protected int setRowAttributes(UIComponent listComponent, ICTreeNode<?> page, int row, int depth, boolean isFirstChild, boolean isLastChild) {
 		if (isFirstChild && !getShowRoot()) {
 			if (isAddStyleClassOnSelectedItem()) {
 				((PresentationObject) listComponent).setStyleClass(getFirstChildStyleClass());
@@ -370,7 +370,7 @@ public class NavigationList extends NavigationBlock {
 	 * @param linkIsDisabled TODO
 	 * @param table
 	 */
-	protected void addObject(IWContext iwc, ICTreeNode page, UIComponent list, int row, int depth, boolean linkIsDisabled) {
+	protected void addObject(IWContext iwc, ICTreeNode<?> page, UIComponent list, int row, int depth, boolean linkIsDisabled) {
 		UIComponent link = getLink(page, list, iwc, depth, linkIsDisabled);
 		list.getChildren().add(link);
 	}
@@ -384,11 +384,11 @@ public class NavigationList extends NavigationBlock {
 	 * @param depth
 	 * @return
 	 */
-	protected String getLocalizedName(ICTreeNode node, IWContext iwc) {
+	protected String getLocalizedName(ICTreeNode<?> node, IWContext iwc) {
 		return ((PageTreeNode) node).getLocalizedNodeName(iwc);
 	}
 
-	protected UIComponent getLink(ICTreeNode page, UIComponent parent, IWContext iwc, int depth, boolean linkIsDisabled) {
+	protected UIComponent getLink(ICTreeNode<?> page, UIComponent parent, IWContext iwc, int depth, boolean linkIsDisabled) {
 		String name = getLocalizedName(page, iwc);
 
 		boolean useTextInsteadOfLink = false;
@@ -397,8 +397,8 @@ public class NavigationList extends NavigationBlock {
 			useTextInsteadOfLink = rootPage != null && rootPage.getId().equals(page.getId());
 		}
 		if (!useTextInsteadOfLink && isDisplayParentAsText()) {
-			ICTreeNode currentPage = new PageTreeNode(getCurrentPageId(), iwc);
-			ICTreeNode parentPage = currentPage.getParentNode();
+			PageTreeNode currentPage = new PageTreeNode(getCurrentPageId(), iwc);
+			PageTreeNode parentPage = currentPage.getParentNode();
 			useTextInsteadOfLink = parentPage != null && parentPage.getId().equals(page.getId());
 		}
 
@@ -495,7 +495,7 @@ public class NavigationList extends NavigationBlock {
 		return this._currentPageID;
 	}
 
-	protected void addParameterToLink(Link link, ICTreeNode page, boolean parametersOnly) {
+	protected void addParameterToLink(Link link, ICTreeNode<?> page, boolean parametersOnly) {
 		if (!parametersOnly) {
 			boolean isCategory = getIsCategory(page);
 			if (!isCategory) {
@@ -562,7 +562,7 @@ public class NavigationList extends NavigationBlock {
 	 *          The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	protected boolean isOpen(ICTreeNode page) {
+	protected boolean isOpen(ICTreeNode<?> page) {
 		if (!openAllNodes) {
 			boolean isOpen = isCurrent(page);
 			if (!isOpen) {
@@ -582,7 +582,7 @@ public class NavigationList extends NavigationBlock {
 	 *          The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	protected boolean isCurrent(ICTreeNode page) {
+	protected boolean isCurrent(ICTreeNode<?> page) {
 		if (this._currentPages != null && this._currentPages.contains(new Integer(page.getId()))) {
 			return true;
 		}
@@ -597,7 +597,7 @@ public class NavigationList extends NavigationBlock {
 	 *          The <code>PageTreeNode</code> to check.
 	 * @return
 	 */
-	protected boolean isSelected(ICTreeNode page) {
+	protected boolean isSelected(ICTreeNode<?> page) {
 		if (this._selectedPages != null && this._selectedPages.contains(new Integer(page.getId()))) {
 			return true;
 		}
@@ -615,19 +615,19 @@ public class NavigationList extends NavigationBlock {
 		BuilderService builderService = null;
 		try {
 			builderService = getBuilderService(iwc);
-			ICTreeNode currentPage = builderService.getPageTree(builderService.getCurrentPageId(iwc));
+			ICTreeNode<?> currentPage = builderService.getPageTree(builderService.getCurrentPageId(iwc));
 			this._currentPageID = Integer.parseInt(currentPage.getId());
 			this._currentPages = new ArrayList<Integer>();
 			this._currentPages.add(new Integer(this._currentPageID));
 			debug("Current page is set.");
 
 			if (this._currentPageID != ((Integer) getRootNodeId()).intValue()) {
-				ICTreeNode parent = currentPage.getParentNode();
+				ICTreeNode<?> parent = (ICTreeNode<?>) currentPage.getParentNode();
 				if (parent != null) {
 					while (parent != null && Integer.parseInt(parent.getId()) != ((Integer) getRootNodeId()).intValue()) {
 						debug("Adding page with ID = " + parent.getId() + " to currentMap");
 						this._currentPages.add(new Integer(parent.getId()));
-						parent = parent.getParentNode();
+						parent = (ICTreeNode<?>) parent.getParentNode();
 						if (parent == null) {
 							break;
 						}
@@ -644,11 +644,11 @@ public class NavigationList extends NavigationBlock {
 			try {
 				this._selectedPages = new ArrayList<Integer>();
 
-				ICTreeNode selectedParent = builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
+				ICTreeNode<?> selectedParent = builderService.getPageTree(Integer.parseInt(iwc.getParameter(PARAMETER_SELECTED_PAGE)));
 				while (selectedParent != null && Integer.parseInt(selectedParent.getId()) != ((Integer) getRootNodeId()).intValue()) {
 					debug("Adding page with ID = " + selectedParent.getId() + " to selectedMap");
 					this._selectedPages.add(new Integer(selectedParent.getId()));
-					selectedParent = selectedParent.getParentNode();
+					selectedParent = (ICTreeNode<?>) selectedParent.getParentNode();
 				}
 			}
 			catch (RemoteException re) {
@@ -673,11 +673,11 @@ public class NavigationList extends NavigationBlock {
 					if (openOnUserHomePage && homePageID != -1) {
 						this._selectedPages = new ArrayList<Integer>();
 
-						ICTreeNode selectedParent = builderService.getPageTree(homePageID);
+						ICTreeNode<?> selectedParent = builderService.getPageTree(homePageID);
 						while (selectedParent != null && Integer.parseInt(selectedParent.getId()) != ((Integer) getRootNodeId()).intValue()) {
 							debug("Adding page with ID = " + selectedParent.getId() + " to selectedMap");
 							this._selectedPages.add(new Integer(selectedParent.getId()));
-							selectedParent = selectedParent.getParentNode();
+							selectedParent = (ICTreeNode<?>) selectedParent.getParentNode();
 						}
 						iwc.setSessionAttribute(SESSION_ATTRIBUTE_OPEN_ON_USER_HOMEPAGE, Boolean.FALSE);
 					}
