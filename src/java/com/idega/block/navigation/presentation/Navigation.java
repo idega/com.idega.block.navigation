@@ -70,8 +70,20 @@ public class Navigation extends IWBaseComponent {
 		this.showRoot = ((Boolean) values[6]).booleanValue();
 		this.openAllNodes = ((Boolean) values[7]).booleanValue();
 		this.hideSubPages = ((Boolean) values[8]).booleanValue();
+		
+		IWContext iwc = IWContext.getIWContext(ctx);
+		prepareBeans(iwc);
 	}
 
+	private void prepareBeans(IWContext iwc){
+		NavigationBean bean = getBeanInstance("navigationBean");
+		bean.setRoot(getRoot(iwc));
+		bean.setShowRoot(isShowRoot());
+		bean.setOpenAllNodes(isOpenAllNodes());
+		bean.setId(getID());
+		bean.setStyleClass(getStyleClass());
+		bean.setItemPath(getFaceletItemPath());
+	}
 	@Override
 	public Object saveState(FacesContext ctx) {
 		Object values[] = new Object[9];
@@ -100,13 +112,7 @@ public class Navigation extends IWBaseComponent {
 			setFaceletItemPath(getBundle(context, getBundleIdentifier()).getFaceletURI("navigationItem.xhtml"));
 		}
 
-		NavigationBean bean = getBeanInstance("navigationBean");
-		bean.setRoot(getRoot(iwc));
-		bean.setShowRoot(isShowRoot());
-		bean.setOpenAllNodes(isOpenAllNodes());
-		bean.setId(getID());
-		bean.setStyleClass(getStyleClass());
-		bean.setItemPath(getFaceletItemPath());
+		prepareBeans(iwc);
 
 		FaceletComponent facelet = (FaceletComponent) iwc.getApplication().createComponent(FaceletComponent.COMPONENT_TYPE);
 		facelet.setFaceletURI(getFaceletPath());
