@@ -10,6 +10,7 @@
 package com.idega.block.navigation.presentation;
 
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 import com.idega.block.navigation.bean.UserHomePageBean;
@@ -25,13 +26,20 @@ import com.idega.presentation.text.ListItem;
 import com.idega.presentation.text.Lists;
 import com.idega.presentation.text.Text;
 import com.idega.presentation.ui.RadioButton;
+import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
+import com.idega.util.PresentationUtil;
 import com.idega.util.expression.ELUtil;
 
 public class UserRolePageForwarder extends Block {
 
 	@Override
 	public void main(IWContext iwc) throws RemoteException {
+		PresentationUtil.addJavaScriptSourcesLinesToHeader(iwc, Arrays.asList(
+				CoreConstants.DWR_ENGINE_SCRIPT,
+				"/dwr/interface/WebUtil.js"
+		));
+
 		UserHomePageResolver homePageResolver = null;
 		try {
 			homePageResolver = ELUtil.getInstance().getBean(UserHomePageResolver.SPRING_BEAN_IDENTIFIER);
@@ -41,17 +49,17 @@ public class UserRolePageForwarder extends Block {
 		if (homePageResolver == null) {
 			return;
 		}
-		
+
 		List<UserHomePageBean> homePages = homePageResolver.getUserHomePages(iwc);
 		if (ListUtil.isEmpty(homePages)) {
 			return;
 		}
-		
+
 		String bundleIdentifier = iwc.getApplicationSettings().getProperty(NavigationConstants.USER_ROLE_HOME_PAGE_RESOURCE_BUNDLE_PROPERTY,
 																														NavigationConstants.IW_BUNDLE_IDENTIFIER);
 		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
-		
-		getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource());
+
+		getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource(iwc.getSessionId()));
 
 		Layer layer = new Layer();
 		layer.setStyleClass("userRolePageForwarder");
@@ -62,6 +70,7 @@ public class UserRolePageForwarder extends Block {
 
 		for (UserHomePageBean page: homePages) {
 			RadioButton button = new RadioButton("userRolePage", page.getUri());
+			button.setStyleClass(page.getRole());
 
 			ListItem item = new ListItem();
 			item.setStyleClass(page.getId());
@@ -76,17 +85,18 @@ public class UserRolePageForwarder extends Block {
 	}
 
 	private String getScriptCaller(String dropDownName) {
-		return "navHandler(document.getElementsByName('" + dropDownName + "'))";
+		return "navHandler(document.getElementsByName('" + dropDownName + "'));";
 	}
 
-	private String getScriptSource() {
+	private String getScriptSource(String sessionId) {
 		StringBuffer s = new StringBuffer();
 		s.append("function navHandler(inputs) {");
 		s.append("\n\t").append("for (var a = 0; a < inputs.length; a++) {");
 		s.append("\n\t\t").append("var	input = inputs[a];");
 		s.append("\n\t\t").append("if (input.checked) {");
-		s.append("\n\t\t\t").append("var URL = input.value;	");
-		s.append("\n\t\t\t").append("window.location.href = URL;");
+		s.append("\n\t\t\t").append("WebUtil.setActiveRole('").append(sessionId).append("', input.className, {");
+		s.append("\n\t\t\t\tcallback: function(result) {window.location.href = input.value;}");
+		s.append("\n\t\t\t});");
 		s.append("\n\t\t").append("}");
 		s.append("\n\t").append("}");
 		s.append("\n").append("}");
