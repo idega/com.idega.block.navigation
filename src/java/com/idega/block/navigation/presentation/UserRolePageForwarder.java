@@ -13,9 +13,13 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.idega.block.navigation.bean.UserHomePageBean;
 import com.idega.block.navigation.business.UserHomePageResolver;
 import com.idega.block.navigation.utils.NavigationConstants;
+import com.idega.block.web2.business.JQuery;
+import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.Block;
 import com.idega.presentation.IWContext;
@@ -33,11 +37,19 @@ import com.idega.util.expression.ELUtil;
 
 public class UserRolePageForwarder extends Block {
 
+	@Autowired
+	private JQuery jQuery;
+
 	@Override
 	public void main(IWContext iwc) throws RemoteException {
+		ELUtil.getInstance().autowire(this);
+
+		IWBundle navBundle = iwc.getIWMainApplication().getBundle(NavigationConstants.IW_BUNDLE_IDENTIFIER);
 		PresentationUtil.addJavaScriptSourcesLinesToHeader(iwc, Arrays.asList(
+				jQuery.getBundleURIToJQueryLib(),
 				CoreConstants.DWR_ENGINE_SCRIPT,
-				"/dwr/interface/WebUtil.js"
+				"/dwr/interface/WebUtil.js",
+				navBundle.getVirtualPathWithFileNameString("javascript/NavigationHomePageHelper.js")
 		));
 
 		UserHomePageResolver homePageResolver = null;
@@ -55,11 +67,12 @@ public class UserRolePageForwarder extends Block {
 			return;
 		}
 
-		String bundleIdentifier = iwc.getApplicationSettings().getProperty(NavigationConstants.USER_ROLE_HOME_PAGE_RESOURCE_BUNDLE_PROPERTY,
-																														NavigationConstants.IW_BUNDLE_IDENTIFIER);
+		String bundleIdentifier = iwc.getApplicationSettings()
+				.getProperty(
+						NavigationConstants.USER_ROLE_HOME_PAGE_RESOURCE_BUNDLE_PROPERTY,
+						NavigationConstants.IW_BUNDLE_IDENTIFIER
+		);
 		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
-
-		getParentPage().getAssociatedScript().addFunction("navHandler", getScriptSource(iwc.getSessionId()));
 
 		Layer layer = new Layer();
 		layer.setStyleClass("userRolePageForwarder");
@@ -80,26 +93,8 @@ public class UserRolePageForwarder extends Block {
 		}
 
 		Link btn = new Link(new Span(new Text(iwrb.getLocalizedString("go", "Go!"))));
-		btn.setURL("javascript:" + getScriptCaller("userRolePage"));
+		btn.setURL("javascript:void(0);");
+		btn.setOnClick("NavigationHomePageHelper.doNavigateToHomeFolder('" + iwc.getSessionId() + "');");
 		layer.add(btn);
-	}
-
-	private String getScriptCaller(String dropDownName) {
-		return "navHandler(document.getElementsByName('" + dropDownName + "'));";
-	}
-
-	private String getScriptSource(String sessionId) {
-		StringBuffer s = new StringBuffer();
-		s.append("function navHandler(inputs) {");
-		s.append("\n\t").append("for (var a = 0; a < inputs.length; a++) {");
-		s.append("\n\t\t").append("var	input = inputs[a];");
-		s.append("\n\t\t").append("if (input.checked) {");
-		s.append("\n\t\t\t").append("WebUtil.setActiveRole('").append(sessionId).append("', input.className, {");
-		s.append("\n\t\t\t\tcallback: function(result) {window.location.href = input.value;}");
-		s.append("\n\t\t\t});");
-		s.append("\n\t\t").append("}");
-		s.append("\n\t").append("}");
-		s.append("\n").append("}");
-		return s.toString();
 	}
 }
