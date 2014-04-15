@@ -77,7 +77,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				if (enumerator != null) {
 					uri = enumerator.getUri();
 					if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
-						homePages.add(new UserHomePageBean(roleKey, enumerator.getLocalizedName(coreResourceBundle), uri));
+						homePages.add(new UserHomePageBean(roleKey, enumerator.getLocalizedName(coreResourceBundle), uri, roleKey));
 						addedHomePages.add(uri);
 					}
 				}
@@ -99,7 +99,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 							localizedRoleName = iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey);
 
 							if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
-								homePages.add(new UserHomePageBean(roleKey, localizedRoleName, uri));
+								homePages.add(new UserHomePageBean(roleKey, localizedRoleName, uri, roleKey));
 								addedHomePages.add(uri);
 							}
 						}

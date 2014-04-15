@@ -1,21 +1,29 @@
 package com.idega.block.navigation.bean;
 
-public class UserHomePageBean {
+import java.io.Serializable;
+
+public class UserHomePageBean implements Serializable {
+
+	private static final long serialVersionUID = -5932605698840614929L;
 
 	private String id;
 	private String name;
 	private String uri;
-	
-	public UserHomePageBean() {}
-	
-	public UserHomePageBean(String id, String name, String uri) {
+	private String role;
+
+	public UserHomePageBean() {
+		super();
+	}
+
+	public UserHomePageBean(String id, String name, String uri, String role) {
 		this();
-		
+
 		this.id = id;
 		this.name = name;
 		this.uri = uri;
+		this.role = role;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -34,5 +42,10 @@ public class UserHomePageBean {
 	public void setUri(String uri) {
 		this.uri = uri;
 	}
-	
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
 }
