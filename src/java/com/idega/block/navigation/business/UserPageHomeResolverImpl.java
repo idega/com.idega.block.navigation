@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.idega.block.navigation.bean.UserHomePageBean;
 import com.idega.block.navigation.utils.NavigationConstants;
@@ -23,13 +24,16 @@ import com.idega.core.accesscontrol.business.StandardRoles;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.business.BuilderServiceFactory;
 import com.idega.core.builder.data.ICPage;
+import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
 import com.idega.user.business.UserCompanyBusiness;
 import com.idega.user.data.Group;
+import com.idega.user.data.GroupHome;
 import com.idega.user.data.User;
 import com.idega.util.CoreUtil;
+import com.idega.util.DBUtil;
 import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
 
@@ -86,7 +90,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				roleGroups = iwc.getAccessController().getAllUserGroupsForRoleKey(roleKey, iwc, iwc.getLoggedInUser());
 				if (!ListUtil.isEmpty(roleGroups)) {
 					String localizedRoleName = null;
-					for ( com.idega.user.data.bean.Group group: roleGroups) {
+					for (com.idega.user.data.bean.Group group: roleGroups) {
 						if (canAddPageForGroup(group, currentPageId)) {
 							uri = null;
 							com.idega.core.builder.data.bean.ICPage page = group.getHomePage();
@@ -172,13 +176,42 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		return page != null && (StringUtil.isEmpty(currentCompanyId) ? true : !currentCompanyId.equals(company.getId()));
 	}
 
+	@Transactional(readOnly = true)
 	private boolean canAddPageForGroup(com.idega.user.data.bean.Group group, int currentPageId) {
 		if (group == null) {
 			return false;
 		}
-
-		com.idega.core.builder.data.bean.ICPage homePage = group.getHomePage();
-		return homePage != null && currentPageId != Integer.valueOf(homePage.getId()).intValue();
+		if (!DBUtil.getInstance().isInitialized(group)) {
+			group = DBUtil.getInstance().lazyLoad(group);
+		}
+		
+		Integer homePageId = null;
+		try {
+			com.idega.core.builder.data.bean.ICPage homePage = group.getHomePage();
+			if (homePage != null) {
+				if (!DBUtil.getInstance().isInitialized(homePage)) {
+					homePage = DBUtil.getInstance().lazyLoad(homePage);
+				}
+				homePageId = homePage.getID();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if (homePageId == null) {
+			try {
+				GroupHome groupHome = (GroupHome) IDOLookup.getHome(Group.class);
+				Group tmpGroup = groupHome.findByPrimaryKey(group.getID());
+				ICPage homePage = tmpGroup.getHomePage();
+				if (homePage != null) {
+					homePageId = Integer.valueOf(homePage.getId());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return homePageId != null && currentPageId != Integer.valueOf(homePageId).intValue();
 	}
 
 	private User getCurrentUser(IWContext iwc) {
