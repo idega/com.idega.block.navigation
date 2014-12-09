@@ -30,7 +30,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_desc</name>
@@ -65,6 +65,55 @@
             <type>map</type>
           </key>
           <key>
+            <name>:method:1:implied:void:setSubMenuStyle:java.lang.String:</name>
+            <value>
+              <map>
+                <key>
+                  <name>iw_method_params</name>
+                  <value>
+                    <map>
+                      <key>
+                        <name>0</name>
+                        <value>
+                          <map>
+                            <key>
+                              <name>iw_method_param_handler</name>
+                              <type>java.lang.String</type>
+                              <value></value>
+                            </key>
+                            <key>
+                              <name>iw_method_param_desc</name>
+                              <type>java.lang.String</type>
+                              <value>Sub-menu style</value>
+                            </key>
+                          </map>
+                        </value>
+                        <type>map</type>
+                      </key>
+                    </map>
+                  </value>
+                  <type>map</type>
+                </key>
+                <key>
+                  <name>iw_method_option_multiv</name>
+                  <type>java.lang.Boolean</type>
+                  <value>false</value>
+                </key>
+                <key>
+                  <name>iw_method_description</name>
+                  <type>java.lang.String</type>
+                  <value>Sub-menu style</value>
+                </key>
+                <key>
+                  <name>iw_method_identifier</name>
+                  <type>java.lang.String</type>
+                  <value>:method:1:implied:void:setSubMenuStyle:java.lang.String:</value>
+                </key>
+              </map>
+            </value>
+            <type>map</type>
+          </key>
+          <key>
             <name>:method:1:implied:void:setMaxDepthForStyles:int:</name>
             <value>
               <map>
@@ -79,7 +128,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_desc</name>
@@ -177,7 +226,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_desc</name>
@@ -226,7 +275,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_desc</name>
@@ -275,7 +324,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_desc</name>
@@ -324,7 +373,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -378,7 +427,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -432,7 +481,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -486,7 +535,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -540,7 +589,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -594,7 +643,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -617,7 +666,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -694,7 +743,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -748,7 +797,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -802,7 +851,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -856,7 +905,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -910,7 +959,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -964,7 +1013,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1018,7 +1067,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1072,7 +1121,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1126,7 +1175,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1180,7 +1229,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1234,7 +1283,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1288,7 +1337,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1342,7 +1391,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1396,7 +1445,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1450,7 +1499,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1504,7 +1553,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1558,7 +1607,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1612,7 +1661,7 @@
                             <key>
                               <name>iw_method_param_handler</name>
                               <type>java.lang.String</type>
-                              <value />
+                              <value></value>
                             </key>
                             <key>
                               <name>iw_method_param_prim_key</name>
@@ -1657,4 +1706,3 @@
     </key>
   </map>
 </pxml>
-

@@ -42,6 +42,7 @@ import com.idega.user.business.UserBusiness;
 import com.idega.user.data.User;
 import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
+import com.idega.util.StringUtil;
 
 
 /**
@@ -65,6 +66,8 @@ public class NavigationList extends NavigationBlock {
 
 	private String textStyleName = "text";
 	private String linkStyleName = "link";
+
+	private String subMenuStyle = null;
 
 	private int _currentPageID;
 	private int _maxDepthForStyles = -1;
@@ -257,6 +260,9 @@ public class NavigationList extends NavigationBlock {
 	 */
 	protected UIComponent getSubTreeComponent(UIComponent outerContainer,int row,int depth){
 		Lists newList = new Lists();
+		if (!StringUtil.isEmpty(getSubMenuStyle())) {
+			newList.setStyleClass(getSubMenuStyle());
+		}
 		outerContainer.getChildren().add(newList);
 		return newList;
 	}
@@ -356,6 +362,11 @@ public class NavigationList extends NavigationBlock {
 				((PresentationObject) listComponent).setStyleClass(getLastChildStyleClass());
 			}
 		}
+
+		if (page.getChildCount() == 0 || iHideSubPages) {
+			((PresentationObject) listComponent).setStyleClass("noChildren");
+		}
+
 		return row;
 	}
 
@@ -1243,4 +1254,13 @@ public class NavigationList extends NavigationBlock {
 	public void setOpenAllNodes(boolean openAllNodes) {
 		this.openAllNodes = openAllNodes;
 	}
+
+	public String getSubMenuStyle() {
+		return subMenuStyle;
+	}
+
+	public void setSubMenuStyle(String subMenuStyle) {
+		this.subMenuStyle = subMenuStyle;
+	}
+
 }
