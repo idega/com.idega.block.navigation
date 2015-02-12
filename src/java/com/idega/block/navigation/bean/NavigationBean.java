@@ -16,6 +16,7 @@ public class NavigationBean {
 	private boolean openAllNodes;
 	
 	private String itemPath;
+	private boolean showPageDescription = false;
 
 	public NavigationItem getRoot() {
 		return root;
@@ -63,6 +64,14 @@ public class NavigationBean {
 
 	public void setItemPath(String itemPath) {
 		this.itemPath = itemPath;
+	}
+
+	public boolean isShowPageDescription() {
+		return showPageDescription;
+	}
+
+	public void setShowPageDescription(boolean showPageDescription) {
+		this.showPageDescription = showPageDescription;
 	}
 	
 }

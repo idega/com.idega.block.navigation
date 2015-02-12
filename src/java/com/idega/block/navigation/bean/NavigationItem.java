@@ -25,6 +25,7 @@ public class NavigationItem {
 	private boolean category = false;
 	private int index = -1;
 	private int depth = -1;
+	private String description;
 
 	public Collection<NavigationItem> getChildren() {
 		return children;
@@ -141,5 +142,13 @@ public class NavigationItem {
 
 	public void setDepth(int depth) {
 		this.depth = depth;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

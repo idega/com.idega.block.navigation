@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,6 +53,8 @@ public class Navigation extends IWBaseComponent {
 	private boolean showRoot = true;
 	private boolean openAllNodes = false;
 	private boolean hideSubPages = false;
+	
+	private boolean showPageDescription = false;
 
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
@@ -70,6 +73,7 @@ public class Navigation extends IWBaseComponent {
 		this.showRoot = ((Boolean) values[6]).booleanValue();
 		this.openAllNodes = ((Boolean) values[7]).booleanValue();
 		this.hideSubPages = ((Boolean) values[8]).booleanValue();
+		this.showPageDescription = ((Boolean) values[9]).booleanValue();
 		
 		IWContext iwc = IWContext.getIWContext(ctx);
 		prepareBeans(iwc);
@@ -83,10 +87,11 @@ public class Navigation extends IWBaseComponent {
 		bean.setId(getID());
 		bean.setStyleClass(getStyleClass());
 		bean.setItemPath(getFaceletItemPath());
+		bean.setShowPageDescription(isShowPageDescription());
 	}
 	@Override
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[9];
+		Object values[] = new Object[10];
 		values[0] = super.saveState(ctx);
 		values[1] = this.faceletPath;
 		values[2] = this.faceletItemPath;
@@ -96,6 +101,7 @@ public class Navigation extends IWBaseComponent {
 		values[6] = Boolean.valueOf(this.showRoot);
 		values[7] = Boolean.valueOf(this.openAllNodes);
 		values[8] = Boolean.valueOf(this.hideSubPages);
+		values[9] = Boolean.valueOf(this.showPageDescription);
 
 		return values;
 	}
@@ -224,6 +230,7 @@ public class Navigation extends IWBaseComponent {
 			Collection<NavigationItem> childItems = new ArrayList<NavigationItem>();
 
 			Collection<PageTreeNode> children = node.getChildren();
+			Locale locale = iwc.getCurrentLocale();
 			if (children != null && !children.isEmpty()) {
 				int index = 0;
 				for (Iterator<PageTreeNode> it = children.iterator(); it.hasNext();) {
@@ -241,6 +248,9 @@ public class Navigation extends IWBaseComponent {
 					if (hasPermission) {
 						NavigationItem childItem = new NavigationItem();
 						childItem.setName(childNode.getNodeName(iwc.getCurrentLocale()));
+						if(isShowPageDescription()){
+							item.setDescription(node.getLocalizedNodeDescription(locale));
+						}
 						childItem.setNode(childNode);
 						childItem.setURI(service.getPageURI(childNode.getNodeID()));
 						childItem.setDepth(item.getDepth() + 1);
@@ -493,5 +503,13 @@ public class Navigation extends IWBaseComponent {
 	 */
 	public void setFaceletItemPath(String faceletItemPath) {
 		this.faceletItemPath = faceletItemPath;
+	}
+
+	public boolean isShowPageDescription() {
+		return showPageDescription;
+	}
+
+	public void setShowPageDescription(boolean showPageDescription) {
+		this.showPageDescription = showPageDescription;
 	}
 }

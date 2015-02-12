@@ -11,7 +11,16 @@
 			<a class="current" id="current" href="#{item.URI}"><span><h:outputText value="#{item.name}" /></span></a>
 		</c:if>
 		<c:if test="#{!item.current}">
-			<a href="#{item.URI}"><span><h:outputText value="#{item.name}" /></span></a>
+			<a href="#{item.URI}">
+				<span>
+					<h:outputText value="#{item.name}" />
+					<ui:fragment rendered="#{navigationBean.showPageDescription}">
+						<b>
+							#{item.description}
+						</b>
+					</ui:fragment>
+				</span>
+			</a>
 		</c:if>
 		<c:if test="#{item.hasChildren}">
 			<ul>

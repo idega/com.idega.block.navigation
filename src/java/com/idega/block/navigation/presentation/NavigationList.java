@@ -114,6 +114,7 @@ public class NavigationList extends NavigationBlock {
 	private String current = "current";
 	private String currentAncestor = "currentAncestor";
 
+	private boolean showPageDescription = false;
 	/*
 	 * (non-Javadoc)
 	 *
@@ -401,6 +402,13 @@ public class NavigationList extends NavigationBlock {
 
 	protected UIComponent getLink(ICTreeNode<?> page, UIComponent parent, IWContext iwc, int depth, boolean linkIsDisabled) {
 		String name = getLocalizedName(page, iwc);
+		if(isShowPageDescription() && (page instanceof PageTreeNode)){
+			PageTreeNode pageTreeNode = (PageTreeNode) page;
+			String description = pageTreeNode.getLocalizedNodeDescription(iwc.getCurrentLocale());
+			if(!StringUtil.isEmpty(description)){
+				name = name + "<b>"+ description +"</b>";
+			}
+		}
 
 		boolean useTextInsteadOfLink = false;
 		if (!isDisplayRootPageAsLink()) {
@@ -1261,6 +1269,14 @@ public class NavigationList extends NavigationBlock {
 
 	public void setSubMenuStyle(String subMenuStyle) {
 		this.subMenuStyle = subMenuStyle;
+	}
+
+	public boolean isShowPageDescription() {
+		return showPageDescription;
+	}
+
+	public void setShowPageDescription(boolean showPageDescription) {
+		this.showPageDescription = showPageDescription;
 	}
 
 }
