@@ -2,7 +2,9 @@ package com.idega.block.navigation.presentation;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -11,6 +13,7 @@ import java.util.logging.Logger;
 import javax.el.ValueExpression;
 import javax.faces.context.FacesContext;
 
+import com.google.gson.Gson;
 import com.idega.block.navigation.bean.NavigationBean;
 import com.idega.block.navigation.bean.NavigationItem;
 import com.idega.builder.business.PageTreeNode;
@@ -24,6 +27,7 @@ import com.idega.presentation.IWBaseComponent;
 import com.idega.presentation.IWContext;
 import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
+import com.idega.util.StringUtil;
 
 public class Navigation extends IWBaseComponent {
 
@@ -55,6 +59,7 @@ public class Navigation extends IWBaseComponent {
 	private boolean hideSubPages = false;
 	
 	private boolean showPageDescription = false;
+	private String additionalPages = null;
 
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
@@ -74,6 +79,7 @@ public class Navigation extends IWBaseComponent {
 		this.openAllNodes = ((Boolean) values[7]).booleanValue();
 		this.hideSubPages = ((Boolean) values[8]).booleanValue();
 		this.showPageDescription = ((Boolean) values[9]).booleanValue();
+		this.additionalPages = ((String) values[10]);
 		
 		IWContext iwc = IWContext.getIWContext(ctx);
 		prepareBeans(iwc);
@@ -91,7 +97,7 @@ public class Navigation extends IWBaseComponent {
 	}
 	@Override
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[10];
+		Object values[] = new Object[11];
 		values[0] = super.saveState(ctx);
 		values[1] = this.faceletPath;
 		values[2] = this.faceletItemPath;
@@ -102,6 +108,7 @@ public class Navigation extends IWBaseComponent {
 		values[7] = Boolean.valueOf(this.openAllNodes);
 		values[8] = Boolean.valueOf(this.hideSubPages);
 		values[9] = Boolean.valueOf(this.showPageDescription);
+		values[10] = this.additionalPages;
 
 		return values;
 	}
@@ -215,6 +222,7 @@ public class Navigation extends IWBaseComponent {
 			item.setCurrentAncestor(false);
 
 			getTree(iwc, item);
+			getAdditionalTree(iwc, item);
 
 			return item;
 		}
@@ -222,20 +230,89 @@ public class Navigation extends IWBaseComponent {
 			throw new IBORuntimeException(re);
 		}
 	}
+	
 
-	private void getTree(IWContext iwc, NavigationItem item) {
+	private NavigationItem getNavigationItem(PageTreeNode childNode,Locale locale,NavigationItem item,BuilderService service) throws RemoteException{
+		PageTreeNode node = item.getNode();
+		NavigationItem childItem = new NavigationItem();
+		childItem.setName(childNode.getNodeName(locale));
+		if(isShowPageDescription()){
+			item.setDescription(childNode.getLocalizedNodeDescription(locale));
+		}
+		childItem.setNode(childNode);
+		childItem.setURI(service.getPageURI(childNode.getNodeID()));
+		childItem.setDepth(item.getDepth() + 1);
+		childItem.setHidden(false);
+		childItem.setCurrent(isCurrent(childNode));
+		childItem.setCurrentAncestor(isCurrentAncestor(childNode));
+
+		if (!childNode.isLeaf() && isOpen(childNode)) {
+			childItem.setOpen(true);
+		}
+		else {
+			childItem.setOpen(false);
+		}
+
+		if (childNode.isCategory()) {
+			Collection<PageTreeNode> nodes = childNode.getChildren();
+			if (ListUtil.isEmpty(nodes)) {
+				childItem.setURI(CoreConstants.HASH);
+			}
+			else {
+				ICTreeNode<?> firstChild = nodes.iterator().next();
+				childItem.setURI(service.getPageURI(firstChild.getId()));
+			}
+			childItem.setCategory(true);
+		}
+
+		if (childNode.isHiddenInMenu()) {
+			childItem.setHidden(true);
+		}
+	
+		return childItem;
+	}
+	private NavigationItem getNavigationItemFromLink(AdditionalPage link,Locale locale,NavigationItem item){
+		PageTreeNode node = item.getNode();
+		NavigationItem childItem = new NavigationItem();
+		childItem.setName(link.name);
+		if(isShowPageDescription()){
+			item.setDescription(node.getLocalizedNodeDescription(locale));
+		}
+		childItem.setNode(null);
+		childItem.setURI(link.uri);
+		childItem.setDepth(item.getDepth() + 1);
+		childItem.setHidden(false);
+		childItem.setCurrent(false);
+		childItem.setCurrentAncestor(false);
+		childItem.setOpen(false);
+		childItem.setCategory(false);
+	
+		return childItem;
+	}
+	private void getAdditionalTree(IWContext iwc, NavigationItem item) {
 		try {
+			String additionalPagesString = getAdditionalPages();
+			if(StringUtil.isEmpty(additionalPagesString)){
+				return;
+			}
 			BuilderService service = BuilderServiceFactory.getBuilderService(iwc);
-			PageTreeNode node = item.getNode();
-			Collection<NavigationItem> childItems = new ArrayList<NavigationItem>();
+			Collection<NavigationItem> childItemsCollection = item.getChildren();
+			ArrayList<NavigationItem> childItems;
+			if(childItemsCollection instanceof ArrayList){
+				childItems = (ArrayList<NavigationItem>) childItemsCollection;
+			}else{
+				childItems = childItemsCollection == null ? new ArrayList<NavigationItem>() : new ArrayList<NavigationItem>(childItemsCollection);
+			}
 
-			Collection<PageTreeNode> children = node.getChildren();
 			Locale locale = iwc.getCurrentLocale();
-			if (children != null && !children.isEmpty()) {
-				int index = 0;
-				for (Iterator<PageTreeNode> it = children.iterator(); it.hasNext();) {
-					PageTreeNode childNode = it.next();
-
+			Gson gson = new Gson();
+			AdditionalPage[] additionalPages = gson.fromJson(additionalPagesString, AdditionalPage[].class);
+			Arrays.sort(additionalPages);
+			int size = additionalPages.length + childItems.size();
+			childItems.ensureCapacity(size);
+			for(AdditionalPage additionalPage : additionalPages){
+				if(AdditionalPage.PAGE_TYPE_IB_PAGE.equals(additionalPage.pageType)){
+					PageTreeNode childNode = new PageTreeNode(Integer.valueOf(additionalPage.uri), iwc);
 					boolean hasPermission = true;
 					try {
 						hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(childNode.getId(),iwc);
@@ -246,53 +323,95 @@ public class Navigation extends IWBaseComponent {
 					}
 
 					if (hasPermission) {
-						NavigationItem childItem = new NavigationItem();
-						childItem.setName(childNode.getNodeName(iwc.getCurrentLocale()));
-						if(isShowPageDescription()){
-							item.setDescription(node.getLocalizedNodeDescription(locale));
+						NavigationItem childItem = getNavigationItem(childNode, locale, item, service);
+						childItem.setIndex(0);//TODO: check this
+						if((additionalPage.position == null) || (additionalPage.position > size) || (additionalPage.position < 0)){
+							childItems.add(childItem);
+						}else{
+							childItems.add(additionalPage.position, childItem);
 						}
-						childItem.setNode(childNode);
-						childItem.setURI(service.getPageURI(childNode.getNodeID()));
-						childItem.setDepth(item.getDepth() + 1);
-						childItem.setIndex(index++);
-						childItem.setHidden(false);
-						childItem.setCurrent(isCurrent(childNode));
-						childItem.setCurrentAncestor(isCurrentAncestor(childNode));
-
-						if (!childNode.isLeaf() && isOpen(childNode)) {
-							childItem.setOpen(true);
-						}
-						else {
-							childItem.setOpen(false);
-						}
-
-						if (childNode.isCategory()) {
-							Collection<PageTreeNode> nodes = childNode.getChildren();
-							if (ListUtil.isEmpty(nodes)) {
-								childItem.setURI(CoreConstants.HASH);
-							}
-							else {
-								ICTreeNode<?> firstChild = nodes.iterator().next();
-								childItem.setURI(service.getPageURI(firstChild.getId()));
-							}
-							childItem.setCategory(true);
-						}
-
-						if (childNode.isHiddenInMenu()) {
-							childItem.setHidden(true);
-						}
-
-
-						childItems.add(childItem);
 						if (!isHideSubPages()) {
 							getTree(iwc, childItem);
 						}
 					}
+				}else if(AdditionalPage.PAGE_TYPE_LINK.equals(additionalPage.pageType)){
+					NavigationItem childItem = getNavigationItemFromLink(additionalPage, locale, item);
+					childItem.setIndex(0);//TODO: check this
+					if((additionalPage.position == null) || (additionalPage.position > size) || (additionalPage.position < 0)){
+						childItems.add(childItem);
+					}else{
+						childItems.add(additionalPage.position, childItem);
+					}
+					continue;
+				}
+			}
+
+			setStyles(item, childItems);
+			item.setChildren(childItems);
+				
+		}
+		catch (RemoteException re) {
+			throw new IBORuntimeException(re);
+		}
+	}
+	private class AdditionalPage implements Comparable<AdditionalPage>{
+		public static final String PAGE_TYPE_IB_PAGE="ib_page";
+		public static final String PAGE_TYPE_LINK="link";
+		public String pageType = PAGE_TYPE_LINK;
+		public String uri = "/";
+		public String name = "";
+		public Integer position = null;
+		@Override
+		public int compareTo(AdditionalPage page) {
+			if(position == null){
+				if(page.position == null){
+					return 0;
+				}else{
+					return -1;
+				}
+			}
+			if(page.position == null){
+				return 1; 
+			}
+			return position - page.position;
+		}
+	}
+	private void getTree(IWContext iwc, NavigationItem item) {
+		try {
+			BuilderService service = BuilderServiceFactory.getBuilderService(iwc);
+			PageTreeNode node = item.getNode();
+			ArrayList<NavigationItem> childItems = new ArrayList<NavigationItem>();
+
+			Locale locale = iwc.getCurrentLocale();
+			
+			Collection<PageTreeNode> children = node.getChildren();
+			if(children == null){
+				children = Collections.emptyList();
+			}
+			int index = 0;
+			for (PageTreeNode childNode : children) {
+				boolean hasPermission = true;
+				try {
+					hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(childNode.getId(),iwc);
+				}
+				catch (Exception re) {
+					Logger logger = Logger.getLogger(this.getClass().getName());
+					logger.log(Level.SEVERE, "Error while getting permissions", re);
 				}
 
-				setStyles(item, childItems);
-				item.setChildren(childItems);
+				if (hasPermission) {
+					NavigationItem childItem = getNavigationItem(childNode, locale, item, service);
+					childItem.setIndex(index);
+					childItems.add(childItem);
+					if (!isHideSubPages()) {
+						getTree(iwc, childItem);
+					}
+				}
 			}
+
+			setStyles(item, childItems);
+			item.setChildren(childItems);
+				
 		}
 		catch (RemoteException re) {
 			throw new IBORuntimeException(re);
@@ -511,5 +630,13 @@ public class Navigation extends IWBaseComponent {
 
 	public void setShowPageDescription(boolean showPageDescription) {
 		this.showPageDescription = showPageDescription;
+	}
+
+	public String getAdditionalPages() {
+		return additionalPages;
+	}
+
+	public void setAdditionalPages(String additionalPages) {
+		this.additionalPages = additionalPages;
 	}
 }
