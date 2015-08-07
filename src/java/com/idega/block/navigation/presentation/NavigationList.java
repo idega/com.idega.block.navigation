@@ -367,7 +367,20 @@ public class NavigationList extends NavigationBlock {
 		if (page.getChildCount() == 0 || iHideSubPages) {
 			((PresentationObject) listComponent).setStyleClass("noChildren");
 		}
-
+		
+		boolean hasNonHiddenChildren = false;
+		
+		for (int i=0; i<page.getChildCount();i++){
+			if (!((PageTreeNode) page.getChildAtIndex(i)).isHiddenInMenu()) {
+				hasNonHiddenChildren = true;
+				break;
+			}
+		}
+		
+		if (!hasNonHiddenChildren){
+			((PresentationObject) listComponent).setStyleClass("noChildren");
+		}
+		
 		return row;
 	}
 
