@@ -5,17 +5,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.el.ValueExpression;
 import javax.faces.context.FacesContext;
 
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import com.google.gson.Gson;
 import com.idega.block.navigation.bean.NavigationBean;
 import com.idega.block.navigation.bean.NavigationItem;
+import com.idega.block.navigation.business.NavigationResolver;
 import com.idega.builder.business.PageTreeNode;
 import com.idega.business.IBORuntimeException;
 import com.idega.core.builder.business.BuilderService;
@@ -25,9 +31,11 @@ import com.idega.core.data.ICTreeNode;
 import com.idega.facelets.ui.FaceletComponent;
 import com.idega.presentation.IWBaseComponent;
 import com.idega.presentation.IWContext;
+import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
 import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
+import com.idega.util.datastructures.map.MapUtil;
 
 public class Navigation extends IWBaseComponent {
 
@@ -57,9 +65,19 @@ public class Navigation extends IWBaseComponent {
 	private boolean showRoot = true;
 	private boolean openAllNodes = false;
 	private boolean hideSubPages = false;
-	
+
 	private boolean showPageDescription = false;
 	private String additionalPages = null;
+
+	private String disabledPages = null;
+
+	public String getDisabledPages() {
+		return disabledPages;
+	}
+
+	public void setDisabledPages(String disabledPages) {
+		this.disabledPages = disabledPages;
+	}
 
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
@@ -80,7 +98,8 @@ public class Navigation extends IWBaseComponent {
 		this.hideSubPages = ((Boolean) values[8]).booleanValue();
 		this.showPageDescription = ((Boolean) values[9]).booleanValue();
 		this.additionalPages = ((String) values[10]);
-		
+		this.disabledPages = ((String) values[11]);
+
 		IWContext iwc = IWContext.getIWContext(ctx);
 		prepareBeans(iwc);
 	}
@@ -94,10 +113,11 @@ public class Navigation extends IWBaseComponent {
 		bean.setStyleClass(getStyleClass());
 		bean.setItemPath(getFaceletItemPath());
 		bean.setShowPageDescription(isShowPageDescription());
+		bean.setDisabledPages(getDisabledPages());
 	}
 	@Override
 	public Object saveState(FacesContext ctx) {
-		Object values[] = new Object[11];
+		Object values[] = new Object[12];
 		values[0] = super.saveState(ctx);
 		values[1] = this.faceletPath;
 		values[2] = this.faceletItemPath;
@@ -109,6 +129,7 @@ public class Navigation extends IWBaseComponent {
 		values[8] = Boolean.valueOf(this.hideSubPages);
 		values[9] = Boolean.valueOf(this.showPageDescription);
 		values[10] = this.additionalPages;
+		values[11] = this.disabledPages;
 
 		return values;
 	}
@@ -180,6 +201,12 @@ public class Navigation extends IWBaseComponent {
 	    	boolean hideSubPages = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
 	    	setHideSubPages(hideSubPages);
     	}
+
+    	ve = getValueExpression("disabledPages");
+    	if (ve != null) {
+	    	String disabledPages = (String) ve.getValue(context.getELContext());
+	    	setDisabledPages(disabledPages);
+    	}
 	}
 
 	private NavigationItem getRoot(IWContext iwc) {
@@ -230,7 +257,7 @@ public class Navigation extends IWBaseComponent {
 			throw new IBORuntimeException(re);
 		}
 	}
-	
+
 
 	private NavigationItem getNavigationItem(PageTreeNode childNode,Locale locale,NavigationItem item,BuilderService service) throws RemoteException{
 		PageTreeNode node = item.getNode();
@@ -268,7 +295,7 @@ public class Navigation extends IWBaseComponent {
 		if (childNode.isHiddenInMenu()) {
 			childItem.setHidden(true);
 		}
-	
+
 		return childItem;
 	}
 	private NavigationItem getNavigationItemFromLink(AdditionalPage link,Locale locale,NavigationItem item){
@@ -286,7 +313,7 @@ public class Navigation extends IWBaseComponent {
 		childItem.setCurrentAncestor(false);
 		childItem.setOpen(false);
 		childItem.setCategory(false);
-	
+
 		return childItem;
 	}
 	private void getAdditionalTree(IWContext iwc, NavigationItem item) {
@@ -348,7 +375,7 @@ public class Navigation extends IWBaseComponent {
 
 			setStyles(item, childItems);
 			item.setChildren(childItems);
-				
+
 		}
 		catch (RemoteException re) {
 			throw new IBORuntimeException(re);
@@ -371,7 +398,7 @@ public class Navigation extends IWBaseComponent {
 				}
 			}
 			if(page.position == null){
-				return 1; 
+				return 1;
 			}
 			return position - page.position;
 		}
@@ -383,7 +410,7 @@ public class Navigation extends IWBaseComponent {
 			ArrayList<NavigationItem> childItems = new ArrayList<NavigationItem>();
 
 			Locale locale = iwc.getCurrentLocale();
-			
+
 			Collection<PageTreeNode> children = node.getChildren();
 			if(children == null){
 				children = Collections.emptyList();
@@ -392,7 +419,9 @@ public class Navigation extends IWBaseComponent {
 			for (PageTreeNode childNode : children) {
 				boolean hasPermission = true;
 				try {
-					hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(childNode.getId(),iwc);
+					String pageKey = childNode.getId();
+					hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(pageKey, iwc);
+					hasPermission = hasPermission ? isPageEnabled(iwc, pageKey, getDisabledPages()) : hasPermission;
 				}
 				catch (Exception re) {
 					Logger logger = Logger.getLogger(this.getClass().getName());
@@ -411,11 +440,101 @@ public class Navigation extends IWBaseComponent {
 
 			setStyles(item, childItems);
 			item.setChildren(childItems);
-				
+
 		}
 		catch (RemoteException re) {
 			throw new IBORuntimeException(re);
 		}
+	}
+
+	public static final boolean isPageEnabled(IWContext iwc, String pageKey, String disabledPages) {
+		if (iwc == null || !iwc.isLoggedOn()) {
+			return true;
+		}
+		if (StringUtil.isEmpty(disabledPages)) {
+			disabledPages = iwc.getApplicationSettings().getProperty("ui.disabled_pages");
+		}
+		if (StringUtil.isEmpty(disabledPages)) {
+			return true;
+		}
+
+		try {
+			Map<String, NavigationResolver> resolvers = WebApplicationContextUtils.getWebApplicationContext(iwc.getServletContext()).getBeansOfType(NavigationResolver.class);
+			if (!MapUtil.isEmpty(resolvers)) {
+				for (NavigationResolver resolver: resolvers.values()) {
+					Boolean result = resolver.isPageEnabled(iwc, pageKey, disabledPages);
+					if (result != null) {
+						return result;
+					}
+				}
+			}
+
+			Map<String, List<String>> rolesForDisabledPages = getRolesForDisabledPages(iwc, pageKey, disabledPages);
+			if (MapUtil.isEmpty(rolesForDisabledPages)) {
+				return true;
+			}
+
+			for (String role: rolesForDisabledPages.keySet()) {
+				if (iwc.hasRole(role)) {
+					Logger.getLogger(Navigation.class.getName()).info("Page " + pageKey + " is disabled for role " + role + " and user " + iwc.getCurrentUser());
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			Logger.getLogger(Navigation.class.getName()).log(Level.WARNING, "Error resolving if page " + pageKey + " is disabled for " + iwc.getCurrentUser() + ". Settings: " + disabledPages, e);
+		}
+
+		return true;
+	}
+
+	public static Map<String, List<String>> getRolesForDisabledPages(IWContext iwc, String pageKey, String disabledPages) {
+		if (StringUtil.isEmpty(disabledPages)) {
+			disabledPages = iwc.getApplicationSettings().getProperty("ui.disabled_pages");
+		}
+		if (StringUtil.isEmpty(disabledPages)) {
+			return null;
+		}
+
+		try {
+			if (iwc.isSuperAdmin()) {
+				return null;
+			}
+
+			String[] rolesPagesData = disabledPages.split(CoreConstants.SEMICOLON);
+			if (ArrayUtil.isEmpty(rolesPagesData)) {
+				return null;
+			}
+
+			Map<String, List<String>> results = new HashMap<>();
+			for (String data: rolesPagesData) {
+				String[] rolePageData = data.split(CoreConstants.EQ);
+				if (ArrayUtil.isEmpty(rolePageData) || rolePageData.length != 2) {
+					continue;
+				}
+
+				String role = rolePageData[0];
+				String pagesKeys = rolePageData[1];
+				if (StringUtil.isEmpty(role) || StringUtil.isEmpty(pagesKeys)) {
+					continue;
+				}
+				List<String> keys = ListUtil.convertCommaSeparatedStringToList(pagesKeys);
+				if (ListUtil.isEmpty(keys)) {
+					continue;
+				}
+
+				if (!keys.contains(pageKey)) {
+					continue;
+				}
+
+				results.put(role, keys);
+			}
+
+			return results;
+		} catch (Exception e) {
+			Logger.getLogger(Navigation.class.getName()).log(Level.WARNING, "Error resolving if page " + pageKey + " is disabled. Settings: " + disabledPages, e);
+		}
+
+		return null;
 	}
 
 	private boolean isOpen(PageTreeNode node) {

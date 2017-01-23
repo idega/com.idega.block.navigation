@@ -194,6 +194,15 @@ public class NavigationList extends NavigationBlock {
 		return list;
 	}
 
+	private String disabledPages;
+
+	public String getDisabledPages() {
+		return disabledPages;
+	}
+
+	public void setDisabledPages(String disabledPages) {
+		this.disabledPages = disabledPages;
+	}
 
 	/**
 	 * Adds the given <code>Collection</code> of child pages to the UIComponent holding the list
@@ -226,6 +235,7 @@ public class NavigationList extends NavigationBlock {
 			try {
 				String pageKey = page.getId();
 				hasPermission = iwc.getAccessController().hasViewPermissionForPageKey(pageKey,iwc);
+				hasPermission = hasPermission ? Navigation.isPageEnabled(iwc, pageKey, getDisabledPages()) : hasPermission;
 			}
 			catch (Exception re) {
 				getLogger().log(Level.WARNING, "Error getting permission", re);
@@ -367,20 +377,20 @@ public class NavigationList extends NavigationBlock {
 		if (page.getChildCount() == 0 || iHideSubPages) {
 			((PresentationObject) listComponent).setStyleClass("noChildren");
 		}
-		
+
 		boolean hasNonHiddenChildren = false;
-		
+
 		for (int i=0; i<page.getChildCount();i++){
 			if (!((PageTreeNode) page.getChildAtIndex(i)).isHiddenInMenu()) {
 				hasNonHiddenChildren = true;
 				break;
 			}
 		}
-		
+
 		if (!hasNonHiddenChildren){
 			((PresentationObject) listComponent).setStyleClass("noChildren");
 		}
-		
+
 		return row;
 	}
 

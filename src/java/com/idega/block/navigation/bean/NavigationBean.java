@@ -8,15 +8,17 @@ import org.springframework.stereotype.Service;
 public class NavigationBean {
 
 	private NavigationItem root;
-	
+
 	private String id;
 	private String styleClass;
-	
+
 	private boolean showRoot;
 	private boolean openAllNodes;
-	
+
 	private String itemPath;
 	private boolean showPageDescription = false;
+
+	private String disabledPages;
 
 	public NavigationItem getRoot() {
 		return root;
@@ -73,5 +75,13 @@ public class NavigationBean {
 	public void setShowPageDescription(boolean showPageDescription) {
 		this.showPageDescription = showPageDescription;
 	}
-	
+
+	public String getDisabledPages() {
+		return disabledPages;
+	}
+
+	public void setDisabledPages(String disabledPages) {
+		this.disabledPages = disabledPages;
+	}
+
 }
