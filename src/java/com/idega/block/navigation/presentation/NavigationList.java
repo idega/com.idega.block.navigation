@@ -380,8 +380,19 @@ public class NavigationList extends NavigationBlock {
 
 		boolean hasNonHiddenChildren = false;
 
-		for (int i=0; i<page.getChildCount();i++){
-			if (!((PageTreeNode) page.getChildAtIndex(i)).isHiddenInMenu()) {
+		for (int i = 0; i < page.getChildCount(); i++) {
+			PageTreeNode child = null;
+			try {
+				child = (PageTreeNode) page.getChildAtIndex(i);
+			} catch (Exception e) {
+				getLogger().warning("Error getting child page at index " + i + " for " + page);
+			}
+
+			if (child == null) {
+				continue;
+			}
+
+			if (!child.isHiddenInMenu()) {
 				hasNonHiddenChildren = true;
 				break;
 			}
