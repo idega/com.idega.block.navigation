@@ -59,11 +59,13 @@ public class UserRolePageForwarder extends Block {
 			e.printStackTrace();
 		}
 		if (homePageResolver == null) {
+			getLogger().warning(UserHomePageResolver.class.getName() + " is unknown");
 			return;
 		}
 
 		List<UserHomePageBean> homePages = homePageResolver.getUserHomePages(iwc);
 		if (ListUtil.isEmpty(homePages)) {
+			getLogger().warning("There are no homepages");
 			return;
 		}
 

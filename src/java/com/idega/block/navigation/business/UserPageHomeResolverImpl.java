@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -18,20 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.idega.block.navigation.bean.UserHomePageBean;
 import com.idega.block.navigation.utils.NavigationConstants;
-import com.idega.core.accesscontrol.business.NotLoggedOnException;
+import com.idega.core.accesscontrol.business.AccessController;
 import com.idega.core.accesscontrol.business.StandardRoleHomePageResolver;
 import com.idega.core.accesscontrol.business.StandardRoles;
 import com.idega.core.builder.business.BuilderService;
 import com.idega.core.builder.business.BuilderServiceFactory;
 import com.idega.core.builder.data.ICPage;
+import com.idega.core.builder.data.ICPageHome;
+import com.idega.core.business.DefaultSpringBean;
 import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
+import com.idega.user.business.UserBusiness;
 import com.idega.user.business.UserCompanyBusiness;
 import com.idega.user.data.Group;
 import com.idega.user.data.GroupHome;
 import com.idega.user.data.User;
+import com.idega.util.CoreConstants;
 import com.idega.util.CoreUtil;
 import com.idega.util.DBUtil;
 import com.idega.util.ListUtil;
@@ -39,26 +43,29 @@ import com.idega.util.StringUtil;
 
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Service(UserHomePageResolver.SPRING_BEAN_IDENTIFIER)
-public class UserPageHomeResolverImpl implements UserHomePageResolver {
-
-	private static final Logger LOGGER = Logger.getLogger(UserPageHomeResolverImpl.class.getName());
+public class UserPageHomeResolverImpl extends DefaultSpringBean implements UserHomePageResolver {
 
 	@Autowired(required = false)
 	private UserCompanyBusiness userCompanyBusiness;
 
 	@Override
 	public List<UserHomePageBean> getUserHomePages(IWContext iwc) {
-		User user = getCurrentUser(iwc);
+		com.idega.user.data.bean.User currentUser = getCurrentUser();
+		User user = getLegacyUser(currentUser);
 		if (user == null) {
+			getLogger().warning("User is unknown");
 			return null;
 		}
 
 		Set<String> userRoles = iwc.getAccessController().getAllRolesForCurrentUser(iwc);
 		if (ListUtil.isEmpty(userRoles)) {
+			getLogger().warning(user + " has no roles");
 			return null;
 		}
+
 		BuilderService builderService = getBuilderService();
 		if (builderService == null) {
+			getLogger().warning(BuilderService.class.getName() + " is not available");
 			return null;
 		}
 
@@ -67,12 +74,16 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		String uri = null;
 		Collection<com.idega.user.data.bean.Group> roleGroups = null;
 		int currentPageId = getCurrentPageId(iwc);
-		List<String> addedHomePages = new ArrayList<String>();
+		Map<String, Boolean> addedHomePages = new HashMap<>();
 		IWResourceBundle coreResourceBundle = CoreUtil.getCoreBundle().getResourceBundle(iwc);
 
 		String bundleIdentifier = iwc.getApplicationSettings().getProperty(NavigationConstants.USER_ROLE_HOME_PAGE_RESOURCE_BUNDLE_PROPERTY,
 																														NavigationConstants.IW_BUNDLE_IDENTIFIER);
 		IWResourceBundle iwrb = iwc.getIWMainApplication().getBundle(bundleIdentifier).getResourceBundle(iwc);
+
+		Locale locale = getCurrentLocale();
+
+		AccessController accessController = iwc.getAccessController();
 
 		for (String roleKey : userRoles) {
 			if (StandardRoles.ALL_STANDARD_ROLES.contains(roleKey)) {
@@ -80,35 +91,45 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 
 				if (enumerator != null) {
 					uri = enumerator.getUri();
-					if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
+					if (!StringUtil.isEmpty(uri) && !addedHomePages.containsKey(uri)) {
 						homePages.add(new UserHomePageBean(roleKey, enumerator.getLocalizedName(coreResourceBundle), uri, roleKey));
-						addedHomePages.add(uri);
+						addedHomePages.put(uri, Boolean.TRUE);
 					}
 				}
 			}
 			else {
-				roleGroups = iwc.getAccessController().getAllUserGroupsForRoleKey(roleKey, iwc, iwc.getLoggedInUser());
+				roleGroups = accessController.getAllUserGroupsForRoleKey(roleKey, iwc, currentUser);
 				if (!ListUtil.isEmpty(roleGroups)) {
-					String localizedRoleName = null;
 					for (com.idega.user.data.bean.Group group: roleGroups) {
 						if (canAddPageForGroup(group, currentPageId)) {
 							uri = null;
 							com.idega.core.builder.data.bean.ICPage page = group.getHomePage();
 
-							try {
-								uri = builderService.getPageURI(page.getId());
-							} catch (RemoteException e) {
-								LOGGER.log(Level.WARNING, "Error getting uri for page: " + page.getId(), e);
-							}
-							localizedRoleName = iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey);
-
-							if (!StringUtil.isEmpty(uri) && !addedHomePages.contains(uri)) {
-								homePages.add(new UserHomePageBean(roleKey, localizedRoleName, uri, roleKey));
-								addedHomePages.add(uri);
-							}
+							addHomePage(page == null ? null : page.getID(), builderService, iwrb, addedHomePages, roleKey, locale, homePages);
 						}
 					}
 				}
+			}
+		}
+
+		if (ListUtil.isEmpty(homePages)) {
+			UserBusiness userBusiness = getServiceInstance(UserBusiness.class);
+			List<List<Integer>> allHomePages = userBusiness.getHomePageIds(user);
+			if (!ListUtil.isEmpty(allHomePages)) {
+				for (List<Integer> ids: allHomePages) {
+					if (ListUtil.isEmpty(ids)) {
+						continue;
+					}
+
+					for (Integer id: ids) {
+						addHomePage(id, builderService, iwrb, addedHomePages, getRoleForHomePage(accessController, userRoles, id), locale, homePages);
+					}
+				}
+			}
+
+			int homePageId = user.getHomePageID();
+			if (homePageId > 0) {
+				addHomePage(homePageId, builderService, iwrb, addedHomePages, getRoleForHomePage(accessController, userRoles, homePageId), locale, homePages);
 			}
 		}
 
@@ -119,9 +140,89 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		return homePages;
 	}
 
+	private String getRoleForHomePage(AccessController accessController, Set<String> userRoles, Integer id) {
+		if (id == null || ListUtil.isEmpty(userRoles)) {
+			return null;
+		}
+
+		try {
+			GroupHome groupHome = (GroupHome) IDOLookup.getHome(Group.class);
+			Group group = groupHome.findByHomePageID(id);
+			if (group == null) {
+				return null;
+			}
+
+			Collection<String> groupRoles = accessController.getAllRolesKeysForGroup(group);
+			if (ListUtil.isEmpty(groupRoles)) {
+				return null;
+			}
+
+			for (String groupRole: groupRoles) {
+				if (userRoles.contains(groupRole)) {
+					return groupRole;
+				}
+			}
+		} catch (Exception e) {
+			getLogger().warning("Error getting role by page ID: " + id);
+		}
+
+		return null;
+	}
+
+	private void addHomePage(
+			Integer id,
+			BuilderService builderService,
+			IWResourceBundle iwrb,
+			Map<String, Boolean> addedHomePages,
+			String roleKey,
+			Locale locale,
+			List<UserHomePageBean> homePages
+	) {
+		if (id == null) {
+			return;
+		}
+
+		ICPage page = null;
+		try {
+			ICPageHome icPageHome = (ICPageHome) IDOLookup.getHome(ICPage.class);
+			page = icPageHome.findByPrimaryKey(id);
+		} catch (Exception e) {
+			getLogger().warning("Error getting page by ID: " + id);
+		}
+		addHomePage(page, builderService, iwrb, addedHomePages, roleKey, locale, homePages);
+	}
+
+	private void addHomePage(
+			ICPage page,
+			BuilderService builderService,
+			IWResourceBundle iwrb,
+			Map<String, Boolean> addedHomePages,
+			String roleKey,
+			Locale locale,
+			List<UserHomePageBean> homePages
+	) {
+		if (page == null) {
+			return;
+		}
+
+		String uri = null;
+		try {
+			uri = builderService.getPageURI(page.getId());
+		} catch (RemoteException e) {
+			getLogger().log(Level.WARNING, "Error getting uri for page: " + page.getId(), e);
+		}
+		String localizedRoleName = StringUtil.isEmpty(roleKey) ? page.getName(locale) : iwrb.getLocalizedString(new StringBuilder("role_name.").append(roleKey).toString(), roleKey);
+		roleKey = StringUtil.isEmpty(roleKey) ? CoreConstants.EMPTY : roleKey;
+
+		if (!StringUtil.isEmpty(uri) && !addedHomePages.containsKey(uri)) {
+			homePages.add(new UserHomePageBean(roleKey, localizedRoleName, uri, roleKey));
+			addedHomePages.put(uri, Boolean.TRUE);
+		}
+	}
+
 	@Override
 	public Map<String, ICPage> getUserCompaniesPages(IWContext iwc) {
-		User user = getCurrentUser(iwc);
+		User user = getLegacyUser(getCurrentUser());
 		if (user == null) {
 			return null;
 		}
@@ -133,7 +234,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		try {
 			companies = getUserCompanyBusiness().getUsersCompanies(iwc, user);
 		} catch (RemoteException e) {
-			LOGGER.log(Level.SEVERE, "Error getting companies for user: " + user);
+			getLogger().log(Level.SEVERE, "Error getting companies for user: " + user);
 		}
 		if (ListUtil.isEmpty(companies) || companies.size() == 1) {
 			return null;
@@ -184,7 +285,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		if (!DBUtil.getInstance().isInitialized(group)) {
 			group = DBUtil.getInstance().lazyLoad(group);
 		}
-		
+
 		Integer homePageId = null;
 		try {
 			com.idega.core.builder.data.bean.ICPage homePage = group.getHomePage();
@@ -197,7 +298,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		if (homePageId == null) {
 			try {
 				GroupHome groupHome = (GroupHome) IDOLookup.getHome(Group.class);
@@ -210,17 +311,8 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 				e.printStackTrace();
 			}
 		}
-		
-		return homePageId != null && currentPageId != Integer.valueOf(homePageId).intValue();
-	}
 
-	private User getCurrentUser(IWContext iwc) {
-		try {
-			return iwc.getCurrentUser();
-		} catch(NotLoggedOnException e) {
-			LOGGER.log(Level.INFO, "User is not logged!");
-		}
-		return null;
+		return homePageId != null && currentPageId != Integer.valueOf(homePageId).intValue();
 	}
 
 	private int getCurrentPageId(IWContext iwc) {
@@ -233,13 +325,13 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		try {
 			currentPage = builderService.getICPage(builderService.getPageKeyByURI(iwc.getRequestURI()));
 		} catch(Exception e) {
-			LOGGER.log(Level.SEVERE, "Error getting current page by URI: " + iwc.getRequestURI(), e);
+			getLogger().log(Level.SEVERE, "Error getting current page by URI: " + iwc.getRequestURI(), e);
 		}
 		if (currentPage == null) {
 			try {
 				currentPage = builderService.getCurrentPage(iwc);
 			} catch (RemoteException e) {
-				LOGGER.log(Level.SEVERE, "Error getting current page", e);
+				getLogger().log(Level.SEVERE, "Error getting current page", e);
 			}
 		}
 		if (currentPage == null) {
@@ -249,7 +341,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		try {
 			return Integer.valueOf(builderService.getPageKeyByURI(iwc.getRequestURI()));
 		} catch(Exception e) {
-			LOGGER.log(Level.SEVERE, "Error getting ID of current page", e);
+			getLogger().log(Level.SEVERE, "Error getting ID of current page", e);
 		}
 
 		return -1;
@@ -259,7 +351,7 @@ public class UserPageHomeResolverImpl implements UserHomePageResolver {
 		try {
 			return BuilderServiceFactory.getBuilderService(IWMainApplication.getDefaultIWApplicationContext());
 		} catch (RemoteException e) {
-			LOGGER.log(Level.SEVERE, "Error getting: " + BuilderService.class.getName(), e);
+			getLogger().log(Level.SEVERE, "Error getting: " + BuilderService.class.getName(), e);
 		}
 		return null;
 	}
