@@ -3,9 +3,11 @@ package com.idega.block.navigation.bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-@Service("navigationBean")
 @Scope("request")
+@Service(NavigationBean.BEAN_NAME)
 public class NavigationBean {
+
+	public static final String BEAN_NAME = "navigationBean";
 
 	private NavigationItem root;
 

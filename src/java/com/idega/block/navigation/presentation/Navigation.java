@@ -56,7 +56,7 @@ public class Navigation extends IWBaseComponent {
 	private String faceletItemPath = null;
 
 	private int rootPageID = -1;
-	private int currentPageID;
+	private Integer currentPageID = -1;
 	protected Collection<Integer> currentPages;
 
 	private String id = null;
@@ -105,7 +105,7 @@ public class Navigation extends IWBaseComponent {
 	}
 
 	private void prepareBeans(IWContext iwc){
-		NavigationBean bean = getBeanInstance("navigationBean");
+		NavigationBean bean = getBeanInstance(NavigationBean.BEAN_NAME);
 		bean.setRoot(getRoot(iwc));
 		bean.setShowRoot(isShowRoot());
 		bean.setOpenAllNodes(isOpenAllNodes());
@@ -155,83 +155,85 @@ public class Navigation extends IWBaseComponent {
 
 	private void handleExpressions(FacesContext context) {
 		ValueExpression ve = getValueExpression(FACELET_PATH_PROPERTY);
-    	if (ve != null) {
-	    	String path = (String) ve.getValue(context.getELContext());
-	    	setFaceletPath(path);
-    	}
+	    	if (ve != null) {
+		    	String path = (String) ve.getValue(context.getELContext());
+		    	setFaceletPath(path);
+	    	}
 
-		ve = getValueExpression(FACELET_ITEM_PATH_PROPERTY);
-    	if (ve != null) {
-	    	String path = (String) ve.getValue(context.getELContext());
-	    	setFaceletItemPath(path);
-    	}
+			ve = getValueExpression(FACELET_ITEM_PATH_PROPERTY);
+	    	if (ve != null) {
+		    	String path = (String) ve.getValue(context.getELContext());
+		    	setFaceletItemPath(path);
+	    	}
 
-		ve = getValueExpression(ROOT_PAGE_PROPERTY);
-    	if (ve != null) {
-	    	int rootPageID = ((Integer) ve.getValue(context.getELContext())).intValue();
-	    	setRootPage(rootPageID);
-    	}
+			ve = getValueExpression(ROOT_PAGE_PROPERTY);
+	    	if (ve != null) {
+		    	int rootPageID = ((Integer) ve.getValue(context.getELContext())).intValue();
+		    	setRootPage(rootPageID);
+	    	}
 
-		ve = getValueExpression(ID_PROPERTY);
-    	if (ve != null) {
-	    	String id = (String) ve.getValue(context.getELContext());
-	    	setID(id);
-    	}
+			ve = getValueExpression(ID_PROPERTY);
+	    	if (ve != null) {
+		    	String id = (String) ve.getValue(context.getELContext());
+		    	setID(id);
+	    	}
 
-		ve = getValueExpression(STYLE_CLASS_PROPERTY);
-    	if (ve != null) {
-	    	String styleClass = (String) ve.getValue(context.getELContext());
-	    	setStyleClass(styleClass);
-    	}
+			ve = getValueExpression(STYLE_CLASS_PROPERTY);
+	    	if (ve != null) {
+		    	String styleClass = (String) ve.getValue(context.getELContext());
+		    	setStyleClass(styleClass);
+	    	}
 
-		ve = getValueExpression(SHOW_ROOT_PROPERTY);
-    	if (ve != null) {
-	    	boolean showRoot = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
-	    	setShowRoot(showRoot);
-    	}
+			ve = getValueExpression(SHOW_ROOT_PROPERTY);
+	    	if (ve != null) {
+		    	boolean showRoot = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
+		    	setShowRoot(showRoot);
+	    	}
 
-		ve = getValueExpression(OPEN_ALL_NODES_PROPERTY);
-    	if (ve != null) {
-	    	boolean openAllNodes = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
-	    	setOpenAllNodes(openAllNodes);
-    	}
+			ve = getValueExpression(OPEN_ALL_NODES_PROPERTY);
+	    	if (ve != null) {
+		    	boolean openAllNodes = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
+		    	setOpenAllNodes(openAllNodes);
+	    	}
 
-		ve = getValueExpression(HIDE_SUB_PAGES_PROPERTY);
-    	if (ve != null) {
-	    	boolean hideSubPages = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
-	    	setHideSubPages(hideSubPages);
-    	}
+			ve = getValueExpression(HIDE_SUB_PAGES_PROPERTY);
+	    	if (ve != null) {
+		    	boolean hideSubPages = ((Boolean) ve.getValue(context.getELContext())).booleanValue();
+		    	setHideSubPages(hideSubPages);
+	    	}
 
-    	ve = getValueExpression("disabledPages");
-    	if (ve != null) {
-	    	String disabledPages = (String) ve.getValue(context.getELContext());
-	    	setDisabledPages(disabledPages);
-    	}
+	    	ve = getValueExpression("disabledPages");
+	    	if (ve != null) {
+		    	String disabledPages = (String) ve.getValue(context.getELContext());
+		    	setDisabledPages(disabledPages);
+	    	}
 	}
 
-	private NavigationItem getRoot(IWContext iwc) {
+	public NavigationItem getRoot(IWContext iwc, Integer rootPageID) {
 		try {
 			BuilderService service = BuilderServiceFactory.getBuilderService(iwc);
 
 			PageTreeNode node = null;
-			if (this.rootPageID == -1) {
-				this.rootPageID = service.getRootPageId();
+			if (rootPageID == -1) {
+				rootPageID = service.getRootPageId();
 			}
-			node = new PageTreeNode(this.rootPageID, iwc);
+			node = new PageTreeNode(rootPageID, iwc);
 
 			ICTreeNode<?> currentPage = service.getPageTree(service.getCurrentPageId(iwc));
 			this.currentPageID = Integer.parseInt(currentPage.getId());
 			this.currentPages = new ArrayList<Integer>();
-			this.currentPages.add(new Integer(this.currentPageID));
+			if (this.currentPageID != null && this.currentPageID != -1) {
+				this.currentPages.add(new Integer(this.currentPageID));
 
-			if (this.currentPageID != node.getNodeID()) {
-				ICTreeNode<?> parent = (ICTreeNode<?>) currentPage.getParentNode();
-				if (parent != null) {
-					while (parent != null && Integer.parseInt(parent.getId()) != node.getNodeID()) {
-						this.currentPages.add(new Integer(parent.getId()));
-						parent = (ICTreeNode<?>) parent.getParentNode();
-						if (parent == null) {
-							break;
+				if (this.currentPageID != node.getNodeID()) {
+					ICTreeNode<?> parent = (ICTreeNode<?>) currentPage.getParentNode();
+					if (parent != null) {
+						while (parent != null && Integer.parseInt(parent.getId()) != node.getNodeID()) {
+							this.currentPages.add(new Integer(parent.getId()));
+							parent = (ICTreeNode<?>) parent.getParentNode();
+							if (parent == null) {
+								break;
+							}
 						}
 					}
 				}
@@ -252,12 +254,14 @@ public class Navigation extends IWBaseComponent {
 			getAdditionalTree(iwc, item);
 
 			return item;
-		}
-		catch (RemoteException re) {
+		} catch (Exception re) {
 			throw new IBORuntimeException(re);
 		}
 	}
 
+	private NavigationItem getRoot(IWContext iwc) {
+		return getRoot(iwc, this.rootPageID);
+	}
 
 	private NavigationItem getNavigationItem(PageTreeNode childNode,Locale locale,NavigationItem item,BuilderService service) throws RemoteException{
 		PageTreeNode node = item.getNode();
