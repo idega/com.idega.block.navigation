@@ -255,6 +255,7 @@ public class Navigation extends IWBaseComponent {
 
 			return item;
 		} catch (Exception re) {
+			getLogger().log(Level.WARNING, "Error getting root for " + rootPageID, re);
 			throw new IBORuntimeException(re);
 		}
 	}
