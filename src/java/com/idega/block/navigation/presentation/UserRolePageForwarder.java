@@ -65,7 +65,7 @@ public class UserRolePageForwarder extends Block {
 
 		List<UserHomePageBean> homePages = homePageResolver.getUserHomePages(iwc);
 		if (ListUtil.isEmpty(homePages)) {
-			getLogger().warning("There are no homepages");
+			getLogger().warning("There are no homepages" + (iwc.isLoggedOn() ? " for " + iwc.getCurrentUser() : ": user is not logged in"));
 			return;
 		}
 
